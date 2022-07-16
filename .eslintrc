@@ -1,0 +1,5 @@
+{
+    "extends": [
+        "@tachibana-shin/eslint-config"
+    ]
+}
