@@ -1,0 +1,94 @@
+import "./Button.scss"
+import { Component } from "preact"
+
+interface Props {
+  label?: string
+  submenu?: {
+    title: string
+    subtitle?: string
+  }[]
+  class?: string
+}
+export class Button extends Component<
+  Props,
+  {
+    opened: boolean
+  }
+> {
+  constructor(props: Props) {
+    super(props)
+    this.state = {
+      opened: false
+    }
+  }
+
+  private handleGlobalClick?: (event: Event) => void
+  componentDidMount() {
+    const handleGlobalClick = (event: Event) => {
+      console.log(this.base)
+      if (
+        this.state.opened &&
+        this.base !== event.target &&
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, no-undef
+        !this.base?.contains(event.target! as HTMLElement)
+      ) {
+        this.setState({
+          opened: false
+        })
+      }
+    }
+    // eslint-disable-next-line no-undef
+    document.addEventListener("click", handleGlobalClick)
+
+    this.handleGlobalClick = handleGlobalClick
+  }
+
+  componentWillUnmount() {
+    // eslint-disable-next-line no-undef, @typescript-eslint/no-non-null-assertion
+    document.removeEventListener("click", this.handleGlobalClick!)
+  }
+
+  render() {
+    const submenu = this.props.submenu && (
+      <ul
+        class={
+          "absolute bg-[#333] border-[#666] rounded overflow-hidden shadow-indigo-600 top-[100%] min-w-[120px] max-w-[100vw] breaks-word " +
+          (this.state.opened ? "" : "hidden")
+        }
+        onClick={(event) => {
+          event.stopPropagation()
+        }}
+      >
+        {this.props.submenu.map((item) => (
+          <li key={item}>
+            <button class="btn px-[16px] py-[8px] w-full text-left hover:bg-indigo-600">
+              {item.title}
+              {item.subtitle && (
+                <span class="float-right text-[#a6a6a6]">{item.subtitle}</span>
+              )}
+            </button>
+          </li>
+        ))}
+      </ul>
+    )
+
+    const onClick = () => {
+      this.setState({
+        opened: !this.state.opened
+      })
+    }
+
+    return (
+      <button
+        class={"btn flex items-center relative " + this.props.class}
+        onClick={onClick}
+      >
+        {this.props.label}
+        {this.props.submenu && <IconBxChevronDown class="ml-1" />}
+
+        {submenu}
+        {this.props.children}
+      </button>
+    )
+  }
+}
