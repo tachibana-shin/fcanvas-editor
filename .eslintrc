@@ -1,5 +1,8 @@
 {
     "extends": [
         "@tachibana-shin/eslint-config"
-    ]
+    ],
+    "rules": {
+        "no-undef": "off"
+    }
 }
