@@ -2,17 +2,17 @@ import { basename, extname } from "path-browserify"
 
 import MaterialIcons from "./material-icons.json"
 
-interface Options {
+export interface Options {
   readonly light: boolean
   readonly isOpen: boolean
   readonly isFolder: boolean
-  readonly name: string
+  readonly filepath: string
   readonly language?: keyof typeof MaterialIcons["languageIds"]
 }
 
 function getIconById(id: keyof typeof MaterialIcons.iconDefinitions): string {
   return (
-    "/src/assets/extensions/material-icon-theme/icons/" +
+    "/src/assets/extensions/material-icon-theme/" +
     MaterialIcons.iconDefinitions[id].iconPath
   )
 }
@@ -21,38 +21,38 @@ function getIconDefinitions({
   light,
   isOpen,
   isFolder,
-  name,
+  filepath,
   language
 }: Options): string {
-  name = basename(name).toLowerCase()
+  filepath = basename(filepath).toLowerCase()
 
   if (isFolder) {
     if (light) {
       if (isOpen) {
-        if (name in MaterialIcons.light.folderNamesExpanded) {
+        if (filepath in MaterialIcons.light.folderNamesExpanded) {
           return MaterialIcons.light.folderNamesExpanded[
-            name as keyof typeof MaterialIcons.light.folderNamesExpanded
+            filepath as keyof typeof MaterialIcons.light.folderNamesExpanded
           ]
         }
       } else {
-        if (name in MaterialIcons.light.folderNames) {
+        if (filepath in MaterialIcons.light.folderNames) {
           return MaterialIcons.light.folderNames[
-            name as keyof typeof MaterialIcons.light.folderNames
+            filepath as keyof typeof MaterialIcons.light.folderNames
           ]
         }
       }
     }
 
     if (isOpen) {
-      if (name in MaterialIcons.folderNamesExpanded) {
+      if (filepath in MaterialIcons.folderNamesExpanded) {
         return MaterialIcons.folderNamesExpanded[
-          name as keyof typeof MaterialIcons.folderNamesExpanded
+          filepath as keyof typeof MaterialIcons.folderNamesExpanded
         ]
       }
     } else {
-      if (name in MaterialIcons.folderNames) {
+      if (filepath in MaterialIcons.folderNames) {
         return MaterialIcons.folderNames[
-          name as keyof typeof MaterialIcons.folderNames
+          filepath as keyof typeof MaterialIcons.folderNames
         ]
       }
     }
@@ -62,15 +62,15 @@ function getIconDefinitions({
     if (language && language in MaterialIcons.languageIds)
       return MaterialIcons.languageIds[language]
 
-    const ext = extname(name).replace(/^\./, "")
-    const ext2 = name.includes(".")
-      ? basename(name).split(".").slice(-2).join(".")
+    const ext = extname(filepath).replace(/^\./, "")
+    const ext2 = filepath.includes(".")
+      ? basename(filepath).split(".").slice(-2).join(".")
       : ""
 
     if (light) {
-      if (name in MaterialIcons.light.fileNames) {
+      if (filepath in MaterialIcons.light.fileNames) {
         return MaterialIcons.light.fileNames[
-          name as keyof typeof MaterialIcons.light.fileNames
+          filepath as keyof typeof MaterialIcons.light.fileNames
         ]
       }
       if (ext2 in MaterialIcons.light.fileExtensions) {
@@ -85,9 +85,9 @@ function getIconDefinitions({
       }
     }
 
-    if (name in MaterialIcons.fileNames) {
+    if (filepath in MaterialIcons.fileNames) {
       return MaterialIcons.fileNames[
-        name as keyof typeof MaterialIcons.fileNames
+        filepath as keyof typeof MaterialIcons.fileNames
       ]
     }
     if (ext2 in MaterialIcons.fileExtensions) {
