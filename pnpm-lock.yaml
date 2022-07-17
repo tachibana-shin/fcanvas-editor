@@ -9,10 +9,10 @@ specifiers:
   '@preact/preset-vite': ^2.3.0
   '@svgr/core': ^6.2.1
   '@tachibana-shin/eslint-config': ^1.0.2
+  '@types/path-browserify': ^1.0.0
   eslint: ^8.19.0
   monaco-editor: ^0.33.0
   monaco-editor-auto-typings: ^0.4.2
-  path: npm:path-cross
   path-browserify: ^1.0.1
   preact: ^10.9.0
   preact-compat: ^3.19.0
@@ -31,7 +31,6 @@ dependencies:
   '@monaco-editor/react': 4.4.5_4pkefcbirbnzlnx6ocav2aftdm
   monaco-editor: 0.33.0
   monaco-editor-auto-typings: 0.4.2_monaco-editor@0.33.0
-  path: /path-cross/0.0.3
   path-browserify: 1.0.1
   preact: 10.10.0
   preact-compat: 3.19.0_preact@10.10.0
@@ -47,6 +46,7 @@ devDependencies:
   '@preact/preset-vite': 2.3.0_q2mlskjlz6l3mosxzlemn5y2mi
   '@svgr/core': 6.2.1
   '@tachibana-shin/eslint-config': 1.0.2_4x5o4skxv6sl53vpwefgt23khm
+  '@types/path-browserify': 1.0.0
   eslint: 8.19.0
   sass: 1.53.0
   typescript: 4.7.4
@@ -677,6 +677,10 @@ packages:
 
   /@types/parse-json/4.0.0:
     resolution: {integrity: sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==}
+    dev: true
+
+  /@types/path-browserify/1.0.0:
+    resolution: {integrity: sha512-XMCcyhSvxcch8b7rZAtFAaierBYdeHXVvg2iYnxOV0MCQHmPuRRmGZPFDRzPayxcGiiSL1Te9UIO+f3cuj0tfw==}
     dev: true
 
   /@typescript-eslint/eslint-plugin/5.30.6_2vt5mtrqleafs33qg2bhpmbaqm:
@@ -2414,13 +2418,6 @@ packages:
     resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
     dev: false
 
-  /path-cross/0.0.3:
-    resolution: {integrity: sha512-HlyaFjwUoFbIUcA9sqefMuqi+7VaAv5+7rW2X9joqNxxrsaFakE73T+TlXsXbqL/TIymYBbjwD3Eo8ggFTefWA==}
-    engines: {node: '>=10'}
-    dependencies:
-      process: 0.11.10
-    dev: false
-
   /path-exists/3.0.0:
     resolution: {integrity: sha512-bpC7GYwiDYQ4wYLe+FA8lhRjhQCMcQGuSgGGqDkg/QerRWw9CmGRT0iSOVRSZJ29NMLZgIzqaljJ63oaL4NIJQ==}
     engines: {node: '>=4'}
@@ -2537,11 +2534,6 @@ packages:
 
   /pretty-format/3.8.0:
     resolution: {integrity: sha512-WuxUnVtlWL1OfZFQFuqvnvs6MiAGk9UNsBostyBOB0Is9wb5uRESevA6rnl/rkksXaGX3GzZhPup5d6Vp1nFew==}
-    dev: false
-
-  /process/0.11.10:
-    resolution: {integrity: sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==}
-    engines: {node: '>= 0.6.0'}
     dev: false
 
   /prop-types/15.8.1:

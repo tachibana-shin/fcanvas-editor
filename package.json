@@ -27,6 +27,7 @@
     "@preact/preset-vite": "^2.3.0",
     "@svgr/core": "^6.2.1",
     "@tachibana-shin/eslint-config": "^1.0.2",
+    "@types/path-browserify": "^1.0.0",
     "eslint": "^8.19.0",
     "sass": "^1.53.0",
     "typescript": "^4.6.4",
