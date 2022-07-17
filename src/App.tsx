@@ -10,6 +10,7 @@ import { useEffect } from "preact/hooks"
 
 import { Header } from "./components/app/Header"
 import { ToolBar } from "./components/app/ToolBar"
+import { FileTree } from "./components/editor/FileTree"
 import { Index } from "./pages/Index"
 
 const code = `import path from "react"
@@ -44,6 +45,21 @@ async function initAutoTypes(
   })
 }
 
+const fs = {
+  readdir() {
+    return new Promise((resolve) => resolve(["components"]))
+  },
+  lstat() {
+    return new Promise((resolve) =>
+      resolve({
+        isDirectory() {
+          return true
+        }
+      })
+    )
+  }
+}
+
 export function App() {
   const monaco = useMonaco()
 
@@ -57,15 +73,17 @@ export function App() {
     <>
       <Header />
       <ToolBar />
-      // editor
-      <Editor
+      {/* <Editor
         height="90vh"
         defaultLanguage="typescript"
         defaultValue={code}
         theme="vs-dark"
         path="inmemory://model/main.ts"
         onMount={initAutoTypes}
-      />
+      /> */}
+      <ul class="ml-[-19.19px]">
+        <FileTree isFolder filepath="/fcanvas" fs={fs} />
+      </ul>
       <Router>
         <Index path="/" />
       </Router>
