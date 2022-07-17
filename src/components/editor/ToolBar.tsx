@@ -1,7 +1,6 @@
 import { useState } from "preact/hooks"
 
 import { Button } from "../ui/Button"
-import "./ToolBar.scss"
 
 export function ToolBar() {
   const [renaming, setRenaming] = useState(false)

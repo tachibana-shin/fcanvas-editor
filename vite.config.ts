@@ -10,7 +10,9 @@ import WindiCSS from "vite-plugin-windicss"
 export default defineConfig({
   resolve: {
     alias: {
-      path: "path-browserify"
+      path: "path-browserify",
+      react: "preact/compat",
+      "react-dom": "preact/compat"
     }
   },
   plugins: [

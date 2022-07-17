@@ -16,7 +16,10 @@
     "noEmit": true,
     "jsx": "preserve",
     "jsxFactory": "h",
-    "jsxFragmentFactory": "Fragment"
+    "jsxFragmentFactory": "Fragment",
+    "paths": {
+      "react": ["./src/react.d.ts"]
+    }
   },
   "include": ["src", "./auto-imports.d.ts"],
   "references": [

@@ -28,7 +28,7 @@ export class Button extends Component<
       if (
         this.state.opened &&
         this.base !== event.target &&
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, no-undef
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         !this.base?.contains(event.target! as HTMLElement)
       ) {
         this.setState({
@@ -36,14 +36,13 @@ export class Button extends Component<
         })
       }
     }
-    // eslint-disable-next-line no-undef
     document.addEventListener("click", handleGlobalClick)
 
     this.handleGlobalClick = handleGlobalClick
   }
 
   componentWillUnmount() {
-    // eslint-disable-next-line no-undef, @typescript-eslint/no-non-null-assertion
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     document.removeEventListener("click", this.handleGlobalClick!)
   }
 
@@ -51,7 +50,7 @@ export class Button extends Component<
     const submenu = this.props.submenu && (
       <ul
         class={
-          "absolute bg-[#333] border-[#666] rounded overflow-hidden shadow-indigo-600 top-[100%] min-w-[120px] max-w-[100vw] breaks-word " +
+          "absolute bg-[#333] border-[#666] rounded overflow-hidden shadow-indigo-600 top-[100%] min-w-[120px] max-w-[100vw] breaks-word z-10 " +
           (this.state.opened ? "" : "hidden")
         }
         onClick={(event) => {
@@ -79,7 +78,7 @@ export class Button extends Component<
 
     return (
       <button
-        class={"btn flex items-center relative " + this.props.class}
+        class={"btn flex items-center relative " + (this.props.class ?? "")}
         onClick={onClick}
       >
         {this.props.label}
