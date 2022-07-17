@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@monaco-editor/react": "^4.4.5",
+    "@reduxjs/toolkit": "^1.8.3",
     "monaco-editor": "^0.33.0",
     "monaco-editor-auto-typings": "^0.4.2",
     "path-browserify": "^1.0.1",
@@ -17,8 +18,10 @@
     "preact-context": "^1.1.4",
     "preact-router": "^4.1.0",
     "re-resizable": "^6.9.9",
+    "react-redux": "^8.0.2",
     "react-reflex": "^4.0.9",
-    "react-resize-detector": "^7.1.2"
+    "react-resize-detector": "^7.1.2",
+    "redux": "^4.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.18.6",
