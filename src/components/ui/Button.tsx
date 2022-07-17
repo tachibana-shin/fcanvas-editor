@@ -25,7 +25,6 @@ export class Button extends Component<
   private handleGlobalClick?: (event: Event) => void
   componentDidMount() {
     const handleGlobalClick = (event: Event) => {
-      console.log(this.base)
       if (
         this.state.opened &&
         this.base !== event.target &&

@@ -9,8 +9,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.4.5",
+    "monaco-editor": "^0.33.0",
+    "monaco-editor-auto-typings": "^0.4.2",
+    "path-browserify": "^1.0.1",
     "preact": "^10.9.0",
-    "preact-router": "^4.1.0"
+    "preact-compat": "^3.19.0",
+    "preact-router": "^4.1.0",
+    "react": "npm:preact-compat",
+    "react-dom": "npm:preact-compat"
   },
   "devDependencies": {
     "@babel/core": "^7.18.6",
