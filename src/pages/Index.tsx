@@ -89,7 +89,7 @@ export function Index(props: { path: string }) {
             bottomLeft: false,
             topLeft: false
           }}
-          onResize={() => editorRef.current?.layout({} as unknown as any)}
+          onResize={() => editorRef.current?.layout({} as unknown as editor.IDimension)}
         >
           <div class="px-3 pt-2 h-full" style="border-right: 1px solid #aaa">
             <ul class="ml-[-19.19px]">
