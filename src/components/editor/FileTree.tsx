@@ -39,7 +39,7 @@ function file(filepath: string) {
   )
 }
 function dir(filepath: string, fs: OptionDir["fs"], notShowRoot?: boolean) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(notShowRoot ?? false)
   const [readingDir, setReadingDir] = useState(false)
 
   interface FileDirItem {
@@ -132,7 +132,7 @@ function dir(filepath: string, fs: OptionDir["fs"], notShowRoot?: boolean) {
       {treeChildren}
     </li>
   ) : (
-    <li class="select-none ml-[19.19px]">{treeChildren}</li>
+    <li class="select-none">{treeChildren}</li>
   )
 }
 
