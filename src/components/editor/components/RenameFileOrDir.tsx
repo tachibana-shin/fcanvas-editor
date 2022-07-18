@@ -62,8 +62,8 @@ function checkErrorFileName(
       type: "error",
       message: (
         <span>
-          The name <span className="font-bold">{fileName}</span> is not a valid as file or folder name. Please
-          select a different file name.
+          The name <span className="font-bold">{fileName}</span> is not a valid
+          as file or folder name. Please select a different file name.
         </span>
       )
     }
@@ -76,6 +76,8 @@ export function RenameFileOrDir(props: {
   onSave: (value: string) => void
   onBlur?: () => void
   siblings?: string[]
+
+  className?: string
 }) {
   const [inputName, setInputName] = useState(props.defaultValue ?? "")
 
@@ -93,7 +95,9 @@ export function RenameFileOrDir(props: {
 
   return (
     <li
-      className="flex items-center mb-1.5 select-none ml-[20px]"
+      className={
+        "flex items-center mb-1.5 select-none " + (props.className ?? "")
+      }
       onClick={(event) => event.stopPropagation()}
     >
       {props.isDir && <ChevronRight fontSize="small" />}
@@ -124,6 +128,14 @@ export function RenameFileOrDir(props: {
             if (!errorFileName && inputName !== "") props.onSave(inputName)
 
             props.onBlur?.()
+          }}
+          onKeyDown={(event) => {
+            if ((event as unknown as KeyboardEvent).key === "Enter") {
+              if (!errorFileName && inputName !== "") {
+                props.onSave(inputName)
+                ;(event.target as HTMLInputElement).blur()
+              }
+            }
           }}
           className={
             "bg-transparent text-[14px] ml-2 ellipsis w-full border focus-visible:outline-none" +
