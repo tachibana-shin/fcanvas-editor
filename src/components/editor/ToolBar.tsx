@@ -2,9 +2,8 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow"
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined"
 import Checkbox from "@mui/material/Checkbox"
 import Fab from "@mui/material/Fab"
+import { InputAutoFocus } from "components/ui/InputAutoFocus"
 import { useState } from "react"
-
-import { InputAutoFocus } from "../ui/InputAutoFocus"
 
 function Rename(props: {
   defaultValue: string

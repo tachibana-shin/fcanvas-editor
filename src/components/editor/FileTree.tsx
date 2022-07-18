@@ -13,13 +13,13 @@ import Typography from "@mui/material/Typography"
 import { basename, dirname, join } from "path-browserify"
 import { useEffect, useState } from "react"
 
-import getIcon from "../../assets/extensions/material-icon-theme/dist/getIcon"
-import { editorStore } from "../../store/editor"
-import type { FS } from "../../type/FS"
-
 import { RenameFileOrDir } from "./components/RenameFileOrDir"
 import { createContextMenu } from "./create/createContextMenu"
 import { sortListFiles } from "./utils/sortListFiles"
+
+import getIcon from "~/assets/extensions/material-icon-theme/dist/getIcon"
+import { editorStore } from "~/store/editor"
+import type { FS } from "~/type/FS"
 
 // eslint-disable-next-line functional/no-mixed-type
 interface OptionFile {

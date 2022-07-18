@@ -2,6 +2,8 @@ import "./Index.scss"
 
 import type { Monaco } from "@monaco-editor/react"
 import Editor from "@monaco-editor/react"
+import { FileTreeNoRoot } from "components/editor/FileTree"
+import { ToolBar } from "components/editor/ToolBar"
 import type { editor } from "monaco-editor"
 import { AutoTypings, LocalStorageCache } from "monaco-editor-auto-typings"
 import { join } from "path-browserify"
@@ -11,15 +13,11 @@ import { Resizable } from "re-resizable"
 
 import "react-reflex/styles.css"
 
-import { Item, Menu, Separator, Submenu } from "react-contexify"
-
-import { FileTreeNoRoot } from "../components/editor/FileTree"
-import { ToolBar } from "../components/editor/ToolBar"
 // eslint-disable-next-line import/order
-import { store } from "../store"
+import { store } from "~/store"
 
 import "react-contexify/dist/ReactContexify.css"
-import type { FS } from "../type/FS"
+import type { FS } from "~/type/FS"
 
 const CWD = "inmemory://model/"
 
@@ -79,18 +77,11 @@ const fs: FS = {
   }
 }
 
-const MENU_ID = "menu-id"
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function Index(props: unknown) {
   const editorRef = useRef<editor.ICodeEditor | editor.IStandaloneCodeEditor>()
 
   const { currentFileEdit } = store.getState().editor
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function handleItemClick({ event, props, triggerEvent, data }: any) {
-    console.log(event, props, triggerEvent, data)
-  }
 
   return (
     <div className="page">
@@ -128,21 +119,11 @@ export function Index(props: unknown) {
               <FileTreeNoRoot
                 filepath="/fcanvas"
                 fs={fs}
-                header={<h1 className="text-[12px] uppercase font-bold">FCanvas</h1>}
+                header={
+                  <h1 className="text-[12px] uppercase font-bold">FCanvas</h1>
+                }
               />
             </ul>
-
-            <Menu id={MENU_ID} animation="fade" theme="dark">
-              <Item onClick={handleItemClick}>Item 1</Item>
-              <Item onClick={handleItemClick}>Item 2</Item>
-              <Separator />
-              <Item disabled>Disabled</Item>
-              <Separator />
-              <Submenu label="Submenu">
-                <Item onClick={handleItemClick}>Sub Item 1</Item>
-                <Item onClick={handleItemClick}>Sub Item 2</Item>
-              </Submenu>
-            </Menu>
           </div>
         </Resizable>
 

@@ -1,8 +1,8 @@
 import { ChevronRight } from "@mui/icons-material"
+import { InputAutoFocus } from "components/ui/InputAutoFocus"
 import { useEffect, useState } from "react"
 
-import getIcon from "../../../assets/extensions/material-icon-theme/dist/getIcon"
-import { InputAutoFocus } from "../../ui/InputAutoFocus"
+import getIcon from "~/assets/extensions/material-icon-theme/dist/getIcon"
 
 function checkErrorFileName(
   fileName: string,

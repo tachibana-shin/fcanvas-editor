@@ -1,4 +1,5 @@
-/* eslint-disable n/no-unpublished-import */
+import { fileURLToPath, URL } from "url"
+
 import react from "@vitejs/plugin-react"
 import AutoImport from "unplugin-auto-import/vite"
 import IconsResolver from "unplugin-icons/resolver"
@@ -13,6 +14,10 @@ export default defineConfig({
       env: {
         NODE_ENV: process.env.NODE_ENV
       }
+    },
+    alias: {
+      "~": fileURLToPath(new URL("./src", import.meta.url)),
+      components: fileURLToPath(new URL("./src/components", import.meta.url))
     }
   },
   resolve: {
