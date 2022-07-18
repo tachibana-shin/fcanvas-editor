@@ -1,9 +1,6 @@
 import "./Header.scss"
 
-import Cloud from "@mui/icons-material/Cloud"
-import ContentCopy from "@mui/icons-material/ContentCopy"
 import ContentCut from "@mui/icons-material/ContentCut"
-import Divider from "@mui/material/Divider"
 import Fade from "@mui/material/Fade"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
@@ -82,32 +79,19 @@ function NavItem(props: {
           disableAutoFocus
           disableRestoreFocus
         >
-          <MenuList>
-            <MenuItem>
-              <ListItemIcon>
-                <ContentCut fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Cut</ListItemText>
-              <Typography variant="body2" color="text.secondary">
-                ⌘X
-              </Typography>
-            </MenuItem>
-            <MenuItem>
-              <ListItemIcon>
-                <ContentCopy fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Copy</ListItemText>
-              <Typography variant="body2" color="text.secondary">
-                ⌘C
-              </Typography>
-            </MenuItem>
-            <Divider />
-            <MenuItem>
-              <ListItemIcon>
-                <Cloud fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Web Clipboard</ListItemText>
-            </MenuItem>
+          <MenuList dense className="text-sm min-w-[150px]">
+            {props.items.map((item) => {
+              return (
+                <MenuItem>
+                  <ListItemText>{item.name}</ListItemText>
+                  {item.sub && (
+                    <Typography variant="body2" color="text.secondary">
+                      {item.sub}
+                    </Typography>
+                  )}
+                </MenuItem>
+              )
+            })}
           </MenuList>
         </Popover>
       }
