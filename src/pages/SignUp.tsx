@@ -24,6 +24,7 @@ export function SignUp() {
   return (
     <>
       <Box
+        maxWidth="xs"
         sx={{
           marginTop: 8,
           display: "flex",

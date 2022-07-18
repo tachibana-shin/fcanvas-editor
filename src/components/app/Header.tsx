@@ -1,8 +1,6 @@
 import "./Header.scss"
 
-import ContentCut from "@mui/icons-material/ContentCut"
 import Fade from "@mui/material/Fade"
-import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import MenuItem from "@mui/material/MenuItem"
 import MenuList from "@mui/material/MenuList"
@@ -82,7 +80,7 @@ function NavItem(props: {
           <MenuList dense className="text-sm min-w-[150px]">
             {props.items.map((item) => {
               return (
-                <MenuItem>
+                <MenuItem key={item.name}>
                   <ListItemText>{item.name}</ListItemText>
                   {item.sub && (
                     <Typography variant="body2" color="text.secondary">

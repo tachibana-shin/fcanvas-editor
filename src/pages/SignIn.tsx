@@ -24,6 +24,7 @@ export function SignIn() {
   return (
     <>
       <Box
+        maxWidth="xs"
         sx={{
           marginTop: 8,
           display: "flex",
