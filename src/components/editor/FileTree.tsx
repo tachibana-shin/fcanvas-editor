@@ -2,10 +2,9 @@ import ChevronRight from "@mui/icons-material/ChevronRight"
 import ContentCopy from "@mui/icons-material/ContentCopy"
 import ContentCut from "@mui/icons-material/ContentCut"
 import ContentPaste from "@mui/icons-material/ContentPaste"
-import CreateNewFolderIcon from "@mui/icons-material/CreateNewFolder"
+import CreateNewFolderOutlined from "@mui/icons-material/CreateNewFolderOutlined"
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"
-import NoteAddIcon from "@mui/icons-material/NoteAdd"
-import { ThemeProvider } from "@mui/material"
+import NoteAddOutlined from "@mui/icons-material/NoteAddOutlined"
 import Divider from "@mui/material/Divider"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
@@ -15,7 +14,6 @@ import { basename, dirname, join } from "path-browserify"
 import { useEffect, useState } from "react"
 
 import getIcon from "../../assets/extensions/material-icon-theme/dist/getIcon"
-import { darkTheme } from "../../darkTheme"
 import { editorStore } from "../../store/editor"
 import type { FS } from "../../type/FS"
 
@@ -102,52 +100,50 @@ function File(props: Omit<OptionFile, "isDir">) {
         />
       )}
 
-      <ThemeProvider theme={darkTheme}>
-        <ContextMenu>
-          <MenuItem dense>
-            <ListItemIcon>
-              <ContentCut fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Cut</ListItemText>
-            <Typography variant="body2" color="text.secondary">
-              ⌘X
-            </Typography>
-          </MenuItem>
-          <MenuItem dense>
-            <ListItemIcon>
-              <ContentCopy fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Copy</ListItemText>
-            <Typography variant="body2" color="text.secondary">
-              ⌘C
-            </Typography>
-          </MenuItem>
-          <MenuItem dense>
-            <ListItemIcon>
-              <ContentPaste fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Paste</ListItemText>
-            <Typography variant="body2" color="text.secondary">
-              ⌘V
-            </Typography>
-          </MenuItem>
-          <Divider />
-          <MenuItem
-            onClick={() => {
-              closeContextMenu()
-              setRenaming(true)
-            }}
-          >
-            <ListItemIcon>
-              <DriveFileRenameOutlineIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Rename</ListItemText>
-            <Typography variant="body2" color="text.secondary">
-              F2
-            </Typography>
-          </MenuItem>
-        </ContextMenu>
-      </ThemeProvider>
+      <ContextMenu>
+        <MenuItem dense>
+          <ListItemIcon>
+            <ContentCut fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Cut</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            ⌘X
+          </Typography>
+        </MenuItem>
+        <MenuItem dense>
+          <ListItemIcon>
+            <ContentCopy fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Copy</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            ⌘C
+          </Typography>
+        </MenuItem>
+        <MenuItem dense>
+          <ListItemIcon>
+            <ContentPaste fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Paste</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            ⌘V
+          </Typography>
+        </MenuItem>
+        <Divider />
+        <MenuItem
+          onClick={() => {
+            closeContextMenu()
+            setRenaming(true)
+          }}
+        >
+          <ListItemIcon>
+            <DriveFileRenameOutlineIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Rename</ListItemText>
+          <Typography variant="body2" color="text.secondary">
+            F2
+          </Typography>
+        </MenuItem>
+      </ContextMenu>
     </li>
   )
 }
@@ -247,7 +243,7 @@ function Dir(props: Omit<OptionDir, "isDir">) {
         <div className="flex items-center justify-between ml-[22px] mr-[7px] py-1">
           {props.header}
           <div className="text-[1.1rem] flex items-center">
-            <NoteAddIcon
+            <NoteAddOutlined
               fontSize="inherit"
               className="mr-1 cursor-pointer"
               onClick={() => {
@@ -257,7 +253,7 @@ function Dir(props: Omit<OptionDir, "isDir">) {
                 })
               }}
             />
-            <CreateNewFolderIcon
+            <CreateNewFolderOutlined
               fontSize="inherit"
               className="cursor-pointer"
               onClick={() => {
@@ -318,85 +314,83 @@ function Dir(props: Omit<OptionDir, "isDir">) {
           </>
         )}
 
-        <ThemeProvider theme={darkTheme}>
-          <ContextMenu>
-            <MenuItem
-              onClick={() => {
-                closeContextMenu()
-                setIsOpen(true)
-                setAdding({
-                  isDir: false,
-                  filepath: ""
-                })
-              }}
-            >
-              <ListItemIcon>
-                <NoteAddIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>New File</ListItemText>
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                closeContextMenu()
-                setIsOpen(true)
-                setAdding({
-                  isDir: true,
-                  filepath: ""
-                })
-              }}
-            >
-              <ListItemIcon>
-                <CreateNewFolderIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>New Folder</ListItemText>
-            </MenuItem>
+        <ContextMenu>
+          <MenuItem
+            onClick={() => {
+              closeContextMenu()
+              setIsOpen(true)
+              setAdding({
+                isDir: false,
+                filepath: ""
+              })
+            }}
+          >
+            <ListItemIcon>
+              <NoteAddOutlined fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>New File</ListItemText>
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              closeContextMenu()
+              setIsOpen(true)
+              setAdding({
+                isDir: true,
+                filepath: ""
+              })
+            }}
+          >
+            <ListItemIcon>
+              <CreateNewFolderOutlined fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>New Folder</ListItemText>
+          </MenuItem>
 
-            <Divider />
+          <Divider />
 
-            <MenuItem dense>
-              <ListItemIcon>
-                <ContentCut fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Cut</ListItemText>
-              <Typography variant="body2" color="text.secondary">
-                ⌘X
-              </Typography>
-            </MenuItem>
-            <MenuItem dense>
-              <ListItemIcon>
-                <ContentCopy fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Copy</ListItemText>
-              <Typography variant="body2" color="text.secondary">
-                ⌘C
-              </Typography>
-            </MenuItem>
-            <MenuItem dense>
-              <ListItemIcon>
-                <ContentPaste fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Paste</ListItemText>
-              <Typography variant="body2" color="text.secondary">
-                ⌘V
-              </Typography>
-            </MenuItem>
-            <Divider />
-            <MenuItem
-              onClick={() => {
-                closeContextMenu()
-                setRenaming(true)
-              }}
-            >
-              <ListItemIcon>
-                <DriveFileRenameOutlineIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Rename</ListItemText>
-              <Typography variant="body2" color="text.secondary">
-                F2
-              </Typography>
-            </MenuItem>
-          </ContextMenu>
-        </ThemeProvider>
+          <MenuItem dense>
+            <ListItemIcon>
+              <ContentCut fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Cut</ListItemText>
+            <Typography variant="body2" color="text.secondary">
+              ⌘X
+            </Typography>
+          </MenuItem>
+          <MenuItem dense>
+            <ListItemIcon>
+              <ContentCopy fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Copy</ListItemText>
+            <Typography variant="body2" color="text.secondary">
+              ⌘C
+            </Typography>
+          </MenuItem>
+          <MenuItem dense>
+            <ListItemIcon>
+              <ContentPaste fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Paste</ListItemText>
+            <Typography variant="body2" color="text.secondary">
+              ⌘V
+            </Typography>
+          </MenuItem>
+          <Divider />
+          <MenuItem
+            onClick={() => {
+              closeContextMenu()
+              setRenaming(true)
+            }}
+          >
+            <ListItemIcon>
+              <DriveFileRenameOutlineIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Rename</ListItemText>
+            <Typography variant="body2" color="text.secondary">
+              F2
+            </Typography>
+          </MenuItem>
+        </ContextMenu>
 
         <ul className={isOpen ? "" : "hidden"}>
           {(adding ? sortListFiles([adding, ...filesDir]) : filesDir).map(

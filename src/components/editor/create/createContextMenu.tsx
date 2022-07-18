@@ -42,6 +42,8 @@ export function createContextMenu() {
       onClick={(event) => {
         event.stopPropagation()
       }}
+      disableAutoFocus
+      disableRestoreFocus
     >
       {props.children}
     </Menu>

@@ -1,6 +1,29 @@
+import PlayArrowIcon from "@mui/icons-material/PlayArrow"
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined"
+import Checkbox from "@mui/material/Checkbox"
+import Fab from "@mui/material/Fab"
 import { useState } from "react"
 
-import { Button } from "../ui/Button"
+import { InputAutoFocus } from "../ui/InputAutoFocus"
+
+function Rename(props: {
+  defaultValue: string
+  onSave: (newValue: string) => void
+  onBlur: () => void
+}) {
+  const [tmpName, setTmpName] = useState(props.defaultValue)
+
+  return (
+    <InputAutoFocus
+      value={tmpName}
+      className="text-[14px] bg-gray-800 rounded py-1 px-2 mx-[-8px] hover:text-[#d9d9d9] focus-visible:outline-none"
+      onInput={({ target }) => {
+        setTmpName((target as HTMLInputElement).value)
+      }}
+      onBlur={props.onBlur}
+    />
+  )
+}
 
 export function ToolBar() {
   const [renaming, setRenaming] = useState(false)
@@ -15,23 +38,23 @@ export function ToolBar() {
       )}
       {!renaming && <IconBxEditAlt className="ml-1" />}
 
-      <input
-        value="Hello fCanvas"
-        className={
-          "text-[14px] bg-gray-800 rounded py-1 px-2 hover:text-[#d9d9d9] " +
-          (renaming ? "" : "hidden")
-        }
-        onBlur={() => setRenaming(false)}
-      ></input>
+      {renaming && (
+        <Rename
+          defaultValue="Hello fCanvas"
+          onSave={() => {}}
+          onBlur={() => setRenaming(false)}
+        />
+      )}
     </div>
   )
   return (
     <div className="flex items-center px-4 py-[10px] text-white  border-y border-dotted">
-      <Button className="w-[40px] h-[40px] rounded-1/2 text-[16px] bg-green-600 flex items-center justify-center">
-        <IconBiPlayFill />
-      </Button>
+      <Fab color="primary" size="small">
+        <PlayArrowIcon />
+      </Fab>
+
       <div className="flex items-center text-[#d9d9d9] text-[14px] ml-2">
-        <input type="checkbox"></input>
+        <Checkbox size="small" />
         <span className="ml-1">Auto-refresh</span>
       </div>
 
@@ -39,9 +62,9 @@ export function ToolBar() {
 
       <div className="flex-1"></div>
 
-      <Button className="w-[40px] h-[40px] rounded-1/2 text-[16px] bg-gray-600 flex items-center justify-center">
-        <IconUilSetting />
-      </Button>
+      <Fab className="!bg-gray-600 !text-gray-300" size="small">
+        <SettingsOutlinedIcon />
+      </Fab>
     </div>
   )
 }
