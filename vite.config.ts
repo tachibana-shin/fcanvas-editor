@@ -14,15 +14,13 @@ export default defineConfig({
       env: {
         NODE_ENV: process.env.NODE_ENV
       }
-    },
-    alias: {
-      "~": fileURLToPath(new URL("./src", import.meta.url)),
-      components: fileURLToPath(new URL("./src/components", import.meta.url))
     }
   },
   resolve: {
     alias: {
-      path: "path-browserify"
+      path: "path-browserify",
+      "~": fileURLToPath(new URL("./src", import.meta.url)),
+      components: fileURLToPath(new URL("./src/components", import.meta.url))
     }
   },
   plugins: [
