@@ -13,6 +13,7 @@
     "@emotion/styled": "^11.9.3",
     "@firebase/app": "^0.7.28",
     "@firebase/auth": "^0.20.5",
+    "@isomorphic-git/lightning-fs": "^4.6.0",
     "@monaco-editor/react": "^4.4.5",
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.9.0",
