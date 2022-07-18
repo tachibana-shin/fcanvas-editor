@@ -13,7 +13,7 @@ import "react-reflex/styles.css"
 
 import { Item, Menu, Separator, Submenu } from "react-contexify"
 
-import { FileTree } from "../components/editor/FileTree"
+import { FileTreeNoRoot } from "../components/editor/FileTree"
 import { ToolBar } from "../components/editor/ToolBar"
 // eslint-disable-next-line import/order
 import { store } from "../store"
@@ -125,14 +125,7 @@ export function Index(props: unknown) {
             }}
           >
             <ul className="ml-[-20px]">
-              <FileTree
-                isFolder
-                notShowRoot
-                filepath="/fcanvas"
-                fs={fs}
-                // eslint-disable-next-line @typescript-eslint/no-empty-function
-                onRename={(event) => {}}
-              />
+              <FileTreeNoRoot filepath="/fcanvas" fs={fs} />
             </ul>
 
             <Menu id={MENU_ID} animation="fade" theme="dark">

@@ -417,3 +417,9 @@ export function FileTree(options: OptionDir | OptionFile) {
 
   return <File {...options} />
 }
+
+export function FileTreeNoRoot(
+  options: Omit<OptionDir, "onRename" | "isFolder">
+) {
+  return <Dir {...(options as OptionDir)} isFolder />
+}
