@@ -9,7 +9,6 @@ import { ThemeProvider } from "@mui/material"
 import Divider from "@mui/material/Divider"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
-import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
 import Typography from "@mui/material/Typography"
 import { basename, dirname, join } from "path-browserify"
@@ -21,54 +20,136 @@ import { editorStore } from "../../store/editor"
 import type { FS } from "../../type/FS"
 
 import { RenameFileOrDir } from "./components/RenameFileOrDir"
+import { createContextMenu } from "./create/createContextMenu"
 import { sortListFiles } from "./utils/sortListFiles"
 
 // eslint-disable-next-line functional/no-mixed-type
-interface OptionDir {
-  isFolder: true
+interface OptionFile {
+  isFolder: false
   filepath: string
-
-  isChildren?: boolean
-  notShowRoot?: boolean
 
   fs: FS
 
   onRename: (value: string) => void
 }
-// eslint-disable-next-line functional/no-mixed-type
-interface OptionFile {
-  isFolder: false
-  filepath: string
-  onRename: (value: string) => void
+
+interface OptionDir extends Omit<OptionFile, "isFolder"> {
+  isFolder: true
+  notShowRoot?: boolean
 }
 
-function File(props: { filepath: string }) {
+function File(props: Omit<OptionFile, "isDir">) {
+  const filename = basename(props.filepath)
+
+  const [renaming, setRenaming] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  // =========== actions =============
+  async function rename(newFileName: string) {
+    const newPath = join(dirname(props.filepath), newFileName)
+
+    setLoading(true)
+    await props.fs.rename(props.filepath, newPath)
+    setLoading(false)
+
+    props.onRename(newPath)
+  }
+  // ================================
+
+  // =========== context menu =============
+  const { ContextMenu, openContextMenu, closeContextMenu } = createContextMenu()
+  // ======================================
+
   return (
     <li
-      className="flex items-center mb-1.5 ml-[30px]"
+      className="mb-1.5 ml-[10px]"
       onClick={() => {
         editorStore.actions.setCurrentFileEdit(props.filepath)
       }}
+      onContextMenu={openContextMenu}
     >
-      <img
-        className="w-[1.2rem] h-[1.2rem]"
-        src={getIcon({
-          light: false,
-          isFolder: false,
-          isOpen: false,
-          filepath: props.filepath
-        })}
-      ></img>
-      <span className="text-[14px] ml-2">{basename(props.filepath)}</span>
+      {loading && <IconEosIconsLoading className="w-[1.25rem] h-[1.25rem]" />}
+
+      <div
+        className={
+          "flex items-center" +
+          (loading ? "" : " ml-20px") +
+          (renaming ? " hidden" : "")
+        }
+      >
+        <img
+          className="w-[1.2rem] h-[1.2rem]"
+          src={getIcon({
+            light: false,
+            isFolder: false,
+            isOpen: false,
+            filepath: props.filepath
+          })}
+        ></img>
+        <span className="text-[14px] ml-2">{filename}</span>
+      </div>
+
+      {renaming && (
+        <RenameFileOrDir
+          isDir={false}
+          defaultValue={filename}
+          onSave={rename}
+          onBlur={() => {
+            setRenaming(false)
+          }}
+        />
+      )}
+
+      <ThemeProvider theme={darkTheme}>
+        <ContextMenu>
+          <MenuItem dense>
+            <ListItemIcon>
+              <ContentCut fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Cut</ListItemText>
+            <Typography variant="body2" color="text.secondary">
+              ⌘X
+            </Typography>
+          </MenuItem>
+          <MenuItem dense>
+            <ListItemIcon>
+              <ContentCopy fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Copy</ListItemText>
+            <Typography variant="body2" color="text.secondary">
+              ⌘C
+            </Typography>
+          </MenuItem>
+          <MenuItem dense>
+            <ListItemIcon>
+              <ContentPaste fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Paste</ListItemText>
+            <Typography variant="body2" color="text.secondary">
+              ⌘V
+            </Typography>
+          </MenuItem>
+          <Divider />
+          <MenuItem
+            onClick={() => {
+              closeContextMenu()
+              setRenaming(true)
+            }}
+          >
+            <ListItemIcon>
+              <DriveFileRenameOutlineIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Rename</ListItemText>
+            <Typography variant="body2" color="text.secondary">
+              F2
+            </Typography>
+          </MenuItem>
+        </ContextMenu>
+      </ThemeProvider>
     </li>
   )
 }
-function Dir(props: {
-  filepath: string
-  fs: OptionDir["fs"]
-  notShowRoot?: boolean
-  onRename: OptionDir["onRename"]
-}) {
+function Dir(props: Omit<OptionDir, "isDir">) {
   const { filepath, fs, notShowRoot } = props
 
   const filename = basename(filepath)
@@ -83,6 +164,7 @@ function Dir(props: {
   }
   const [filesDir, setFilesDir] = useState<FileDirItem[]>([])
   const [readiedDir, setReadiedDir] = useState(false)
+
   const [renaming, setRenaming] = useState(false)
   const [adding, setAdding] = useState<null | FileDirItem>(null)
 
@@ -153,27 +235,9 @@ function Dir(props: {
     }
   }, [isOpen])
 
-  const [contextMenu, setContextMenu] = useState<{
-    mouseX: number
-    mouseY: number
-  } | null>(null)
-
-  const handleContextMenu = (event: React.MouseEvent) => {
-    event.preventDefault()
-    event.stopPropagation()
-    setContextMenu(
-      contextMenu === null
-        ? {
-            mouseX: event.clientX + 2,
-            mouseY: event.clientY - 6
-          }
-        : null
-    )
-  }
-
-  const handleClose = () => {
-    setContextMenu(null)
-  }
+  // =========== context menu =============
+  const { ContextMenu, openContextMenu, closeContextMenu } = createContextMenu()
+  // ======================================
 
   return (
     <li
@@ -182,7 +246,7 @@ function Dir(props: {
         event.stopPropagation()
         setIsOpen(!isOpen)
       }}
-      onContextMenu={handleContextMenu}
+      onContextMenu={openContextMenu}
     >
       {!notShowRoot && (
         <>
@@ -223,26 +287,10 @@ function Dir(props: {
       )}
 
       <ThemeProvider theme={darkTheme}>
-        <Menu
-          open={contextMenu !== null}
-          onClose={handleClose}
-          anchorReference="anchorPosition"
-          anchorPosition={
-            contextMenu !== null
-              ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-              : undefined
-          }
-          variant="menu"
-          MenuListProps={{
-            dense: true
-          }}
-          onClick={(event) => {
-            event.stopPropagation()
-          }}
-        >
+        <ContextMenu>
           <MenuItem
             onClick={() => {
-              setContextMenu(null)
+              closeContextMenu()
               setIsOpen(true)
               setAdding({
                 isDir: false,
@@ -257,7 +305,7 @@ function Dir(props: {
           </MenuItem>
           <MenuItem
             onClick={() => {
-              setContextMenu(null)
+              closeContextMenu()
               setIsOpen(true)
               setAdding({
                 isDir: true,
@@ -303,7 +351,7 @@ function Dir(props: {
           <Divider />
           <MenuItem
             onClick={() => {
-              setContextMenu(null)
+              closeContextMenu()
               setRenaming(true)
             }}
           >
@@ -315,11 +363,11 @@ function Dir(props: {
               F2
             </Typography>
           </MenuItem>
-        </Menu>
+        </ContextMenu>
       </ThemeProvider>
 
       <ul className={isOpen ? "" : "hidden"}>
-        {[...(adding ? [adding] : []), ...filesDir].map(
+        {(adding ? sortListFiles([adding, ...filesDir]) : filesDir).map(
           ({ filepath, isDir }, index) => {
             if (filepath === "") {
               // create new
@@ -327,6 +375,7 @@ function Dir(props: {
               // adding file or folder
               return (
                 <RenameFileOrDir
+                  key={`new-dir-${isDir}`}
                   className="ml-[10px]"
                   isDir={isDir}
                   siblings={filesDir.map(({ filepath }) => basename(filepath))}
@@ -364,16 +413,7 @@ function Dir(props: {
 }
 
 export function FileTree(options: OptionDir | OptionFile) {
-  if (options.isFolder) {
-    return (
-      <Dir
-        filepath={options.filepath}
-        fs={options.fs}
-        notShowRoot={options.notShowRoot}
-        onRename={options.onRename}
-      />
-    )
-  }
+  if (options.isFolder) return <Dir {...options} />
 
-  return <File filepath={options.filepath} />
+  return <File {...options} />
 }
