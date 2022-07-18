@@ -119,13 +119,17 @@ export function Index(props: unknown) {
           }
         >
           <div
-            className="px-3 pt-2 h-full"
+            className="pl-3 pt-1 h-full"
             style={{
               borderRight: "1px solid #aaa"
             }}
           >
-            <ul className="ml-[-20px]">
-              <FileTreeNoRoot filepath="/fcanvas" fs={fs} />
+            <ul className="ml-[-27px]">
+              <FileTreeNoRoot
+                filepath="/fcanvas"
+                fs={fs}
+                header={<h1 className="text-[12px] uppercase font-bold">FCanvas</h1>}
+              />
             </ul>
 
             <Menu id={MENU_ID} animation="fade" theme="dark">

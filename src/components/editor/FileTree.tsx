@@ -36,6 +36,8 @@ interface OptionFile {
 interface OptionDir extends Omit<OptionFile, "isFolder"> {
   isFolder: true
   notShowRoot?: boolean
+
+  header?: JSX.Element
 }
 
 function File(props: Omit<OptionFile, "isDir">) {
@@ -240,186 +242,223 @@ function Dir(props: Omit<OptionDir, "isDir">) {
   // ======================================
 
   return (
-    <li
-      className="select-none ml-[10px]"
-      onClick={(event) => {
-        event.stopPropagation()
-        setIsOpen(!isOpen)
-      }}
-      onContextMenu={openContextMenu}
-    >
-      {!notShowRoot && (
-        <>
-          <div
-            className={"flex items-center mb-1.5" + (renaming ? " hidden" : "")}
-          >
-            {!readingDir && (
-              <ChevronRight
-                fontSize="small"
-                className={isOpen ? " rotate-90" : ""}
-              />
-            )}
-            {(readingDir || loading) && (
-              <IconEosIconsLoading className="w-[1.25rem] h-[1.25rem]" />
-            )}
-            <img
-              className="w-[1.2rem] h-[1.2rem]"
-              src={getIcon({
-                light: false,
-                isFolder: true,
-                isOpen: readiedDir && isOpen,
-                filepath
-              })}
-            ></img>
-            <span className="text-[14px] ml-2 ellipsis">{filename}</span>
-          </div>
-          {renaming && (
-            <RenameFileOrDir
-              isDir
-              defaultValue={filename}
-              onSave={rename}
-              onBlur={() => {
-                setRenaming(false)
+    <>
+      {props.notShowRoot && props.header && (
+        <div className="flex items-center justify-between ml-[22px] mr-[7px] py-1">
+          {props.header}
+          <div className="text-[1.1rem] flex items-center">
+            <NoteAddIcon
+              fontSize="inherit"
+              className="mr-1 cursor-pointer"
+              onClick={() => {
+                setAdding({
+                  filepath: "",
+                  isDir: false
+                })
               }}
             />
-          )}
-        </>
+            <CreateNewFolderIcon
+              fontSize="inherit"
+              className="cursor-pointer"
+              onClick={() => {
+                setAdding({
+                  filepath: "",
+                  isDir: true
+                })
+              }}
+            />
+          </div>
+        </div>
       )}
+      <li
+        className="select-none ml-[10px]"
+        onClick={(event) => {
+          event.stopPropagation()
+          setIsOpen(!isOpen)
+        }}
+        onContextMenu={openContextMenu}
+      >
+        {!notShowRoot && (
+          <>
+            <div
+              className={
+                "flex items-center mb-1.5" + (renaming ? " hidden" : "")
+              }
+            >
+              {!readingDir && (
+                <ChevronRight
+                  fontSize="small"
+                  className={isOpen ? " rotate-90" : ""}
+                />
+              )}
+              {(readingDir || loading) && (
+                <IconEosIconsLoading className="w-[1.25rem] h-[1.25rem]" />
+              )}
+              <img
+                className="w-[1.2rem] h-[1.2rem]"
+                src={getIcon({
+                  light: false,
+                  isFolder: true,
+                  isOpen: readiedDir && isOpen,
+                  filepath
+                })}
+              ></img>
+              <span className="text-[14px] ml-2 ellipsis">{filename}</span>
+            </div>
+            {renaming && (
+              <RenameFileOrDir
+                isDir
+                defaultValue={filename}
+                onSave={rename}
+                onBlur={() => {
+                  setRenaming(false)
+                }}
+              />
+            )}
+          </>
+        )}
 
-      <ThemeProvider theme={darkTheme}>
-        <ContextMenu>
-          <MenuItem
-            onClick={() => {
-              closeContextMenu()
-              setIsOpen(true)
-              setAdding({
-                isDir: false,
-                filepath: ""
-              })
-            }}
-          >
-            <ListItemIcon>
-              <NoteAddIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>New File</ListItemText>
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              closeContextMenu()
-              setIsOpen(true)
-              setAdding({
-                isDir: true,
-                filepath: ""
-              })
-            }}
-          >
-            <ListItemIcon>
-              <CreateNewFolderIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>New Folder</ListItemText>
-          </MenuItem>
+        <ThemeProvider theme={darkTheme}>
+          <ContextMenu>
+            <MenuItem
+              onClick={() => {
+                closeContextMenu()
+                setIsOpen(true)
+                setAdding({
+                  isDir: false,
+                  filepath: ""
+                })
+              }}
+            >
+              <ListItemIcon>
+                <NoteAddIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>New File</ListItemText>
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
+                closeContextMenu()
+                setIsOpen(true)
+                setAdding({
+                  isDir: true,
+                  filepath: ""
+                })
+              }}
+            >
+              <ListItemIcon>
+                <CreateNewFolderIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>New Folder</ListItemText>
+            </MenuItem>
 
-          <Divider />
+            <Divider />
 
-          <MenuItem dense>
-            <ListItemIcon>
-              <ContentCut fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Cut</ListItemText>
-            <Typography variant="body2" color="text.secondary">
-              ⌘X
-            </Typography>
-          </MenuItem>
-          <MenuItem dense>
-            <ListItemIcon>
-              <ContentCopy fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Copy</ListItemText>
-            <Typography variant="body2" color="text.secondary">
-              ⌘C
-            </Typography>
-          </MenuItem>
-          <MenuItem dense>
-            <ListItemIcon>
-              <ContentPaste fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Paste</ListItemText>
-            <Typography variant="body2" color="text.secondary">
-              ⌘V
-            </Typography>
-          </MenuItem>
-          <Divider />
-          <MenuItem
-            onClick={() => {
-              closeContextMenu()
-              setRenaming(true)
-            }}
-          >
-            <ListItemIcon>
-              <DriveFileRenameOutlineIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Rename</ListItemText>
-            <Typography variant="body2" color="text.secondary">
-              F2
-            </Typography>
-          </MenuItem>
-        </ContextMenu>
-      </ThemeProvider>
+            <MenuItem dense>
+              <ListItemIcon>
+                <ContentCut fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Cut</ListItemText>
+              <Typography variant="body2" color="text.secondary">
+                ⌘X
+              </Typography>
+            </MenuItem>
+            <MenuItem dense>
+              <ListItemIcon>
+                <ContentCopy fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Copy</ListItemText>
+              <Typography variant="body2" color="text.secondary">
+                ⌘C
+              </Typography>
+            </MenuItem>
+            <MenuItem dense>
+              <ListItemIcon>
+                <ContentPaste fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Paste</ListItemText>
+              <Typography variant="body2" color="text.secondary">
+                ⌘V
+              </Typography>
+            </MenuItem>
+            <Divider />
+            <MenuItem
+              onClick={() => {
+                closeContextMenu()
+                setRenaming(true)
+              }}
+            >
+              <ListItemIcon>
+                <DriveFileRenameOutlineIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Rename</ListItemText>
+              <Typography variant="body2" color="text.secondary">
+                F2
+              </Typography>
+            </MenuItem>
+          </ContextMenu>
+        </ThemeProvider>
 
-      <ul className={isOpen ? "" : "hidden"}>
-        {(adding ? sortListFiles([adding, ...filesDir]) : filesDir).map(
-          ({ filepath, isDir }, index) => {
-            if (filepath === "") {
-              // create new
+        <ul className={isOpen ? "" : "hidden"}>
+          {(adding ? sortListFiles([adding, ...filesDir]) : filesDir).map(
+            ({ filepath, isDir }, index) => {
+              if (filepath === "") {
+                // create new
 
-              // adding file or folder
+                // adding file or folder
+                return (
+                  <RenameFileOrDir
+                    key={`new-dir-${isDir}`}
+                    className="ml-[10px]"
+                    isDir={isDir}
+                    siblings={filesDir.map(({ filepath }) =>
+                      basename(filepath)
+                    )}
+                    onSave={(value) => {
+                      createNewFile(value, isDir)
+                    }}
+                    onBlur={() => setAdding(null)}
+                  />
+                )
+              }
+
               return (
-                <RenameFileOrDir
-                  key={`new-dir-${isDir}`}
-                  className="ml-[10px]"
-                  isDir={isDir}
-                  siblings={filesDir.map(({ filepath }) => basename(filepath))}
-                  onSave={(value) => {
-                    createNewFile(value, isDir)
+                <FileTree
+                  key={filepath}
+                  isFolder={isDir}
+                  filepath={filepath}
+                  fs={fs}
+                  onRename={(event) => {
+                    setFilesDir(
+                      sortListFiles(
+                        filesDir.splice(index, 1, {
+                          filepath: join(dirname(filepath), event),
+                          isDir
+                        })
+                      )
+                    )
                   }}
-                  onBlur={() => setAdding(null)}
                 />
               )
             }
-
-            return (
-              <FileTree
-                key={filepath}
-                isFolder={isDir}
-                filepath={filepath}
-                fs={fs}
-                onRename={(event) => {
-                  setFilesDir(
-                    sortListFiles(
-                      filesDir.splice(index, 1, {
-                        filepath: join(dirname(filepath), event),
-                        isDir
-                      })
-                    )
-                  )
-                }}
-              />
-            )
-          }
-        )}
-      </ul>
-    </li>
+          )}
+        </ul>
+      </li>
+    </>
   )
 }
 
 export function FileTree(options: OptionDir | OptionFile) {
-  if (options.isFolder) return <Dir {...options} />
-
-  return <File {...options} />
+  return (
+    <ul>{options.isFolder ? <Dir {...options} /> : <File {...options} />}</ul>
+  )
 }
 
 export function FileTreeNoRoot(
   options: Omit<OptionDir, "onRename" | "isFolder">
 ) {
-  return <Dir {...(options as OptionDir)} isFolder />
+  return (
+    <ul>
+      <Dir {...(options as OptionDir)} isFolder notShowRoot />
+    </ul>
+  )
 }
