@@ -1,5 +1,5 @@
 import "./Button.scss"
-import { Component } from "preact"
+import { Component } from "react"
 
 interface Props {
   label?: string
@@ -49,7 +49,7 @@ export class Button extends Component<
   render() {
     const submenu = this.props.submenu && (
       <ul
-        class={
+        className={
           "absolute bg-[#333] border-[#666] rounded overflow-hidden shadow-indigo-600 top-[100%] min-w-[120px] max-w-[100vw] breaks-word z-10 " +
           (this.state.opened ? "" : "hidden")
         }
@@ -59,10 +59,10 @@ export class Button extends Component<
       >
         {this.props.submenu.map((item) => (
           <li key={item}>
-            <button class="btn px-[16px] py-[8px] w-full text-left hover:bg-indigo-600">
+            <button className="btn px-[16px] py-[8px] w-full text-left hover:bg-indigo-600">
               {item.title}
               {item.subtitle && (
-                <span class="float-right text-[#a6a6a6]">{item.subtitle}</span>
+                <span className="float-right text-[#a6a6a6]">{item.subtitle}</span>
               )}
             </button>
           </li>
@@ -78,11 +78,11 @@ export class Button extends Component<
 
     return (
       <button
-        class={"btn flex items-center relative " + (this.props.class ?? "")}
+        className={"btn flex items-center relative " + (this.props.class ?? "")}
         onClick={onClick}
       >
         {this.props.label}
-        {this.props.submenu && <IconBxChevronDown class="ml-1" />}
+        {this.props.submenu && <IconBxChevronDown className="ml-1" />}
 
         {submenu}
         {this.props.children}

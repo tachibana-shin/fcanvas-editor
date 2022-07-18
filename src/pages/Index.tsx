@@ -4,15 +4,24 @@ import type { Monaco } from "@monaco-editor/react"
 import Editor from "@monaco-editor/react"
 import type { editor } from "monaco-editor"
 import { AutoTypings, LocalStorageCache } from "monaco-editor-auto-typings"
+import { join } from "path-browserify"
+import { useRef } from "react"
 // eslint-disable-next-line import/order
-import { useRef } from "preact/hooks"
-
 import { Resizable } from "re-resizable"
 
 import "react-reflex/styles.css"
 
+import { Item, Menu, Separator, Submenu } from "react-contexify"
+
 import { FileTree } from "../components/editor/FileTree"
 import { ToolBar } from "../components/editor/ToolBar"
+// eslint-disable-next-line import/order
+import { store } from "../store"
+
+import "react-contexify/dist/ReactContexify.css"
+import type { FS } from "../type/FS"
+
+const CWD = "inmemory://model/"
 
 const code = `import path from "react"
 
@@ -46,7 +55,7 @@ async function initAutoTypes(
   })
 }
 
-const fs = {
+const fs: FS = {
   readdir() {
     return new Promise<string[]>((resolve) => resolve(["components"]))
   },
@@ -58,20 +67,36 @@ const fs = {
         }
       })
     )
+  },
+  async rename() {
+    console.log("rename")
+  },
+  async mkdir() {
+    console.log("mkdir")
+  },
+  async writeFile() {
+    console.log("writeFile")
   }
 }
 
+const MENU_ID = "menu-id"
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function Index(props: { path: string }) {
+export function Index(props: unknown) {
   const editorRef = useRef<editor.ICodeEditor | editor.IStandaloneCodeEditor>()
 
+  const { currentFileEdit } = store.getState().editor
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function handleItemClick({ event, props, triggerEvent, data }: any) {
+    console.log(event, props, triggerEvent, data)
+  }
+
   return (
-    <div class="page">
+    <div className="page">
       <ToolBar />
 
-      <div class="flex relative w-full flex-1">
-        {/* prettier-ignore */ // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          /* @ts-expect-error */ }
+      <div className="flex relative w-full flex-1">
         <Resizable
           defaultSize={{
             width: "220px",
@@ -89,12 +114,38 @@ export function Index(props: { path: string }) {
             bottomLeft: false,
             topLeft: false
           }}
-          onResize={() => editorRef.current?.layout({} as unknown as editor.IDimension)}
+          onResize={() =>
+            editorRef.current?.layout({} as unknown as editor.IDimension)
+          }
         >
-          <div class="px-3 pt-2 h-full" style="border-right: 1px solid #aaa">
-            <ul class="ml-[-19.19px]">
-              <FileTree isFolder notShowRoot filepath="/fcanvas" fs={fs} />
+          <div
+            className="px-3 pt-2 h-full"
+            style={{
+              borderRight: "1px solid #aaa"
+            }}
+          >
+            <ul className="ml-[-20px]">
+              <FileTree
+                isFolder
+                notShowRoot
+                filepath="/fcanvas"
+                fs={fs}
+                // eslint-disable-next-line @typescript-eslint/no-empty-function
+                onRename={(event) => {}}
+              />
             </ul>
+
+            <Menu id={MENU_ID} animation="fade" theme="dark">
+              <Item onClick={handleItemClick}>Item 1</Item>
+              <Item onClick={handleItemClick}>Item 2</Item>
+              <Separator />
+              <Item disabled>Disabled</Item>
+              <Separator />
+              <Submenu label="Submenu">
+                <Item onClick={handleItemClick}>Sub Item 1</Item>
+                <Item onClick={handleItemClick}>Sub Item 2</Item>
+              </Submenu>
+            </Menu>
           </div>
         </Resizable>
 
@@ -106,7 +157,7 @@ export function Index(props: { path: string }) {
           defaultLanguage="typescript"
           defaultValue={code}
           theme="vs-dark"
-          path="inmemory://model/main.ts"
+          path={join(CWD, currentFileEdit ?? "")}
           onMount={(
             editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
             monaco: Monaco

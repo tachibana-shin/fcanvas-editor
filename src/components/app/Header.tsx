@@ -3,7 +3,7 @@ import "./Header.scss"
 
 export function Header() {
   return (
-    <header class="h-[42px] w-full top-0 left-0 flex items-center px-3">
+    <header className="h-[42px] w-full top-0 left-0 flex items-center px-3">
       <Button
         label="File"
         submenu={[
@@ -36,11 +36,11 @@ export function Header() {
       <Button label="Sketch" />
       <Button label="Help" />
 
-      <div class="flex-1"></div>
+      <div className="flex-1"></div>
 
       <Button label="English" />
       <Button label="Login in" />
-      <span class="text-gray-300 text-[12px]">or</span>
+      <span className="text-gray-300 text-[12px]">or</span>
       <Button label="Sign up" />
     </header>
   )

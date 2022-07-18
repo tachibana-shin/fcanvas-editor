@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit"
 
-export const editor = createSlice({
+export const editorStore = createSlice({
   name: "editor",
   initialState: {
     currentFileEdit: <null | string>null

@@ -1,5 +1,5 @@
 /* eslint-disable n/no-unpublished-import */
-import preact from "@preact/preset-vite"
+import react from "@vitejs/plugin-react"
 import AutoImport from "unplugin-auto-import/vite"
 import IconsResolver from "unplugin-icons/resolver"
 import Icons from "unplugin-icons/vite"
@@ -8,15 +8,20 @@ import WindiCSS from "vite-plugin-windicss"
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  define: {
+    process: {
+      env: {
+        NODE_ENV: process.env.NODE_ENV
+      }
+    }
+  },
   resolve: {
     alias: {
-      path: "path-browserify",
-      react: "preact/compat",
-      "react-dom": "preact/compat"
+      path: "path-browserify"
     }
   },
   plugins: [
-    preact(),
+    react(),
     WindiCSS(),
     /* ... */
     AutoImport({

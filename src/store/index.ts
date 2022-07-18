@@ -1,9 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit"
 
-import { editor } from "./editor"
+import { editorStore } from "./editor"
 
 export const store = configureStore({
   reducer: {
-    editor: editor.reducer
+    editor: editorStore.reducer
   }
 })

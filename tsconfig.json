@@ -14,17 +14,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "preserve",
-    "jsxFactory": "h",
-    "jsxFragmentFactory": "Fragment",
-    "paths": {
-      "react": ["./src/react.d.ts"]
-    }
+    "jsx": "react-jsx"
   },
-  "include": ["src", "./auto-imports.d.ts"],
-  "references": [
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
