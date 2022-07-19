@@ -84,7 +84,7 @@ export function Index(props: unknown) {
   const { currentFileEdit } = store.getState().editor
 
   return (
-    <div className="page">
+    <div className="page mx-[-16px]">
       <ToolBar />
 
       <div className="flex relative w-full flex-1">

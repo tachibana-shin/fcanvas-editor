@@ -3,6 +3,7 @@ import Avatar from "@mui/material/Avatar"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
 import Checkbox from "@mui/material/Checkbox"
+import Container from "@mui/material/Container"
 import FormControlLabel from "@mui/material/FormControlLabel"
 import Grid from "@mui/material/Grid"
 import Link from "@mui/material/Link"
@@ -10,6 +11,7 @@ import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
 
 import { Copyright } from "~/components/sign/Copyright"
+import { LoginWithSocial } from "~/components/sign/LoginWithSocial"
 
 export function SignUp() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -22,7 +24,7 @@ export function SignUp() {
   }
 
   return (
-    <>
+    <Container component="main" maxWidth="xs">
       <Box
         maxWidth="xs"
         sx={{
@@ -97,9 +99,12 @@ export function SignUp() {
           >
             Sign Up
           </Button>
-          <Grid container justifyContent="flex-end">
+
+          <LoginWithSocial />
+
+          <Grid container sx={{ mt: 5 }} justifyContent="flex-end">
             <Grid item>
-              <Link href="#" variant="body2">
+              <Link href="/sign-in" variant="body2">
                 Already have an account? Sign in
               </Link>
             </Grid>
@@ -107,6 +112,6 @@ export function SignUp() {
         </Box>
       </Box>
       <Copyright sx={{ mt: 5 }} />
-    </>
+    </Container>
   )
 }

@@ -6,7 +6,7 @@ import "virtual:windi-devtools"
 
 import { App } from "./App"
 import "./main.scss"
-import { darkTheme } from "./darkTheme"
+import { darkTheme } from "./theme"
 import { store } from "./store"
 
 // eslint-disable-next-line import/order

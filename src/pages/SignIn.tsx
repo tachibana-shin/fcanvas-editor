@@ -3,6 +3,7 @@ import Avatar from "@mui/material/Avatar"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
 import Checkbox from "@mui/material/Checkbox"
+import Container from "@mui/material/Container"
 import FormControlLabel from "@mui/material/FormControlLabel"
 import Grid from "@mui/material/Grid"
 import Link from "@mui/material/Link"
@@ -10,6 +11,7 @@ import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
 
 import { Copyright } from "~/components/sign/Copyright"
+import { LoginWithSocial } from "~/components/sign/LoginWithSocial"
 
 export function SignIn() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -22,7 +24,7 @@ export function SignIn() {
   }
 
   return (
-    <>
+    <Container component="main" maxWidth="xs">
       <Box
         maxWidth="xs"
         sx={{
@@ -63,22 +65,20 @@ export function SignIn() {
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
           />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-          >
+          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3 }}>
             Sign In
           </Button>
-          <Grid container>
+
+          <LoginWithSocial />
+
+          <Grid container sx={{ mt: 5 }}>
             <Grid item xs>
               <Link href="#" variant="body2">
                 Forgot password?
               </Link>
             </Grid>
             <Grid item>
-              <Link href="#" variant="body2">
+              <Link href="/sign-up" variant="body2">
                 {"Don't have an account? Sign Up"}
               </Link>
             </Grid>
@@ -86,6 +86,6 @@ export function SignIn() {
         </Box>
       </Box>
       <Copyright sx={{ mt: 8, mb: 4 }} />
-    </>
+    </Container>
   )
 }
