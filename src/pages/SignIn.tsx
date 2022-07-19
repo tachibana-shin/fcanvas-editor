@@ -85,7 +85,6 @@ export function SignIn(): JSX.Element {
   return (
     <Container component="main" maxWidth="xs">
       <Box
-        maxWidth="xs"
         sx={{
           marginTop: 8,
           display: "flex",
@@ -138,7 +137,7 @@ export function SignIn(): JSX.Element {
 
           <Grid container sx={{ mt: 5 }}>
             <Grid item xs>
-              <Link href="#" variant="body2">
+              <Link href="/forgot-password" variant="body2">
                 Forgot password?
               </Link>
             </Grid>

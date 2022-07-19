@@ -101,7 +101,6 @@ export function SignUp() {
   return (
     <Container component="main" maxWidth="xs">
       <Box
-        maxWidth="xs"
         sx={{
           marginTop: 8,
           display: "flex",
