@@ -33,7 +33,9 @@
     "react-router": "^6.3.0",
     "react-router-dom": "^6.3.0",
     "redux": "^4.2.0",
-    "sort-array": "^4.1.5"
+    "sort-array": "^4.1.5",
+    "validator": "^13.7.0",
+    "validatorjs": "^3.22.1"
   },
   "devDependencies": {
     "@babel/core": "^7.18.9",
@@ -49,6 +51,8 @@
     "@types/react": "^18.0.15",
     "@types/react-dom": "^18.0.6",
     "@types/sort-array": "^4.1.0",
+    "@types/validator": "^13.7.4",
+    "@types/validatorjs": "^3.15.0",
     "@vitejs/plugin-react": "^2.0.0",
     "eslint": "^8.20.0",
     "firebase": "^9.9.0",

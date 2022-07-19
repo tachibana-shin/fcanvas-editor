@@ -26,6 +26,8 @@ specifiers:
   '@types/react': ^18.0.15
   '@types/react-dom': ^18.0.6
   '@types/sort-array': ^4.1.0
+  '@types/validator': ^13.7.4
+  '@types/validatorjs': ^3.15.0
   '@vitejs/plugin-react': ^2.0.0
   eslint: ^8.20.0
   firebase: ^9.9.0
@@ -47,6 +49,8 @@ specifiers:
   typescript: ^4.7.4
   unplugin-auto-import: ^0.9.3
   unplugin-icons: ^0.14.7
+  validator: ^13.7.0
+  validatorjs: ^3.22.1
   vite: ^3.0.2
   vite-plugin-windicss: ^1.8.7
   vitest: ^0.18.1
@@ -77,6 +81,8 @@ dependencies:
   react-router-dom: 6.3.0_biqbaboplfbrettd7655fr4n2y
   redux: 4.2.0
   sort-array: 4.1.5
+  validator: 13.7.0
+  validatorjs: 3.22.1
 
 devDependencies:
   '@babel/core': 7.18.9
@@ -92,6 +98,8 @@ devDependencies:
   '@types/react': 18.0.15
   '@types/react-dom': 18.0.6
   '@types/sort-array': 4.1.0
+  '@types/validator': 13.7.4
+  '@types/validatorjs': 3.15.0
   '@vitejs/plugin-react': 2.0.0_vite@3.0.2
   eslint: 8.20.0
   firebase: 9.9.0
@@ -1639,6 +1647,14 @@ packages:
   /@types/use-sync-external-store/0.0.3:
     resolution: {integrity: sha512-EwmlvuaxPNej9+T4v5AuBPJa2x2UOJVdjCtDHgcDqitUeOtjnJKJ+apYjVcAoBEMjKW1VVFGZLUb5+qqa09XFA==}
     dev: false
+
+  /@types/validator/13.7.4:
+    resolution: {integrity: sha512-uAaSWegu2lymY18l+s5nmcXu3sFeeTOl1zhSGoYzcr6T3wz1M+3OcW4UjfPhIhHGd13tIMRDsEpR+d8w/MexwQ==}
+    dev: true
+
+  /@types/validatorjs/3.15.0:
+    resolution: {integrity: sha512-tqozguXICRdPQVGho1A+lYH4IzU3ggP82OmfFrmb6N6pxmWuXegpw4Th20hy5KtMfuyP+jXB466ABFMO9vma4Q==}
+    dev: true
 
   /@typescript-eslint/eslint-plugin/5.30.7_6wltbjakwuqm7awqswigmiuhd4:
     resolution: {integrity: sha512-l4L6Do+tfeM2OK0GJsU7TUcM/1oN/N25xHm3Jb4z3OiDU4Lj8dIuxX9LpVMS9riSXQs42D1ieX7b85/r16H9Fw==}
@@ -4364,6 +4380,15 @@ packages:
   /v8-compile-cache/2.3.0:
     resolution: {integrity: sha512-l8lCEmLcLYZh4nbunNZvQCJc5pv7+RCwa8q/LdUx8u7lsWvPDKmpodJAJNwkAhJC//dFY48KuIEmjtd4RViDrA==}
     dev: true
+
+  /validator/13.7.0:
+    resolution: {integrity: sha512-nYXQLCBkpJ8X6ltALua9dRrZDHVYxjJ1wgskNt1lH9fzGjs3tgojGSCBjmEPwkWS1y29+DrizMTW19Pr9uB2nw==}
+    engines: {node: '>= 0.10'}
+    dev: false
+
+  /validatorjs/3.22.1:
+    resolution: {integrity: sha512-451KiCt/3E8qV/8fOUdO0YkA8zUdQBNVxubg9jvgEB+JAg9IlRKrClzwq2ir2ndj7TWmPYQ7bXFb4BxcyX2iWw==}
+    dev: false
 
   /vite-plugin-windicss/1.8.7_vite@3.0.2:
     resolution: {integrity: sha512-/zwQ8+RV+MSkbG0IGqsEma6r2R01NzN/aNpNjJD7VVAkxAptNznqDXOObFTskkWfZ+9m6KJZCOuCPgAFtQIzEA==}
