@@ -1,3 +1,4 @@
+import { Icon } from "@iconify/react"
 import PlayArrowIcon from "@mui/icons-material/PlayArrow"
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined"
 import Checkbox from "@mui/material/Checkbox"
@@ -35,11 +36,12 @@ export function ToolBar() {
       {!renaming && (
         <span className="text-[14px] bg-transparent">Hello fCanvas</span>
       )}
-      {!renaming && <IconBxEditAlt className="ml-1" />}
+      {!renaming && <Icon icon="bx:edit-alt" className="ml-1" />}
 
       {renaming && (
         <Rename
           defaultValue="Hello fCanvas"
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
           onSave={() => {}}
           onBlur={() => setRenaming(false)}
         />

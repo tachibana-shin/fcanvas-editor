@@ -1,3 +1,4 @@
+import { Icon } from "@iconify/react"
 import ChevronRight from "@mui/icons-material/ChevronRight"
 import ContentCopy from "@mui/icons-material/ContentCopy"
 import ContentCut from "@mui/icons-material/ContentCut"
@@ -11,7 +12,7 @@ import ListItemText from "@mui/material/ListItemText"
 import MenuItem from "@mui/material/MenuItem"
 import Typography from "@mui/material/Typography"
 import { basename, dirname, join } from "path-browserify"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { RenameFileOrDir } from "./components/RenameFileOrDir"
 import { createContextMenu } from "./create/createContextMenu"
@@ -39,7 +40,7 @@ interface OptionDir extends Omit<OptionFile, "isFolder"> {
 }
 
 function File(props: Omit<OptionFile, "isDir">) {
-  const filename = basename(props.filepath)
+  const filename = useMemo(() => basename(props.filepath), [props.filepath])
 
   const [renaming, setRenaming] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -68,7 +69,9 @@ function File(props: Omit<OptionFile, "isDir">) {
       }}
       onContextMenu={openContextMenu}
     >
-      {loading && <IconEosIconsLoading className="w-[1.25rem] h-[1.25rem]" />}
+      {loading && (
+        <Icon icon="eos-icons:loading" className="w-[1.25rem] h-[1.25rem]" />
+      )}
 
       <div
         className={
@@ -150,7 +153,7 @@ function File(props: Omit<OptionFile, "isDir">) {
 function Dir(props: Omit<OptionDir, "isDir">) {
   const { filepath, fs, notShowRoot } = props
 
-  const filename = basename(filepath)
+  const filename = useMemo(() => basename(filepath), [filepath])
 
   const [isOpen, setIsOpen] = useState(notShowRoot ?? false)
   const [readingDir, setReadingDir] = useState(false)
@@ -288,7 +291,10 @@ function Dir(props: Omit<OptionDir, "isDir">) {
                 />
               )}
               {(readingDir || loading) && (
-                <IconEosIconsLoading className="w-[1.25rem] h-[1.25rem]" />
+                <Icon
+                  icon="eos-icons:loading"
+                  className="w-[1.25rem] h-[1.25rem]"
+                />
               )}
               <img
                 className="w-[1.2rem] h-[1.2rem]"

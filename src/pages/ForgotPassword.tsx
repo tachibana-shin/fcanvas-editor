@@ -10,7 +10,7 @@ import Grid from "@mui/material/Grid"
 import Link from "@mui/material/Link"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 
 import { Copyright } from "~/components/sign/Copyright"
 import { LoginWithSocial } from "~/components/sign/LoginWithSocial"
@@ -57,13 +57,17 @@ export function ForgotPassword(): JSX.Element {
 
   const [showError, setShowError] = useState(false)
 
-  const validation = validator(
-    {
-      email
-    },
-    {
-      email: createRuleEmail()
-    }
+  const validation = useMemo(
+    () =>
+      validator(
+        {
+          email
+        },
+        {
+          email: createRuleEmail()
+        }
+      ),
+    [email]
   )
 
   return (
