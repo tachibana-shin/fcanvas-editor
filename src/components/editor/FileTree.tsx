@@ -299,7 +299,7 @@ function Dir(props: Omit<OptionDir, "isDir">) {
                   filepath
                 })}
               ></img>
-              <span className="text-[14px] ml-2 ellipsis">{filename}</span>
+              <span className="text-[14px] ml-2 truncate">{filename}</span>
             </div>
             {renaming && (
               <RenameFileOrDir

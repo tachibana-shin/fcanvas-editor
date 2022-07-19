@@ -138,7 +138,7 @@ export function RenameFileOrDir(props: {
             }
           }}
           className={
-            "bg-transparent text-[14px] ml-2 ellipsis w-full border focus-visible:outline-none" +
+            "bg-transparent text-[14px] ml-2 truncate w-full border focus-visible:outline-none" +
             (errorFileName
               ? errorFileName.type === "warn"
                 ? " border-yellow-600"

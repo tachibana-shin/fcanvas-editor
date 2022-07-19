@@ -61,7 +61,7 @@ export function ToolBar() {
 
       <div className="flex-1"></div>
 
-      <Fab className="!bg-gray-600 !text-gray-300" size="small">
+      <Fab className="!bg-dark-600 !text-gray-300" size="small">
         <SettingsOutlinedIcon />
       </Fab>
     </div>
