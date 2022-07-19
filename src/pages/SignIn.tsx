@@ -1,3 +1,5 @@
+import type { AuthError } from "@firebase/auth"
+import { getAuth, signInWithEmailAndPassword } from "@firebase/auth"
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined"
 import Avatar from "@mui/material/Avatar"
 import Box from "@mui/material/Box"
@@ -9,19 +11,76 @@ import Grid from "@mui/material/Grid"
 import Link from "@mui/material/Link"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
+import { useState } from "react"
 
 import { Copyright } from "~/components/sign/Copyright"
 import { LoginWithSocial } from "~/components/sign/LoginWithSocial"
+import { createSnackbar } from "~/components/sign/createSnackbar"
+import {
+  createRuleEmail,
+  createRulePassword,
+  validator
+} from "~/components/sign/validator"
+import { app } from "~/modules/firebase"
 
-export function SignIn() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+export function SignIn(): JSX.Element {
+  const auth = getAuth(app)
+  // connectEmulator(auth, connectAuthEmulator, 9099)
+
+  const { openSnackbar, snackbar } = createSnackbar()
+
+  const signIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
+    setShowError(true)
+
+    if (!validation.passed) return
+
     const data = new FormData(event.currentTarget)
+
     console.log({
       email: data.get("email"),
       password: data.get("password")
     })
+
+    try {
+      const { user } = await signInWithEmailAndPassword(
+        auth,
+        data.get("email") as string,
+        data.get("password") as string
+      )
+
+      console.log(user)
+
+      openSnackbar({
+        type: "success",
+        message: `Logged in as ${user.displayName}`
+      })
+    } catch (err) {
+      console.log(err)
+      const error = err as AuthError
+      openSnackbar({
+        type: "error",
+        message: `Login failed: ${error.message}`
+      })
+    }
   }
+
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+
+  const [showError, setShowError] = useState(false)
+
+  const validation = validator(
+    {
+      email,
+      password
+    },
+    {
+      email: createRuleEmail(),
+      password: createRulePassword()
+    }
+  )
 
   return (
     <Container component="main" maxWidth="xs">
@@ -40,7 +99,7 @@ export function SignIn() {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+        <Box component="form" onSubmit={signIn} noValidate sx={{ mt: 1 }}>
           <TextField
             margin="normal"
             required
@@ -50,6 +109,9 @@ export function SignIn() {
             name="email"
             autoComplete="email"
             autoFocus
+            onChange={(e) => setEmail(e.target.value)}
+            error={showError && !!validation.errors.email}
+            helperText={validation.errors.email}
           />
           <TextField
             margin="normal"
@@ -60,6 +122,9 @@ export function SignIn() {
             type="password"
             id="password"
             autoComplete="current-password"
+            onChange={(e) => setPassword(e.target.value)}
+            error={showError && !!validation.errors.password}
+            helperText={validation.errors.password}
           />
           <FormControlLabel
             control={<Checkbox value="remember" color="primary" />}
@@ -86,6 +151,8 @@ export function SignIn() {
         </Box>
       </Box>
       <Copyright sx={{ mt: 8, mb: 4 }} />
+
+      {snackbar}
     </Container>
   )
 }
