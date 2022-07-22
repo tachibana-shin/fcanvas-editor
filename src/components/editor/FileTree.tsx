@@ -72,9 +72,9 @@ function File(props: Omit<OptionFile, "isDir">) {
   // ======================================
 
   return (
-    <div className="mb-1.5 ml-[10px]">
+    <div className="mb-1.5 pl-[10px]">
       <div
-        className={"flex items-center ml-20px" + (renaming ? " hidden" : "")}
+        className={"flex items-center pl-20px" + (renaming ? " hidden" : "")}
         onContextMenu={openContextMenu}
       >
         {loading && (
@@ -92,7 +92,7 @@ function File(props: Omit<OptionFile, "isDir">) {
             filepath: props.filepath
           })}
         ></img>
-        <span className="text-[14px] ml-2">{filename}</span>
+        <span className="text-[14px] pl-2">{filename}</span>
       </div>
 
       {renaming && (
@@ -272,7 +272,7 @@ function Dir(props: Omit<OptionDir, "isDir">) {
 
   return (
     <div
-      className="select-none ml-[10px]"
+      className="select-none pl-[10px]"
       onClick={
         props.show
           ? undefined
@@ -312,7 +312,7 @@ function Dir(props: Omit<OptionDir, "isDir">) {
                 filepath
               })}
             ></img>
-            <span className="text-[14px] ml-2 truncate">{filename}</span>
+            <span className="text-[14px] pl-2 truncate">{filename}</span>
           </div>
           {renaming && (
             <RenameFileOrDir
@@ -399,7 +399,7 @@ function Dir(props: Omit<OptionDir, "isDir">) {
               return (
                 <RenameFileOrDir
                   key={`new-dir-${isDir}`}
-                  className="ml-[10px]"
+                  className="pl-[10px]"
                   isDir={isDir}
                   siblings={filesDir.map(({ filepath }) => basename(filepath))}
                   onSave={(value) => {
@@ -453,5 +453,11 @@ export function FileTree(
 export function FileTreeNoRoot(
   options: Omit<OptionDir, "onRename" | "onUnlink">
 ) {
-  return <Dir funcSharedRef={options.funcSharedRef} {...(options as OptionDir)} show />
+  return (
+    <Dir
+      funcSharedRef={options.funcSharedRef}
+      {...(options as OptionDir)}
+      show
+    />
+  )
 }
