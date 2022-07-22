@@ -5,6 +5,7 @@ import "virtual:windi-devtools"
 
 import { App } from "./App"
 import "./main.scss"
+import { ToastProvider } from "./plugins/toast"
 import { darkTheme } from "./theme"
 
 // eslint-disable-next-line import/order
@@ -19,7 +20,9 @@ ReactDOM.createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
     <BrowserRouter>
       <ThemeProvider theme={darkTheme}>
-        <App />
+        <ToastProvider>
+          <App />
+        </ToastProvider>
       </ThemeProvider>
     </BrowserRouter>
   </StrictMode>
