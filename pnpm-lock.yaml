@@ -22,6 +22,7 @@ specifiers:
   '@reduxjs/toolkit': ^1.8.3
   '@svgr/core': ^6.3.0
   '@tachibana-shin/eslint-config': ^1.0.2
+  '@types/node': ^18.0.6
   '@types/path-browserify': ^1.0.0
   '@types/react': ^18.0.15
   '@types/react-dom': ^18.0.6
@@ -99,6 +100,7 @@ devDependencies:
   '@iconify-json/uil': 1.1.2
   '@svgr/core': 6.3.0
   '@tachibana-shin/eslint-config': 1.0.2_he2ccbldppg44uulnyq4rwocfa
+  '@types/node': 18.0.6
   '@types/path-browserify': 1.0.0
   '@types/react': 18.0.15
   '@types/react-dom': 18.0.6

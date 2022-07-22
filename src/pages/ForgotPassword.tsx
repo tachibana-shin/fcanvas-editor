@@ -144,7 +144,7 @@ export function ForgotPassword(): JSX.Element {
 
           <Grid container sx={{ mt: 5 }}>
             <Grid item xs>
-              <Link href="/forgot-password" variant="body2">
+              <Link href="/sign-in" variant="body2">
                 Already have login and password? Sign In
               </Link>
             </Grid>

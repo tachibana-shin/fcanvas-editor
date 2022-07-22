@@ -11,8 +11,7 @@ import { join } from "path-browserify"
 import { useRef } from "react"
 // eslint-disable-next-line import/order
 import { Resizable } from "re-resizable"
-
-import type { FS } from "~/type/FS"
+import { fs } from "~/modules/fs"
 
 const CWD = "inmemory://model/"
 
@@ -48,32 +47,7 @@ async function initAutoTypes(
   })
 }
 
-const fs: FS = {
-  readdir() {
-    return new Promise<string[]>((resolve) => resolve(["components"]))
-  },
-  lstat() {
-    return new Promise<any>((resolve) =>
-      resolve({
-        isDirectory() {
-          return true
-        }
-      })
-    )
-  },
-  async rename() {
-    console.log("rename")
-  },
-  async mkdir() {
-    console.log("mkdir")
-  },
-  async writeFile() {
-    console.log("writeFile")
-  }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function Index(props: unknown) {
+export function Index() {
   const editorRef = useRef<editor.ICodeEditor | editor.IStandaloneCodeEditor>()
 
   const currentFileEdit = ""
