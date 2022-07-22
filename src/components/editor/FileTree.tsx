@@ -242,6 +242,7 @@ function Dir(props: Omit<OptionDir, "isDir">) {
     props.onUnlink()
   }
   async function createFile() {
+    console.log("Creating file")
     setIsOpen(true)
     setAdding({
       filepath: "",
@@ -271,21 +272,15 @@ function Dir(props: Omit<OptionDir, "isDir">) {
   // ======================================
 
   return (
-    <div
-      className="select-none pl-[10px]"
-      onClick={
-        props.show
-          ? undefined
-          : (event) => {
-              event.stopPropagation()
-              setIsOpen(!isOpen)
-            }
-      }
-    >
+    <div className="select-none pl-[10px]">
       {props.show || (
         <>
           <div
             className={"flex items-center mb-1.5" + (renaming ? " hidden" : "")}
+            onClick={(event) => {
+              event.stopPropagation()
+              setIsOpen(!isOpen)
+            }}
             onContextMenu={openContextMenu}
           >
             {!readingDir && (
@@ -453,11 +448,5 @@ export function FileTree(
 export function FileTreeNoRoot(
   options: Omit<OptionDir, "onRename" | "onUnlink">
 ) {
-  return (
-    <Dir
-      funcSharedRef={options.funcSharedRef}
-      {...(options as OptionDir)}
-      show
-    />
-  )
+  return <Dir {...(options as OptionDir)} show />
 }

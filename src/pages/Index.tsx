@@ -95,17 +95,17 @@ export function Index() {
                   <NoteAddOutlined
                     fontSize="inherit"
                     className="mr-1 cursor-pointer"
-                    onClick={fileTreeRef.current?.createFile}
+                    onClick={() => fileTreeRef.current?.createFile()}
                   />
                   <CreateNewFolderOutlined
                     fontSize="inherit"
                     className="mr-1 cursor-pointer"
-                    onClick={fileTreeRef.current?.createDir}
+                    onClick={() => fileTreeRef.current?.createDir()}
                   />
                   <ReplayOutlinedIcon
                     fontSize="inherit"
                     className="cursor-pointer"
-                    onClick={fileTreeRef.current?.reloadDir}
+                    onClick={() => fileTreeRef.current?.reloadDir()}
                   />
                 </div>
               </div>
