@@ -2,6 +2,7 @@ import "./Index.scss"
 
 import type { Monaco } from "@monaco-editor/react"
 import Editor from "@monaco-editor/react"
+import Container from "@mui/material/Container"
 import { FileTreeNoRoot } from "components/editor/FileTree"
 import { ToolBar } from "components/editor/ToolBar"
 import type { editor } from "monaco-editor"
@@ -78,68 +79,70 @@ export function Index(props: unknown) {
   const currentFileEdit = ""
 
   return (
-    <div className="page mx-[-16px]">
-      <ToolBar />
+    <Container component="main">
+      <div className="page mx-[-16px]">
+        <ToolBar />
 
-      <div className="flex relative w-full flex-1">
-        <Resizable
-          defaultSize={{
-            width: "220px",
-            height: "100%"
-          }}
-          maxWidth="60%"
-          minWidth="1"
-          enable={{
-            top: false,
-            right: true,
-            bottom: false,
-            left: false,
-            topRight: false,
-            bottomRight: false,
-            bottomLeft: false,
-            topLeft: false
-          }}
-          onResize={() =>
-            editorRef.current?.layout({} as unknown as editor.IDimension)
-          }
-        >
-          <div
-            className="pl-3 pt-1 h-full"
-            style={{
-              borderRight: "1px solid #aaa"
+        <div className="flex relative w-full flex-1">
+          <Resizable
+            defaultSize={{
+              width: "220px",
+              height: "100%"
             }}
+            maxWidth="60%"
+            minWidth="1"
+            enable={{
+              top: false,
+              right: true,
+              bottom: false,
+              left: false,
+              topRight: false,
+              bottomRight: false,
+              bottomLeft: false,
+              topLeft: false
+            }}
+            onResize={() =>
+              editorRef.current?.layout({} as unknown as editor.IDimension)
+            }
           >
-            <ul className="ml-[-27px]">
-              <FileTreeNoRoot
-                filepath="/fcanvas"
-                fs={fs}
-                header={
-                  <h1 className="text-[12px] uppercase font-bold">FCanvas</h1>
-                }
-              />
-            </ul>
-          </div>
-        </Resizable>
+            <div
+              className="pl-3 pt-1 h-full"
+              style={{
+                borderRight: "1px solid #aaa"
+              }}
+            >
+              <ul className="ml-[-27px]">
+                <FileTreeNoRoot
+                  filepath="/fcanvas"
+                  fs={fs}
+                  header={
+                    <h1 className="text-[12px] uppercase font-bold">FCanvas</h1>
+                  }
+                />
+              </ul>
+            </div>
+          </Resizable>
 
-        <Editor
-          width="100%"
-          options={{
-            automaticLayout: true
-          }}
-          defaultLanguage="typescript"
-          defaultValue={code}
-          theme="vs-dark"
-          path={join(CWD, currentFileEdit ?? "")}
-          onMount={(
-            editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
-            monaco: Monaco
-          ) => {
-            // eslint-disable-next-line functional/immutable-data
-            editorRef.current = editor
-            initAutoTypes(editor, monaco)
-          }}
-        />
+          <Editor
+            width="100%"
+            options={{
+              automaticLayout: true
+            }}
+            defaultLanguage="typescript"
+            defaultValue={code}
+            theme="vs-dark"
+            path={join(CWD, currentFileEdit ?? "")}
+            onMount={(
+              editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
+              monaco: Monaco
+            ) => {
+              // eslint-disable-next-line functional/immutable-data
+              editorRef.current = editor
+              initAutoTypes(editor, monaco)
+            }}
+          />
+        </div>
       </div>
-    </div>
+    </Container>
   )
 }

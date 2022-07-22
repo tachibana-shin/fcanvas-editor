@@ -1,6 +1,7 @@
 import "./Header.scss"
 
 import Fade from "@mui/material/Fade"
+import Link from "@mui/material/Link"
 import ListItemText from "@mui/material/ListItemText"
 import MenuItem from "@mui/material/MenuItem"
 import MenuList from "@mui/material/MenuList"
@@ -11,10 +12,22 @@ import { useState } from "react"
 
 function Btn(props: {
   label: string
+  href?: string
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
   onMouseEnter?: (event: React.MouseEvent<HTMLButtonElement>) => void
   onMouseLeave?: (event: React.MouseEvent<HTMLButtonElement>) => void
 }) {
+  if (props.href) {
+    return (
+      <Link
+        className="px-[10px] py-[12px] text-sm text-gray-300 hover:text-gray-100"
+        href={props.href}
+      >
+        {props.label}
+      </Link>
+    )
+  }
+
   return (
     <button
       className="px-[10px] py-[12px] text-sm text-gray-300 hover:text-gray-100"
@@ -135,9 +148,9 @@ export function Header() {
       <div className="flex-1"></div>
 
       <Btn label="English" />
-      <Btn label="Login in" />
+      <Btn label="Login in" href="/sign-in" />
       <span className="text-gray-300 text-[12px]">or</span>
-      <Btn label="Sign up" />
+      <Btn label="Sign up" href="/sign-up" />
     </header>
   )
 }
