@@ -280,7 +280,7 @@ function Dir(props: Omit<OptionDir, "isDir">) {
               {!readingDir && (
                 <ChevronRight
                   fontSize="small"
-                  className={isOpen ? " rotate-90" : ""}
+                  className={isOpen ? "transform rotate-90" : ""}
                 />
               )}
               {(readingDir || loading) && (

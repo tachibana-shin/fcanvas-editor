@@ -1,10 +1,22 @@
 import "./Header.scss"
 
 import { getAuth } from "@firebase/auth"
+import { Icon } from "@iconify/react"
+import ChevronRight from "@mui/icons-material/ChevronRight"
+import CreateNewFolderOutlined from "@mui/icons-material/CreateNewFolderOutlined"
+import FileOpenOutlinedIcon from "@mui/icons-material/FileOpenOutlined"
+import FindReplaceOutlinedIcon from "@mui/icons-material/FindReplaceOutlined"
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined"
+import KeyboardCommandKeyOutlinedIcon from "@mui/icons-material/KeyboardCommandKeyOutlined"
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined"
+import NoteAddOutlinedIcon from "@mui/icons-material/NoteAddOutlined"
 import PersonIcon from "@mui/icons-material/Person"
+import PlayArrowOutlinedIcon from "@mui/icons-material/PlayArrowOutlined"
+import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined"
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined"
 import SettingsIcon from "@mui/icons-material/Settings"
 import SourceOutlinedIcon from "@mui/icons-material/SourceOutlined"
+import StopIcon from "@mui/icons-material/Stop"
 import Avatar from "@mui/material/Avatar"
 import Divider from "@mui/material/Divider"
 import Fade from "@mui/material/Fade"
@@ -15,8 +27,8 @@ import MenuItem from "@mui/material/MenuItem"
 import MenuList from "@mui/material/MenuList"
 import Popover from "@mui/material/Popover"
 import Typography from "@mui/material/Typography"
-import * as React from "react"
 import { useState } from "react"
+import type { MouseEvent } from "react"
 
 import { app } from "~/modules/firebase"
 import { useToast } from "~/plugins/toast"
@@ -25,9 +37,10 @@ import { useUserStore } from "~/store/user"
 function Btn(props: {
   label: string | JSX.Element
   href?: string
-  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void
-  onMouseEnter?: (event: React.MouseEvent<HTMLButtonElement>) => void
-  onMouseLeave?: (event: React.MouseEvent<HTMLButtonElement>) => void
+  noChevron?: boolean
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void
+  onMouseEnter?: (event: MouseEvent<HTMLButtonElement>) => void
+  onMouseLeave?: (event: MouseEvent<HTMLButtonElement>) => void
 }) {
   if (props.href) {
     return (
@@ -42,18 +55,22 @@ function Btn(props: {
 
   return (
     <button
-      className="px-[10px] py-[12px] text-sm text-gray-300 hover:text-gray-100"
+      className="flex items-center px-[10px] py-[12px] text-sm text-gray-300 hover:text-gray-100"
       onClick={props.onClick}
       onMouseEnter={props.onMouseEnter}
       onMouseLeave={props.onMouseLeave}
     >
       {props.label}
+      {props.noChevron || (
+        <ChevronRight fontSize="small" className="transform rotate-90" />
+      )}
     </button>
   )
 }
 
 function NavItem(props: {
   label: string | JSX.Element
+  noChevron?: boolean
   menu: JSX.Element | JSX.Element[]
 }) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
@@ -72,29 +89,28 @@ function NavItem(props: {
     <>
       <Btn
         label={props.label}
+        noChevron={props.noChevron}
         aria-haspopup="true"
         onClick={open ? closeSubMenu : openSubMenu}
       />
-      {
-        <Popover
-          open={open}
-          anchorEl={anchorEl}
-          onClose={closeSubMenu}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "left"
-          }}
-          transformOrigin={{
-            vertical: "top",
-            horizontal: "left"
-          }}
-          TransitionComponent={Fade}
-          disableAutoFocus
-          disableRestoreFocus
-        >
-          {props.menu}
-        </Popover>
-      }
+      <Popover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={closeSubMenu}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left"
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "left"
+        }}
+        TransitionComponent={Fade}
+        disableAutoFocus
+        disableRestoreFocus
+      >
+        {props.menu}
+      </Popover>
     </>
   )
 }
@@ -118,7 +134,7 @@ function MenuListItems(props: {
             {item.icon && <ListItemIcon>{item.icon}</ListItemIcon>}
             <ListItemText>{item.name}</ListItemText>
             {item.sub && (
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" color="text.secondary" ml={2}>
                 {item.sub}
               </Typography>
             )}
@@ -142,11 +158,17 @@ export function Header() {
           <MenuListItems
             items={[
               {
-                name: "New"
+                icon: <NoteAddOutlinedIcon />,
+                name: "New Project"
               },
               {
+                icon: <SaveOutlinedIcon />,
                 name: "Save",
-                sub: "⌃+S"
+                sub: "⌘S"
+              },
+              {
+                icon: <FileOpenOutlinedIcon />,
+                name: "Open"
               },
               {
                 name: "Examples"
@@ -161,27 +183,79 @@ export function Header() {
           <MenuListItems
             items={[
               {
-                name: "Prettier"
+                icon: <Icon icon="file-icons:prettier" />,
+                name: "Prettier",
+                sub: "⌘↑+F"
               },
               {
-                name: "Find"
+                icon: <SearchOutlinedIcon />,
+                name: "Find",
+                sub: "⌘F"
               },
               {
-                name: "Replace"
+                icon: <FindReplaceOutlinedIcon />,
+                name: "Replace",
+                sub: "⌘H"
               }
             ]}
           />
         }
       />
-      <Btn label="Sketch" />
-      <Btn label="Help" />
+      <NavItem
+        label="Sketch"
+        menu={
+          <MenuListItems
+            items={[
+              {
+                icon: <NoteAddOutlinedIcon />,
+                name: "Add File"
+              },
+              {
+                icon: <CreateNewFolderOutlined />,
+                name: "Add Folder"
+              },
+              {
+                icon: <PlayArrowOutlinedIcon />,
+                name: "Run",
+                sub: "⌘H"
+              },
+              {
+                icon: <StopIcon />,
+                name: "⌘Enter",
+                sub: "⌘↑+Enter"
+              }
+            ]}
+          />
+        }
+      />
+      <NavItem
+        label="Help"
+        menu={
+          <MenuListItems
+            items={[
+              {
+                icon: <KeyboardCommandKeyOutlinedIcon />,
+                name: "Keyboard Shortcuts"
+              },
+              {
+                name: "Reference"
+              },
+              {
+                icon: <InfoOutlinedIcon />,
+                name: "About"
+              }
+            ]}
+          />
+        }
+      />
 
       <div className="flex-1"></div>
 
-      <Btn label="English" />
+      <Btn label="English" href="#" />
       {/* eslint-disable-next-line multiline-ternary */}
       {user ? (
         <NavItem
+          noChevron
           label={
             <div className="flex items-center">
               <Avatar
