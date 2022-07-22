@@ -2,7 +2,9 @@ import type { User } from "@firebase/auth"
 import { getAuth, onAuthStateChanged } from "@firebase/auth"
 import { defineStore } from "react-mise"
 
-const auth = getAuth()
+import { app } from "~/modules/firebase"
+
+const auth = getAuth(app)
 export const useUserStore = defineStore({
   state: () => ({
     user: <User | null>auth.currentUser

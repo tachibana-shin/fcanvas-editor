@@ -14,15 +14,13 @@ import { useMemo, useState } from "react"
 
 import { Copyright } from "~/components/sign/Copyright"
 import { LoginWithSocial } from "~/components/sign/LoginWithSocial"
-import { createSnackbar } from "~/components/sign/createSnackbar"
 import { createRuleEmail, validator } from "~/components/sign/validator"
 import { app } from "~/modules/firebase"
 
 export function ForgotPassword(): JSX.Element {
   const auth = getAuth(app)
   // connectEmulator(auth, connectAuthEmulator, 9099)
-
-  const { openSnackbar, snackbar } = createSnackbar()
+  const { addToast } = useToast()
 
   const [reseted, setReseted] = useState(false)
 
@@ -46,10 +44,7 @@ export function ForgotPassword(): JSX.Element {
     } catch (err) {
       console.log(err)
       const error = err as AuthError
-      openSnackbar({
-        type: "error",
-        message: `Reset password failed: ${error.message}`
-      })
+      addToast(`Reset password failed: ${error.message}`)
     }
   }
 
@@ -162,8 +157,6 @@ export function ForgotPassword(): JSX.Element {
       </Box>
 
       <Copyright sx={{ mt: 8, mb: 4 }} />
-
-      {snackbar}
     </Container>
   )
 }

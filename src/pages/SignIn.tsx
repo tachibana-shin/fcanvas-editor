@@ -15,19 +15,18 @@ import { useMemo, useState } from "react"
 
 import { Copyright } from "~/components/sign/Copyright"
 import { LoginWithSocial } from "~/components/sign/LoginWithSocial"
-import { createSnackbar } from "~/components/sign/createSnackbar"
 import {
   createRuleEmail,
   createRulePassword,
   validator
 } from "~/components/sign/validator"
 import { app } from "~/modules/firebase"
+import { useToast } from "~/plugins/toast"
 
 export function SignIn(): JSX.Element {
   const auth = getAuth(app)
   // connectEmulator(auth, connectAuthEmulator, 9099)
-
-  const { openSnackbar, snackbar } = createSnackbar()
+  const { addToast } = useToast()
 
   const signIn = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -52,17 +51,11 @@ export function SignIn(): JSX.Element {
 
       console.log(user)
 
-      openSnackbar({
-        type: "success",
-        message: `Logged in as ${user.displayName}`
-      })
+      addToast(`Logged in as ${user.displayName}`)
     } catch (err) {
       console.log(err)
       const error = err as AuthError
-      openSnackbar({
-        type: "error",
-        message: `Login failed: ${error.message}`
-      })
+      addToast(`Login failed: ${error.message}`)
     }
   }
 
@@ -154,8 +147,6 @@ export function SignIn(): JSX.Element {
         </Box>
       </Box>
       <Copyright sx={{ mt: 8, mb: 4 }} />
-
-      {snackbar}
     </Container>
   )
 }

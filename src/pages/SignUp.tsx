@@ -16,10 +16,10 @@ import Link from "@mui/material/Link"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
 import { useMemo, useState } from "react"
+import { useNavigate } from "react-router"
 
 import { Copyright } from "~/components/sign/Copyright"
 import { LoginWithSocial } from "~/components/sign/LoginWithSocial"
-import { createSnackbar } from "~/components/sign/createSnackbar"
 import {
   createRuleEmail,
   createRuleLength,
@@ -27,12 +27,13 @@ import {
   validator
 } from "~/components/sign/validator"
 import { app } from "~/modules/firebase"
+import { useToast } from "~/plugins/toast"
 
 export function SignUp() {
   const auth = getAuth(app)
+  const navigate = useNavigate()
   // connectEmulator(auth, connectAuthEmulator, 9099)
-
-  const { openSnackbar, snackbar } = createSnackbar()
+  const { addToast } = useToast()
 
   const [agressTermsAndConditions, setAgressTermsAndConditions] =
     useState(false)
@@ -62,17 +63,12 @@ export function SignUp() {
 
       console.log(user)
 
-      openSnackbar({
-        type: "success",
-        message: `Sign up successfully! Hello ${user.displayName}`
-      })
+      addToast(`Sign up successfully! Hello ${user.displayName}`)
+      navigate("/sign-in")
     } catch (err) {
       console.log(err)
       const error = err as AuthError
-      openSnackbar({
-        type: "error",
-        message: `Sign up failed: ${error.message}`
-      })
+      addToast(`Sign up failed: ${error.message}`)
     }
   }
 
@@ -211,8 +207,6 @@ export function SignUp() {
         </Box>
       </Box>
       <Copyright sx={{ mt: 5 }} />
-
-      {snackbar}
     </Container>
   )
 }
