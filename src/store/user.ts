@@ -1,29 +1,22 @@
 import type { User } from "@firebase/auth"
 import { getAuth, onAuthStateChanged } from "@firebase/auth"
-import { createSlice } from "@reduxjs/toolkit"
+import { defineStore } from "react-mise"
 
-import { app } from "~/modules/firebase"
-
-const auth = getAuth(app)
-
-export const userStore = createSlice({
-  name: "user",
-  initialState: {
+const auth = getAuth()
+export const useUserStore = defineStore({
+  state: () => ({
     user: <User | null>auth.currentUser
-  },
-  reducers: {
-    setUser(
-      state,
-      action: {
-        payload: User | null
-      }
-    ) {
+  }),
+  actions: {
+    setUser(user: User | null) {
       // eslint-disable-next-line functional/immutable-data
-      state.user = action.payload
+      this.user = user
     }
   }
 })
 
 onAuthStateChanged(auth, (user) => {
-  userStore.actions.setUser(user)
+  const [userStore] = useUserStore(true)
+
+  userStore.setUser(user)
 })

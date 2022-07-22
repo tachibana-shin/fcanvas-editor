@@ -11,12 +11,6 @@ import { useRef } from "react"
 // eslint-disable-next-line import/order
 import { Resizable } from "re-resizable"
 
-import "react-reflex/styles.css"
-
-// eslint-disable-next-line import/order
-import { store } from "~/store"
-
-import "react-contexify/dist/ReactContexify.css"
 import type { FS } from "~/type/FS"
 
 const CWD = "inmemory://model/"
@@ -81,7 +75,7 @@ const fs: FS = {
 export function Index(props: unknown) {
   const editorRef = useRef<editor.ICodeEditor | editor.IStandaloneCodeEditor>()
 
-  const { currentFileEdit } = store.getState().editor
+  const currentFileEdit = ""
 
   return (
     <div className="page mx-[-16px]">

@@ -19,7 +19,6 @@ import { createContextMenu } from "./create/createContextMenu"
 import { sortListFiles } from "./utils/sortListFiles"
 
 import getIcon from "~/assets/extensions/material-icon-theme/dist/getIcon"
-import { editorStore } from "~/store/editor"
 import type { FS } from "~/type/FS"
 
 // eslint-disable-next-line functional/no-mixed-type
@@ -62,13 +61,7 @@ function File(props: Omit<OptionFile, "isDir">) {
   // ======================================
 
   return (
-    <li
-      className="mb-1.5 ml-[10px]"
-      onClick={() => {
-        editorStore.actions.setCurrentFileEdit(props.filepath)
-      }}
-      onContextMenu={openContextMenu}
-    >
+    <li className="mb-1.5 ml-[10px]" onContextMenu={openContextMenu}>
       {loading && (
         <Icon icon="eos-icons:loading" className="w-[1.25rem] h-[1.25rem]" />
       )}
