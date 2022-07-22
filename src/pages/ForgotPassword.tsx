@@ -16,6 +16,7 @@ import { Copyright } from "~/components/sign/Copyright"
 import { LoginWithSocial } from "~/components/sign/LoginWithSocial"
 import { createRuleEmail, validator } from "~/components/sign/validator"
 import { app } from "~/modules/firebase"
+import { useToast } from "~/plugins/toast"
 
 export function ForgotPassword(): JSX.Element {
   const auth = getAuth(app)

@@ -2,23 +2,27 @@ import Container from "@mui/material/Container"
 import CssBaseline from "@mui/material/CssBaseline"
 import { Navigate, Route, Routes, useLocation } from "react-router"
 
-import { Header } from "./components/app/Header"
+import { LayoutAction } from "./layouts/action"
+import { LayoutDefault } from "./layouts/default"
 import { ForgotPassword } from "./pages/ForgotPassword"
 import { Index } from "./pages/Index"
 import { SignIn } from "./pages/SignIn"
 import { SignUp } from "./pages/SignUp"
-import { useUserStore } from "./store/user"
+import { useUserStore } from "./stores/user"
 
 export function App() {
   return (
-    <>
-      <Header />
-      <Container component="main" className="!px-0">
-        <CssBaseline />
-        <Routes>
-          <Route path="/" element={<Index />} />
+    <Container component="main" className="!px-0">
+      <CssBaseline />
+
+      <Routes>
+        <Route path="/" element={<LayoutDefault />}>
+          <Route path="" element={<Index />} />
+        </Route>
+
+        <Route path="/" element={<LayoutAction />}>
           <Route
-            path="/sign-in"
+            path="sign-in"
             element={
               <Guest>
                 <SignIn />
@@ -26,7 +30,7 @@ export function App() {
             }
           />
           <Route
-            path="/sign-up"
+            path="sign-up"
             element={
               <Guest>
                 <SignUp />
@@ -34,16 +38,16 @@ export function App() {
             }
           />
           <Route
-            path="/forgot-password"
+            path="forgot-password"
             element={
               <Guest>
                 <ForgotPassword />
               </Guest>
             }
           />
-        </Routes>
-      </Container>
-    </>
+        </Route>
+      </Routes>
+    </Container>
   )
 }
 

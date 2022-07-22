@@ -6,7 +6,7 @@ import "virtual:windi-devtools"
 import { App } from "./App"
 import "./main.scss"
 import { ToastProvider } from "./plugins/toast"
-import { darkTheme } from "./theme"
+import { darkTheme } from "./themes"
 
 // eslint-disable-next-line import/order
 import { BrowserRouter } from "react-router-dom"

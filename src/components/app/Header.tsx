@@ -32,7 +32,7 @@ import type { MouseEvent } from "react"
 
 import { app } from "~/modules/firebase"
 import { useToast } from "~/plugins/toast"
-import { useUserStore } from "~/store/user"
+import { useUserStore } from "~/stores/user"
 
 function Btn(props: {
   label: string | JSX.Element
