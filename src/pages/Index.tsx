@@ -10,7 +10,6 @@ import { FileTreeNoRoot } from "components/editor/FileTree"
 import { ToolBar } from "components/editor/ToolBar"
 import type { editor } from "monaco-editor"
 import { AutoTypings, LocalStorageCache } from "monaco-editor-auto-typings"
-import { join } from "path-browserify"
 import { useRef } from "react"
 // eslint-disable-next-line import/order
 import { Resizable } from "re-resizable"
@@ -54,7 +53,7 @@ export function Index() {
   const editorRef = useRef<editor.ICodeEditor | editor.IStandaloneCodeEditor>()
   const fileTreeRef = useRef<FuncShared>()
 
-  const currentFileEdit = ""
+  const currentFileEdit = "main.ts"
 
   return (
     <div className="page">
@@ -127,7 +126,8 @@ export function Index() {
           defaultLanguage="typescript"
           defaultValue={code}
           theme="vs-dark"
-          path={join(CWD, currentFileEdit ?? "")}
+          // eslint-disable-next-line n/no-unsupported-features/node-builtins
+          path={new URL(currentFileEdit ?? "", CWD).href}
           onMount={(
             editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
             monaco: Monaco

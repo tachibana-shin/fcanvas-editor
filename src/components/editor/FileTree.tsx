@@ -19,6 +19,7 @@ import { splice } from "./utils/splice"
 
 import getIcon from "~/assets/extensions/material-icon-theme/dist/getIcon"
 import { createMenuItems } from "~/creators/createMenuItems"
+import { useEditorStore } from "~/stores/editor"
 import type { FS } from "~/type/FS"
 
 export interface FuncShared {
@@ -41,7 +42,11 @@ interface OptionDir extends OptionFile {
   funcSharedRef?: MutableRefObject<FuncShared | void>
 }
 
+const CLASS_PATH_ACTIVE =
+  "before:bg-dark-300 relative before:absolute before:w-[200%] before:h-[calc(100%+6px)] before:left-[-100%] before:top[-3] before:z-[-1]"
+
 function File(props: Omit<OptionFile, "isDir">) {
+  const [editorStore] = useEditorStore()
   const filename = useMemo(() => basename(props.filepath), [props.filepath])
 
   const [renaming, setRenaming] = useState(false)
@@ -72,9 +77,20 @@ function File(props: Omit<OptionFile, "isDir">) {
   // ======================================
 
   return (
-    <div className="mb-1.5 pl-[10px]">
+    <div className="py-[3px] pl-[10px] cursor-pointer">
       <div
-        className={"flex items-center pl-20px" + (renaming ? " hidden" : "")}
+        className={
+          "flex items-center pl-20px " +
+          CLASS_PATH_ACTIVE +
+          (renaming ? " hidden" : "") +
+          (editorStore.isCurrentSelect(props.filepath)
+            ? " before:content-DEFAULT"
+            : "")
+        }
+        onClick={() => {
+          editorStore.setCurrentSelect(props.filepath)
+          editorStore.setCurrentFile(props.filepath)
+        }}
         onContextMenu={openContextMenu}
       >
         {loading && (
@@ -150,6 +166,7 @@ function File(props: Omit<OptionFile, "isDir">) {
   )
 }
 function Dir(props: Omit<OptionDir, "isDir">) {
+  const [editorStore] = useEditorStore()
   const { filepath, fs } = props
 
   const filename = useMemo(() => basename(filepath), [filepath])
@@ -242,7 +259,6 @@ function Dir(props: Omit<OptionDir, "isDir">) {
     props.onUnlink()
   }
   async function createFile() {
-    console.log("Creating file")
     setIsOpen(true)
     setAdding({
       filepath: "",
@@ -272,13 +288,21 @@ function Dir(props: Omit<OptionDir, "isDir">) {
   // ======================================
 
   return (
-    <div className="select-none pl-[10px]">
+    <div className="select-none pl-[10px] cursor-pointer">
       {props.show || (
         <>
           <div
-            className={"flex items-center mb-1.5" + (renaming ? " hidden" : "")}
+            className={
+              `flex items-center mb-1.5 ${CLASS_PATH_ACTIVE}` +
+              (editorStore.isCurrentSelect(props.filepath)
+                ? " before:content-DEFAULT"
+                : "") +
+              (renaming ? " hidden" : "")
+            }
             onClick={(event) => {
               event.stopPropagation()
+
+              editorStore.setCurrentSelect(props.filepath)
               setIsOpen(!isOpen)
             }}
             onContextMenu={openContextMenu}
