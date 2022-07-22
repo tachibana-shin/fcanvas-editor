@@ -18,18 +18,14 @@ import SettingsIcon from "@mui/icons-material/Settings"
 import SourceOutlinedIcon from "@mui/icons-material/SourceOutlined"
 import StopIcon from "@mui/icons-material/Stop"
 import Avatar from "@mui/material/Avatar"
-import Divider from "@mui/material/Divider"
 import Fade from "@mui/material/Fade"
 import Link from "@mui/material/Link"
-import ListItemIcon from "@mui/material/ListItemIcon"
-import ListItemText from "@mui/material/ListItemText"
-import MenuItem from "@mui/material/MenuItem"
-import MenuList from "@mui/material/MenuList"
 import Popover from "@mui/material/Popover"
-import Typography from "@mui/material/Typography"
 import { useState } from "react"
 import type { MouseEvent } from "react"
 
+import type { MenuItemOption } from "~/creators/createMenuItems"
+import { createMenuItems } from "~/creators/createMenuItems"
 import { app } from "~/modules/firebase"
 import { useToast } from "~/plugins/toast"
 import { useUserStore } from "~/stores/user"
@@ -115,34 +111,8 @@ function NavItem(props: {
   )
 }
 
-function MenuListItems(props: {
-  items: {
-    name?: string
-    icon?: JSX.Element
-    sub?: string
-    onClick?: () => void
-    divider?: boolean
-  }[]
-}) {
-  return (
-    <MenuList dense className="text-sm min-w-[150px]">
-      {props.items.map((item, index) => {
-        if (item.divider) return <Divider key={index} />
-
-        return (
-          <MenuItem key={index} onClick={item.onClick}>
-            {item.icon && <ListItemIcon>{item.icon}</ListItemIcon>}
-            <ListItemText>{item.name}</ListItemText>
-            {item.sub && (
-              <Typography variant="body2" color="text.secondary" ml={2}>
-                {item.sub}
-              </Typography>
-            )}
-          </MenuItem>
-        )
-      })}
-    </MenuList>
-  )
+function MenuListItems(props: { items: MenuItemOption[] }) {
+  return <>{createMenuItems(props.items)}</>
 }
 
 export function Header() {

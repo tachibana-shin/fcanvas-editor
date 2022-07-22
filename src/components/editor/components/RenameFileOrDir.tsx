@@ -1,4 +1,4 @@
-import { ChevronRight } from "@mui/icons-material"
+import ChevronRight from "@mui/icons-material/ChevronRight"
 import { InputAutoFocus } from "components/ui/InputAutoFocus"
 import { useEffect, useState } from "react"
 
@@ -125,14 +125,18 @@ export function RenameFileOrDir(props: {
             setInputName((event.target as HTMLInputElement).value)
           }
           onBlur={() => {
-            if (!errorFileName && inputName !== "") props.onSave(inputName)
+            if (
+              !errorFileName &&
+              inputName !== "" &&
+              inputName !== props.defaultValue
+            )
+              props.onSave(inputName)
 
             props.onBlur?.()
           }}
           onKeyDown={(event) => {
             if ((event as unknown as KeyboardEvent).key === "Enter") {
               if (!errorFileName && inputName !== "") {
-                props.onSave(inputName)
                 ;(event.target as HTMLInputElement).blur()
               }
             }

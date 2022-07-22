@@ -6,4 +6,5 @@ export interface FS {
   rename: (from: string, to: string) => Promise<void>
   mkdir: (filepath: string) => Promise<void>
   writeFile: (filepath: string, contents: string) => Promise<void>
+  unlink: (filepath: string) => Promise<void>
 }

@@ -2,7 +2,10 @@ import "./Index.scss"
 
 import type { Monaco } from "@monaco-editor/react"
 import Editor from "@monaco-editor/react"
-import Container from "@mui/material/Container"
+import CreateNewFolderOutlined from "@mui/icons-material/CreateNewFolderOutlined"
+import NoteAddOutlined from "@mui/icons-material/NoteAddOutlined"
+import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined"
+import type { FuncShared } from "components/editor/FileTree"
 import { FileTreeNoRoot } from "components/editor/FileTree"
 import { ToolBar } from "components/editor/ToolBar"
 import type { editor } from "monaco-editor"
@@ -49,74 +52,92 @@ async function initAutoTypes(
 
 export function Index() {
   const editorRef = useRef<editor.ICodeEditor | editor.IStandaloneCodeEditor>()
+  const fileTreeRef = useRef<FuncShared>()
 
   const currentFileEdit = ""
 
   return (
-    <Container component="main">
-      <div className="page mx-[-16px]">
-        <ToolBar />
+    <div className="page">
+      <ToolBar />
 
-        <div className="flex relative w-full flex-1">
-          <Resizable
-            defaultSize={{
-              width: "220px",
-              height: "100%"
+      <div className="flex relative w-full flex-1">
+        <Resizable
+          defaultSize={{
+            width: "220px",
+            height: "100%"
+          }}
+          maxWidth="60%"
+          minWidth="1"
+          enable={{
+            top: false,
+            right: true,
+            bottom: false,
+            left: false,
+            topRight: false,
+            bottomRight: false,
+            bottomLeft: false,
+            topLeft: false
+          }}
+          onResize={() =>
+            editorRef.current?.layout({} as unknown as editor.IDimension)
+          }
+        >
+          <div
+            className="pl-3 pt-1 h-full"
+            style={{
+              borderRight: "1px solid #aaa"
             }}
-            maxWidth="60%"
-            minWidth="1"
-            enable={{
-              top: false,
-              right: true,
-              bottom: false,
-              left: false,
-              topRight: false,
-              bottomRight: false,
-              bottomLeft: false,
-              topLeft: false
-            }}
-            onResize={() =>
-              editorRef.current?.layout({} as unknown as editor.IDimension)
-            }
           >
-            <div
-              className="pl-3 pt-1 h-full"
-              style={{
-                borderRight: "1px solid #aaa"
-              }}
-            >
-              <ul className="ml-[-27px]">
-                <FileTreeNoRoot
-                  filepath="/fcanvas"
-                  fs={fs}
-                  header={
-                    <h1 className="text-[12px] uppercase font-bold">FCanvas</h1>
-                  }
-                />
-              </ul>
-            </div>
-          </Resizable>
+            <div className="ml-[-27px]">
+              <div className="flex items-center justify-between ml-[22px] mr-[7px] py-1">
+                <h1 className="text-[12px] uppercase font-bold">FCanvas</h1>
+                <div className="text-[1.1rem] flex items-center">
+                  <NoteAddOutlined
+                    fontSize="inherit"
+                    className="mr-1 cursor-pointer"
+                    onClick={fileTreeRef.current?.createFile}
+                  />
+                  <CreateNewFolderOutlined
+                    fontSize="inherit"
+                    className="mr-1 cursor-pointer"
+                    onClick={fileTreeRef.current?.createDir}
+                  />
+                  <ReplayOutlinedIcon
+                    fontSize="inherit"
+                    className="cursor-pointer"
+                    onClick={fileTreeRef.current?.reloadDir}
+                  />
+                </div>
+              </div>
 
-          <Editor
-            width="100%"
-            options={{
-              automaticLayout: true
-            }}
-            defaultLanguage="typescript"
-            defaultValue={code}
-            theme="vs-dark"
-            path={join(CWD, currentFileEdit ?? "")}
-            onMount={(
-              editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
-              monaco: Monaco
-            ) => {
-              // eslint-disable-next-line functional/immutable-data
-              editorRef.current = editor
-              initAutoTypes(editor, monaco)
-            }}
-          />
-        </div>
+              <FileTreeNoRoot
+                funcSharedRef={fileTreeRef}
+                filepath="/"
+                fs={fs}
+              />
+            </div>
+          </div>
+        </Resizable>
+
+        <Editor
+          width="100%"
+          options={{
+            automaticLayout: true
+          }}
+          defaultLanguage="typescript"
+          defaultValue={code}
+          theme="vs-dark"
+          path={join(CWD, currentFileEdit ?? "")}
+          onMount={(
+            editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
+            monaco: Monaco
+          ) => {
+            // eslint-disable-next-line functional/immutable-data
+            editorRef.current = editor
+            initAutoTypes(editor, monaco)
+          }}
+        />
       </div>
-    </Container>
+    </div>
   )
 }
