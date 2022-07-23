@@ -8,12 +8,14 @@ import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined"
 import type { FuncShared } from "components/editor/FileTree"
 import { FileTreeNoRoot } from "components/editor/FileTree"
 import { ToolBar } from "components/editor/ToolBar"
+import debounce from "debounce"
 import type { editor, languages as Languages } from "monaco-editor"
 import { Uri } from "monaco-editor"
 import { AutoTypings, LocalStorageCache } from "monaco-editor-auto-typings"
+import { join } from "path-browserify"
 import type { Options } from "prettier"
 import { Resizable } from "re-resizable"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { v4 } from "uuid"
 
 import { fs } from "~/modules/fs"
@@ -237,6 +239,19 @@ export function Index() {
     }
   }, [currentFile])
 
+  const autoSave = useMemo(() => {
+    if (!currentFile) return undefined
+
+    const file = join("/", currentFile)
+    return debounce(async (code: string | undefined) => {
+      if (code === undefined) return
+
+      console.log("auto saving %s", file)
+
+      await fs.writeFile(file, code, "utf8")
+    }, 1e3)
+  }, [currentFile])
+
   return (
     <div className="page">
       <ToolBar />
@@ -309,6 +324,7 @@ export function Index() {
           defaultValue={contentFile}
           theme="vs-dark"
           path={currentFile ? Uri.file(currentFile).toString() : undefined}
+          onChange={autoSave}
           onMount={(
             editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
             monaco: Monaco
