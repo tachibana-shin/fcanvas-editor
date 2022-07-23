@@ -8,19 +8,124 @@ import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined"
 import type { FuncShared } from "components/editor/FileTree"
 import { FileTreeNoRoot } from "components/editor/FileTree"
 import { ToolBar } from "components/editor/ToolBar"
-import type { editor } from "monaco-editor"
+import type { editor, languages as Languages } from "monaco-editor"
+import { Uri } from "monaco-editor"
 import { AutoTypings, LocalStorageCache } from "monaco-editor-auto-typings"
-import { useEffect, useRef, useState } from "react"
-// eslint-disable-next-line import/order
+import type { Options } from "prettier"
 import { Resizable } from "re-resizable"
+import { useEffect, useRef, useState } from "react"
+import { v4 } from "uuid"
+
 import { fs } from "~/modules/fs"
 import { useStoreState } from "~/stores"
+import PrettierWorker from "~/workers/prettier?worker"
 
+const languages = [
+  {
+    vscodeLanguageIds: ["javascript", "javascriptreact", "mongo", "mongodb"],
+    extensions: [],
+    parsers: [
+      "babel",
+      "espree",
+      "meriyah",
+      "babel-flow",
+      "babel-ts",
+      "flow",
+      "typescript"
+    ]
+  },
+  {
+    vscodeLanguageIds: ["typescript"],
+    extensions: [],
+    parsers: ["typescript", "babel-ts"]
+  },
+  {
+    vscodeLanguageIds: ["typescriptreact"],
+    extensions: [],
+    parsers: ["typescript", "babel-ts"]
+  },
+  {
+    vscodeLanguageIds: ["json"],
+    extensions: [],
+    parsers: ["json-stringify"]
+  },
+  {
+    vscodeLanguageIds: ["json"],
+    extensions: [],
+    parsers: ["json"]
+  },
+  {
+    vscodeLanguageIds: ["jsonc"],
+    parsers: ["json"]
+  },
+  {
+    vscodeLanguageIds: ["json5"],
+    extensions: [],
+    parsers: ["json5"]
+  },
+  {
+    vscodeLanguageIds: ["handlebars"],
+    extensions: [],
+    parsers: ["glimmer"]
+  },
+  {
+    vscodeLanguageIds: ["graphql"],
+    extensions: [],
+    parsers: ["graphql"]
+  },
+  {
+    vscodeLanguageIds: ["markdown"],
+    parsers: ["markdown"]
+  },
+  {
+    vscodeLanguageIds: ["mdx"],
+    extensions: [],
+    parsers: ["mdx"]
+  },
+  {
+    vscodeLanguageIds: ["html"],
+    extensions: [],
+    parsers: ["angular"]
+  },
+  {
+    vscodeLanguageIds: ["html"],
+    extensions: [],
+    parsers: ["html"]
+  },
+  {
+    vscodeLanguageIds: ["html"],
+    extensions: [],
+    parsers: ["lwc"]
+  },
+  {
+    vscodeLanguageIds: ["vue"],
+    extensions: [],
+    parsers: ["vue"]
+  },
+  {
+    vscodeLanguageIds: ["yaml", "ansible", "home-assistant"],
+    extensions: [],
+    parsers: ["yaml"]
+  }
+]
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
+const PRETTIER_CONFIG_FILES = [
+  ".prettierrc",
+  ".prettierrc.json",
+  ".prettierrc.json5",
+  ".prettierrc.yaml",
+  ".prettierrc.yml",
+  ".prettierrc.toml",
+  ".prettierrc.js",
+  ".prettierrc.cjs",
+  "package.json",
+  "prettier.config.js",
+  "prettier.config.cjs",
+  ".editorconfig"
+]
+
+// eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
 const CWD = "inmemory://model/"
-
-const code = `import path from "react"
-
-path.resolve()`
 
 async function initAutoTypes(
   editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
@@ -28,13 +133,29 @@ async function initAutoTypes(
 ) {
   console.log("mounted editor")
 
+  // monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true)
+  const compilerOptions = {
+    allowJs: true,
+    allowSyntheticDefaultImports: true,
+    alwaysStrict: true,
+    jsx: "React",
+    jsxFactory: "React.createElement"
+  } as unknown as Languages.typescript.CompilerOptions
+
+  monaco.languages.typescript.typescriptDefaults.setCompilerOptions(
+    compilerOptions
+  )
+  monaco.languages.typescript.javascriptDefaults.setCompilerOptions(
+    compilerOptions
+  )
+
   await AutoTypings.create(editor, {
     monaco,
     sourceCache: new LocalStorageCache(), // Cache loaded sources in localStorage. May be omitted
     // Other options...
     // fileRootPath: "node_modules/",
     // Log progress updates to a div console
-    onUpdate(u, t) {
+    onUpdate(_u, t) {
       console.info(t)
     },
 
@@ -47,6 +168,53 @@ async function initAutoTypes(
     onUpdateVersions(versions) {
       console.info(versions)
     }
+  })
+}
+
+const prettier = new PrettierWorker()
+function format(code: string, parser: string, options: Options) {
+  return new Promise<string>((resolve) => {
+    const id = v4()
+    const handler = (
+      event: MessageEvent<{
+        id: string
+        code: string
+        type: "success" | "failed"
+        error?: unknown
+      }>
+    ) => {
+      if (event.data.id === id) {
+        resolve(event.data.code)
+        prettier.removeEventListener("message", handler)
+      }
+    }
+    prettier.addEventListener("message", handler)
+    prettier.postMessage({
+      id,
+      code,
+      parser,
+      ...options
+    })
+  })
+}
+
+async function installFormatter(
+  _editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
+  monaco: Monaco
+) {
+  languages.forEach((language) => {
+    language.vscodeLanguageIds.forEach((id) => {
+      monaco.languages.registerDocumentFormattingEditProvider(id, {
+        async provideDocumentFormattingEdits(model) {
+          return [
+            {
+              range: model.getFullModelRange(),
+              text: await format(model.getValue(), language.parsers[0], {})
+            }
+          ]
+        }
+      })
+    })
   })
 }
 
@@ -137,11 +305,10 @@ export function Index() {
           options={{
             automaticLayout: true
           }}
-          defaultLanguage="typescript"
-          defaultValue={code}
+          // defaultLanguage={currentFile ? extname(currentFile) : undefined}
+          defaultValue={contentFile}
           theme="vs-dark"
-          // eslint-disable-next-line n/no-unsupported-features/node-builtins
-          path={new URL(contentFile ?? "", CWD).href}
+          path={currentFile ? Uri.file(currentFile).toString() : undefined}
           onMount={(
             editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
             monaco: Monaco
@@ -149,6 +316,8 @@ export function Index() {
             // eslint-disable-next-line functional/immutable-data
             editorRef.current = editor
             initAutoTypes(editor, monaco)
+            installFormatter(editor, monaco)
+            // installESlint(editor, monaco)
           }}
         />
       </div>

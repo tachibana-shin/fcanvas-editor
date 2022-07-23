@@ -1,3 +1,6 @@
+/// <reference types="vitest" />
+/// <reference types="vite/client" />
+
 import { fileURLToPath, URL } from "url"
 
 import react from "@vitejs/plugin-react"
@@ -14,8 +17,7 @@ export default defineConfig({
       env: {
         NODE_ENV: process.env.NODE_ENV,
         GITPOD_WORKSPACE_ID: process.env.GITPOD_WORKSPACE_ID,
-        GITPOD_WORKSPACE_CLUSTER_HOST:
-          process.env.GITPOD_WORKSPACE_CLUSTER_HOST
+        GITPOD_WORKSPACE_CLUSTER_HOST: process.env.GITPOD_WORKSPACE_CLUSTER_HOST
       }
     }
   },
@@ -42,5 +44,9 @@ export default defineConfig({
       autoInstall: true,
       compiler: "jsx"
     })
-  ]
+  ],
+  test: {
+    globals: true,
+    environment: "jsdom"
+  }
 })
