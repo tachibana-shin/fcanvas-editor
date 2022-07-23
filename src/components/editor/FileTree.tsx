@@ -8,9 +8,10 @@ import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined"
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"
 import FolderDeleteOutlinedIcon from "@mui/icons-material/FolderDeleteOutlined"
 import NoteAddOutlined from "@mui/icons-material/NoteAddOutlined"
-import { basename, dirname, join } from "path-browserify"
+import { basename, dirname, join, relative } from "path-browserify"
 import type { MutableRefObject } from "react"
 import { useEffect, useImperativeHandle, useMemo, useState } from "react"
+import { useDispatch } from "react-redux"
 
 import { RenameFileOrDir } from "./components/RenameFileOrDir"
 import { createContextMenu } from "./create/createContextMenu"
@@ -19,8 +20,8 @@ import { splice } from "./utils/splice"
 
 import getIcon from "~/assets/extensions/material-icon-theme/dist/getIcon"
 import { createMenuItems } from "~/creators/createMenuItems"
-import { useEditorStore } from "~/stores/editor"
-import type { FS } from "~/type/FS"
+import type { FS } from "~/modules/fs"
+import { useStoreState } from "~/stores"
 
 export interface FuncShared {
   createFile: () => Promise<void>
@@ -43,10 +44,12 @@ interface OptionDir extends OptionFile {
 }
 
 const CLASS_PATH_ACTIVE =
-  "before:bg-dark-300 relative before:absolute before:w-[200%] before:h-[calc(100%+6px)] before:left-[-100%] before:top[-3] before:z-[-1]"
-
+  "relative before:absolute before:w-[200%] before:h-[calc(100%+6px)] before:left-[-100%] before:top[-3] before:z-[-1]" +
+  " hover:before:content-DEFAULT hover:before:bg-dark-600"
 function File(props: Omit<OptionFile, "isDir">) {
-  const [editorStore] = useEditorStore()
+  const storeState = useStoreState()
+  const dispatch = useDispatch()
+
   const filename = useMemo(() => basename(props.filepath), [props.filepath])
 
   const [renaming, setRenaming] = useState(false)
@@ -83,13 +86,19 @@ function File(props: Omit<OptionFile, "isDir">) {
           "flex items-center pl-20px " +
           CLASS_PATH_ACTIVE +
           (renaming ? " hidden" : "") +
-          (editorStore.isCurrentSelect(props.filepath)
-            ? " before:content-DEFAULT"
+          (relative("/", props.filepath) === storeState.editor.currentSelect
+            ? " before:content-DEFAULT !before:bg-dark-300"
             : "")
         }
         onClick={() => {
-          editorStore.setCurrentSelect(props.filepath)
-          editorStore.setCurrentFile(props.filepath)
+          dispatch({
+            type: "editor/setCurrentSelect",
+            payload: props.filepath
+          })
+          dispatch({
+            type: "editor/setCurrentFile",
+            payload: props.filepath
+          })
         }}
         onContextMenu={openContextMenu}
       >
@@ -166,7 +175,6 @@ function File(props: Omit<OptionFile, "isDir">) {
   )
 }
 function Dir(props: Omit<OptionDir, "isDir">) {
-  const [editorStore] = useEditorStore()
   const { filepath, fs } = props
 
   const filename = useMemo(() => basename(filepath), [filepath])
@@ -287,6 +295,9 @@ function Dir(props: Omit<OptionDir, "isDir">) {
   const { ContextMenu, openContextMenu, closeContextMenu } = createContextMenu()
   // ======================================
 
+  const storeState = useStoreState()
+  const dispatch = useDispatch()
+
   return (
     <div className="select-none pl-[10px] cursor-pointer">
       {props.show || (
@@ -294,15 +305,18 @@ function Dir(props: Omit<OptionDir, "isDir">) {
           <div
             className={
               `flex items-center mb-1.5 ${CLASS_PATH_ACTIVE}` +
-              (editorStore.isCurrentSelect(props.filepath)
-                ? " before:content-DEFAULT"
+              (relative("/", props.filepath) === storeState.editor.currentSelect
+                ? " before:content-DEFAULT !before:bg-dark-300"
                 : "") +
               (renaming ? " hidden" : "")
             }
             onClick={(event) => {
               event.stopPropagation()
 
-              editorStore.setCurrentSelect(props.filepath)
+              dispatch({
+                type: "editor/setCurrentSelect",
+                payload: props.filepath
+              })
               setIsOpen(!isOpen)
             }}
             onContextMenu={openContextMenu}

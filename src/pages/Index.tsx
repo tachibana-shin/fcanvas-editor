@@ -10,10 +10,11 @@ import { FileTreeNoRoot } from "components/editor/FileTree"
 import { ToolBar } from "components/editor/ToolBar"
 import type { editor } from "monaco-editor"
 import { AutoTypings, LocalStorageCache } from "monaco-editor-auto-typings"
-import { useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 // eslint-disable-next-line import/order
 import { Resizable } from "re-resizable"
 import { fs } from "~/modules/fs"
+import { useStoreState } from "~/stores"
 
 const CWD = "inmemory://model/"
 
@@ -53,7 +54,20 @@ export function Index() {
   const editorRef = useRef<editor.ICodeEditor | editor.IStandaloneCodeEditor>()
   const fileTreeRef = useRef<FuncShared>()
 
-  const currentFileEdit = "main.ts"
+  const { currentFile } = useStoreState().editor
+
+  console.log("change current %s", currentFile)
+  const [contentFile, setContentFile] = useState("")
+  useEffect(() => {
+    if (currentFile) {
+      console.log("reading %s", currentFile)
+      // eslint-disable-next-line promise/catch-or-return, promise/always-return
+      fs.readFile(currentFile, "utf8").then((code) => {
+        setContentFile(code as string)
+        console.log({ code })
+      })
+    }
+  }, [currentFile])
 
   return (
     <div className="page">
@@ -127,7 +141,7 @@ export function Index() {
           defaultValue={code}
           theme="vs-dark"
           // eslint-disable-next-line n/no-unsupported-features/node-builtins
-          path={new URL(currentFileEdit ?? "", CWD).href}
+          path={new URL(contentFile ?? "", CWD).href}
           onMount={(
             editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
             monaco: Monaco

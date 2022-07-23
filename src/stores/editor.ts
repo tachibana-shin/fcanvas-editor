@@ -1,23 +1,23 @@
+import type { PayloadAction } from "@reduxjs/toolkit"
+import { createSlice } from "@reduxjs/toolkit"
 import { relative } from "path-browserify"
-import { defineStore } from "react-mise"
 
-export const useEditorStore = defineStore("editor", {
-  state: () => ({
+const editorSlice = createSlice({
+  name: "editor",
+  initialState: {
     currentSelect: <string | null>null,
     currentFile: <string | null>null
-  }),
-  actions: {
-    isCurrentSelect(filepath: string) {
-      return this.currentSelect === relative("/", filepath)
-    },
-    setCurrentSelect(filepath: string) {
+  },
+  reducers: {
+    setCurrentSelect(state, { payload }: PayloadAction<string>) {
       // eslint-disable-next-line functional/immutable-data
-      this.currentSelect = relative("/", filepath)
+      state.currentSelect = relative("/", payload)
     },
-
-    setCurrentFile(filepath: string) {
+    setCurrentFile(state, { payload }: PayloadAction<string>) {
       // eslint-disable-next-line functional/immutable-data
-      this.currentFile = filepath
+      state.currentFile = payload
     }
   }
 })
+
+export const editorReducer = editorSlice.reducer

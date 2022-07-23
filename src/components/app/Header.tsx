@@ -21,14 +21,14 @@ import Avatar from "@mui/material/Avatar"
 import Fade from "@mui/material/Fade"
 import Link from "@mui/material/Link"
 import Popover from "@mui/material/Popover"
-import { useState } from "react"
 import type { MouseEvent } from "react"
+import { useState } from "react"
 
 import type { MenuItemOption } from "~/creators/createMenuItems"
 import { createMenuItems } from "~/creators/createMenuItems"
 import { app } from "~/modules/firebase"
 import { useToast } from "~/plugins/toast"
-import { useUserStore } from "~/stores/user"
+import { useStoreState } from "~/stores"
 
 function Btn(props: {
   label: string | JSX.Element
@@ -116,7 +116,7 @@ function MenuListItems(props: { items: MenuItemOption[] }) {
 }
 
 export function Header() {
-  const [{ user }] = useUserStore()
+  const { user } = useStoreState().auth
   const auth = getAuth(app)
   const { addToast } = useToast()
 

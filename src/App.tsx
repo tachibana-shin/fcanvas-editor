@@ -1,16 +1,41 @@
+import { getAuth, onAuthStateChanged } from "@firebase/auth"
 import Container from "@mui/material/Container"
 import CssBaseline from "@mui/material/CssBaseline"
+import { useDispatch } from "react-redux"
 import { Navigate, Route, Routes, useLocation } from "react-router"
 
 import { LayoutAction } from "./layouts/action"
 import { LayoutDefault } from "./layouts/default"
+import { app } from "./modules/firebase"
 import { ForgotPassword } from "./pages/ForgotPassword"
 import { Index } from "./pages/Index"
 import { SignIn } from "./pages/SignIn"
 import { SignUp } from "./pages/SignUp"
-import { useUserStore } from "./stores/user"
+import { useStoreState } from "./stores"
 
+// eslint-disable-next-line functional/no-let
+let subscribeAuthChange: () => void
 export function App() {
+  const auth = getAuth(app)
+  const dispatch = useDispatch()
+
+  subscribeAuthChange?.()
+  subscribeAuthChange = onAuthStateChanged(auth, (user) => {
+    console.log(user)
+    dispatch({
+      type: "auth/setUser",
+      payload: user
+        ? {
+            photoURL: user.photoURL,
+            email: user.email,
+            displayName: user.displayName,
+            isAnonymous: user.isAnonymous,
+            providerId: user.providerId
+          }
+        : null
+    })
+  })
+
   return (
     <Container component="main" className="!px-0">
       <CssBaseline />
@@ -52,10 +77,9 @@ export function App() {
 }
 
 function Guest(props: { children: JSX.Element }) {
-  const [userStore] = useUserStore()
   const location = useLocation()
 
-  if (userStore.user) {
+  if (useStoreState().auth.user) {
     return (
       <Navigate
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
