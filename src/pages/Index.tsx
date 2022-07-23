@@ -1,5 +1,6 @@
 import "./Index.scss"
 
+import { Icon } from "@iconify/react"
 import type { Monaco } from "@monaco-editor/react"
 import Editor from "@monaco-editor/react"
 import CreateNewFolderOutlined from "@mui/icons-material/CreateNewFolderOutlined"
@@ -251,6 +252,7 @@ export function Index() {
       await fs.writeFile(file, code, "utf8")
     }, 1e3)
   }, [currentFile])
+  // const resize
 
   return (
     <div className="page">
@@ -278,12 +280,7 @@ export function Index() {
             editorRef.current?.layout({} as unknown as editor.IDimension)
           }
         >
-          <div
-            className="pl-3 pt-1 h-full"
-            style={{
-              borderRight: "1px solid #aaa"
-            }}
-          >
+          <div className="pl-3 pt-1 h-full border-x border-gray-700">
             <div className="ml-[-27px]">
               <div className="flex items-center justify-between ml-[22px] mr-[7px] py-1">
                 <h1 className="text-[12px] uppercase font-bold">FCanvas</h1>
@@ -315,27 +312,65 @@ export function Index() {
           </div>
         </Resizable>
 
-        <Editor
-          width="100%"
-          options={{
-            automaticLayout: true
-          }}
-          // defaultLanguage={currentFile ? extname(currentFile) : undefined}
-          defaultValue={contentFile}
-          theme="vs-dark"
-          path={currentFile ? Uri.file(currentFile).toString() : undefined}
-          onChange={autoSave}
-          onMount={(
-            editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
-            monaco: Monaco
-          ) => {
-            // eslint-disable-next-line functional/immutable-data
-            editorRef.current = editor
-            initAutoTypes(editor, monaco)
-            installFormatter(editor, monaco)
-            // installESlint(editor, monaco)
-          }}
-        />
+        <div className="w-full h-full flex">
+          {currentFile || (
+            <div className="w-full h-full text-center flex items-center justify-center">
+              <Icon
+                icon="fluent:code-text-edit-20-filled"
+                className="w-120px h-120px text-gray-400"
+              />
+            </div>
+          )}
+
+          {currentFile !== null && (
+            <Editor
+              width="100%"
+              options={{
+                automaticLayout: true
+              }}
+              // defaultLanguage={currentFile ? extname(currentFile) : undefined}
+              value={contentFile}
+              theme="vs-dark"
+              path={currentFile ? Uri.file(currentFile).toString() : undefined}
+              onChange={autoSave}
+              onMount={(
+                editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
+                monaco: Monaco
+              ) => {
+                // eslint-disable-next-line functional/immutable-data
+                editorRef.current = editor
+                initAutoTypes(editor, monaco)
+                installFormatter(editor, monaco)
+                // installESlint(editor, monaco)
+              }}
+            />
+          )}
+          <Resizable
+            defaultSize={{
+              width: "50%",
+              height: "100%"
+            }}
+            maxWidth="60%"
+            minWidth="1"
+            enable={{
+              top: false,
+              right: false,
+              bottom: false,
+              left: true,
+              topRight: false,
+              bottomRight: false,
+              bottomLeft: false,
+              topLeft: false
+            }}
+            onResize={() =>
+              editorRef.current?.layout({} as unknown as editor.IDimension)
+            }
+          >
+            <div className="border-x border-gray-700 preview w-full h-full">
+              preview
+            </div>
+          </Resizable>
+        </div>
       </div>
     </div>
   )
