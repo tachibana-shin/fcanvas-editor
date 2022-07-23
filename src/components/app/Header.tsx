@@ -238,7 +238,7 @@ export function Header() {
           }
           menu={
             <>
-              <div className="text-center min-w-[250px]">
+              <div className="text-center mb-3 min-w-[250px]">
                 <Avatar // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                   alt={user.displayName!}
                   src={user.photoURL ?? undefined}

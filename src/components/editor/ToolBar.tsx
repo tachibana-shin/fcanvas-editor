@@ -49,7 +49,7 @@ export function ToolBar() {
     </div>
   )
   return (
-    <div className="flex items-center px-4 py-[10px] text-white  border-y border-dotted">
+    <div className="flex items-center px-4 py-[10px] text-white  border-y border-gray-700 border-dotted">
       <Fab color="primary" size="small">
         <PlayArrowIcon />
       </Fab>

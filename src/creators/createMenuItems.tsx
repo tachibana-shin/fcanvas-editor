@@ -19,7 +19,14 @@ export function createMenuItems(items: MenuItemOption[]) {
     return (
       <MenuItem key={index} onClick={item.onClick}>
         {item.icon && <ListItemIcon>{item.icon}</ListItemIcon>}
-        <ListItemText>{item.name}</ListItemText>
+        <ListItemText
+          sx={{
+            fontSize: 14
+          }}
+          disableTypography
+        >
+          {item.name}
+        </ListItemText>
         {item.sub && (
           <Typography variant="body2" color="text.secondary" ml={2}>
             {item.sub}
