@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const CDN_PKG = "https://cdn.skypack.dev/" // https://unpkg.com/
+const CDN_PKG = "https://unpkg.com"
 
 // fetch type from unpkg
 // fetch code from cdn.skypack.dev
@@ -69,6 +69,40 @@ async function fetchTypesPackage(name: string, version: string) {
   return getAllDepends(pkg)
 }
 
+async function load(depends: Record<string, string>) {
+  const types: {
+    text: string
+    file: string
+  }[][] = []
+
+  for (const [name, version] of Object.entries(depends)) {
+    const type = await fetchTypesPackage(name, version)
+
+    const thisTypes = (await Promise.all(
+      type.map(async ({ name, types }) => {
+        if (types === undefined) return undefined
+
+        return {
+          text: await fetch(`${CDN_PKG}/${types}`).then((res) => res.text()),
+          file: `file:///node_modules/${name}/${types}`
+        }
+      })
+    ).then((res) => {
+      return res.filter((item) => {
+        if (item === undefined) return false
+        return true
+      })
+    })) as {
+      text: string
+      file: string
+    }[]
+
+    types.push(thisTypes)
+  }
+
+  return types.flat(1).reverse()
+}
+
 self.addEventListener(
   "message",
   async ({
@@ -77,28 +111,9 @@ self.addEventListener(
     id: string
     depends: Record<string, string>
   }>) => {
-    const types = (
-      await Promise.all(
-        Object.entries(data.depends).map(async ([name, version]) => {
-          const types = await fetchTypesPackage(name, version)
-
-          return await Promise.all(
-            types.map(async ({ name, types }) => {
-              return {
-                text: await fetch(
-                  `https://cdn.skypack.dev/${name}/${types}`
-                ).then((res) => res.text()),
-                file: `file:///node_modules/${name}/${types}`
-              }
-            })
-          )
-        })
-      )
-    ).flat(1)
-
     postMessage({
       id: data.id,
-      types
+      types: await load(data.depends)
     })
   }
 )

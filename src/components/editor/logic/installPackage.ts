@@ -43,10 +43,11 @@ export async function installPackages(
 ) {
   const packageJSON = await readFileConfig(
     fs,
-    ["package.json"],
+    ["/package.json"],
     (_f, content) => JSON.parse(content),
     {}
   )
+  console.log(packageJSON)
 
   const types = await typings(packageJSON.dependencies ?? {})
 
@@ -54,3 +55,4 @@ export async function installPackages(
     monaco.languages.typescript.javascriptDefaults.addExtraLib(text, file)
   })
 }
+window.typings=typings

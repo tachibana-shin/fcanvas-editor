@@ -3,8 +3,7 @@ import type { Monaco } from "@monaco-editor/react"
 import Editor from "@monaco-editor/react"
 import debounce from "debounce"
 import { Uri } from "monaco-editor"
-import type { editor, languages as Languages } from "monaco-editor"
-import { AutoTypings, LocalStorageCache } from "monaco-editor-auto-typings"
+import type { editor } from "monaco-editor"
 import type { useRef } from "react"
 import { useEffect, useMemo, useState } from "react"
 
@@ -29,51 +28,6 @@ const PRETTIER_CONFIG_FILES = [
   "prettier.config.cjs",
   ".editorconfig"
 ]
-
-async function initAutoTypes(
-  editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
-  monaco: Monaco
-) {
-  console.log("mounted editor")
-
-  // monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true)
-  const compilerOptions = {
-    allowJs: true,
-    allowSyntheticDefaultImports: true,
-    alwaysStrict: true,
-    jsx: "React",
-    jsxFactory: "React.createElement"
-  } as unknown as Languages.typescript.CompilerOptions
-
-  monaco.languages.typescript.typescriptDefaults.setCompilerOptions(
-    compilerOptions
-  )
-  monaco.languages.typescript.javascriptDefaults.setCompilerOptions(
-    compilerOptions
-  )
-
-  await AutoTypings.create(editor, {
-    monaco,
-    shareCache: true,
-    sourceCache: new LocalStorageCache(), // Cache loaded sources in localStorage. May be omitted
-    // Other options...
-    fileRootPath: "@types/",
-    // Log progress updates to a div console
-    onUpdate(_u, t) {
-      console.info(t)
-    },
-
-    // Log errors to a div console
-    onError(e) {
-      console.warn(e)
-    },
-
-    // Print loaded versions to DOM
-    onUpdateVersions(versions) {
-      console.info(versions)
-    }
-  })
-}
 
 export function EditorFile(props: {
   editorRef: ReturnType<
@@ -138,7 +92,7 @@ export function EditorFile(props: {
       ) => {
         // eslint-disable-next-line functional/immutable-data
         editorRef.current = editor
-        initAutoTypes(editor, monaco)
+
         installFormatter(editor, monaco)
         installPackages(editor, monaco)
         // installESlint(editor, monaco)
