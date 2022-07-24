@@ -75,10 +75,26 @@ self.addEventListener(
     data
   }: MessageEvent<{
     id: string
-    pkg: string
-    version: string
+    depends: Record<string, string>
   }>) => {
-    const types = fetchTypesPackage(data.pkg, data.version)
+    const types = (
+      await Promise.all(
+        Object.entries(data.depends).map(async ([name, version]) => {
+          const types = await fetchTypesPackage(name, version)
+
+          return await Promise.all(
+            types.map(async ({ name, types }) => {
+              return {
+                text: await fetch(
+                  `https://cdn.skypack.dev/${name}/${types}`
+                ).then((res) => res.text()),
+                file: `file:///node_modules/${name}/${types}`
+              }
+            })
+          )
+        })
+      )
+    ).flat(1)
 
     postMessage({
       id: data.id,
