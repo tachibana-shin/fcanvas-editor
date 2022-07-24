@@ -13,7 +13,6 @@ import debounce from "debounce"
 import type { editor, languages as Languages } from "monaco-editor"
 import { Uri } from "monaco-editor"
 import { AutoTypings, LocalStorageCache } from "monaco-editor-auto-typings"
-import { join } from "path-browserify"
 import type { Options } from "prettier"
 import { Resizable } from "re-resizable"
 import { useEffect, useMemo, useRef, useState } from "react"
@@ -154,9 +153,10 @@ async function initAutoTypes(
 
   await AutoTypings.create(editor, {
     monaco,
+    shareCache: true,
     sourceCache: new LocalStorageCache(), // Cache loaded sources in localStorage. May be omitted
     // Other options...
-    // fileRootPath: "node_modules/",
+    fileRootPath: "@types/",
     // Log progress updates to a div console
     onUpdate(_u, t) {
       console.info(t)
@@ -243,7 +243,7 @@ export function Index() {
   const autoSave = useMemo(() => {
     if (!currentFile) return undefined
 
-    const file = join("/", currentFile)
+    const file = currentFile
     return debounce(async (code: string | undefined) => {
       if (code === undefined) return
 
@@ -254,109 +254,69 @@ export function Index() {
   }, [currentFile])
   // const resize
 
+  const [tabSelection, setTabSelection] = useState<
+    null | "file" | "search" | "change" | "setting"
+  >("file")
+  const tabs: {
+    icon: string
+    value: Exclude<typeof tabSelection, null>
+  }[] = [
+    {
+      icon: "codicon:files",
+      value: "file"
+    },
+    {
+      icon: "codicon:search",
+      value: "search"
+    },
+    {
+      icon: "codicon:request-changes",
+      value: "change"
+    },
+    {
+      icon: "codicon:settings-gear",
+      value: "setting"
+    }
+  ]
+
   return (
     <div className="page">
       <ToolBar />
 
-      <div className="flex relative w-full flex-1">
-        <Resizable
-          defaultSize={{
-            width: "220px",
-            height: "100%"
-          }}
-          maxWidth="60%"
-          minWidth="1"
-          enable={{
-            top: false,
-            right: true,
-            bottom: false,
-            left: false,
-            topRight: false,
-            bottomRight: false,
-            bottomLeft: false,
-            topLeft: false
-          }}
-          onResize={() =>
-            editorRef.current?.layout({} as unknown as editor.IDimension)
-          }
-        >
-          <div className="pl-3 pt-1 h-full border-x border-gray-700">
-            <div className="ml-[-27px]">
-              <div className="flex items-center justify-between ml-[22px] mr-[7px] py-1">
-                <h1 className="text-[12px] uppercase font-bold">FCanvas</h1>
-                <div className="text-[1.1rem] flex items-center">
-                  <NoteAddOutlined
-                    fontSize="inherit"
-                    className="mr-1 cursor-pointer"
-                    onClick={() => fileTreeRef.current?.createFile()}
-                  />
-                  <CreateNewFolderOutlined
-                    fontSize="inherit"
-                    className="mr-1 cursor-pointer"
-                    onClick={() => fileTreeRef.current?.createDir()}
-                  />
-                  <ReplayOutlinedIcon
-                    fontSize="inherit"
-                    className="cursor-pointer"
-                    onClick={() => fileTreeRef.current?.reloadDir()}
-                  />
-                </div>
-              </div>
+      <div className="flex h-full">
+        <div className="flex flex-col items-center flex-nowrap">
+          {tabs.map(({ icon, value }) => {
+            return (
+              <button
+                key={value}
+                className={
+                  "w-[48px] h-[48px] text-gray-500 hover:text-gray-400" +
+                  (tabSelection === value ? " !text-inherit" : "")
+                }
+                onClick={() => {
+                  if (tabSelection === value) setTabSelection(null)
+                  else setTabSelection(value)
+                }}
+              >
+                <Icon icon={icon} className="w-[24px] h-[24px]" />
+              </button>
+            )
+          })}
+        </div>
 
-              <FileTreeNoRoot
-                funcSharedRef={fileTreeRef}
-                filepath="/"
-                fs={fs}
-              />
-            </div>
-          </div>
-        </Resizable>
-
-        <div className="w-full h-full flex">
-          {currentFile || (
-            <div className="w-full h-full text-center flex items-center justify-center">
-              <Icon
-                icon="fluent:code-text-edit-20-filled"
-                className="w-120px h-120px text-gray-400"
-              />
-            </div>
-          )}
-
-          {currentFile !== null && (
-            <Editor
-              width="100%"
-              options={{
-                automaticLayout: true
-              }}
-              // defaultLanguage={currentFile ? extname(currentFile) : undefined}
-              value={contentFile}
-              theme="vs-dark"
-              path={currentFile ? Uri.file(currentFile).toString() : undefined}
-              onChange={autoSave}
-              onMount={(
-                editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
-                monaco: Monaco
-              ) => {
-                // eslint-disable-next-line functional/immutable-data
-                editorRef.current = editor
-                initAutoTypes(editor, monaco)
-                installFormatter(editor, monaco)
-                // installESlint(editor, monaco)
-              }}
-            />
-          )}
+        <div className="flex relative w-full flex-1">
           <Resizable
             defaultSize={{
-              width: "50%",
+              width: "220px",
               height: "100%"
             }}
             maxWidth="60%"
             minWidth="1"
             enable={{
               top: false,
-              right: false,
+              right: true,
               bottom: false,
-              left: true,
+              left: false,
               topRight: false,
               bottomRight: false,
               bottomLeft: false,
@@ -365,11 +325,96 @@ export function Index() {
             onResize={() =>
               editorRef.current?.layout({} as unknown as editor.IDimension)
             }
+            className={tabSelection !== null ? undefined : "hidden"}
           >
-            <div className="border-x border-gray-700 preview w-full h-full">
-              preview
+            <div className="pl-3 pt-1 h-full border-x border-gray-700 overflow-x-hidden">
+              <div className="ml-[-27px]">
+                <div className="flex items-center justify-between ml-[22px] mr-[7px] py-1">
+                  <h1 className="text-[12px] uppercase font-bold">FCanvas</h1>
+                  <div className="text-[1.1rem] flex items-center children:mr-1 children:cursor-pointer">
+                    <NoteAddOutlined
+                      fontSize="inherit"
+                      onClick={() => fileTreeRef.current?.createFile()}
+                    />
+                    <CreateNewFolderOutlined
+                      fontSize="inherit"
+                      onClick={() => fileTreeRef.current?.createDir()}
+                    />
+                    <ReplayOutlinedIcon
+                      fontSize="inherit"
+                      onClick={() => fileTreeRef.current?.reloadDir()}
+                    />
+                  </div>
+                </div>
+
+                <FileTreeNoRoot
+                  funcSharedRef={fileTreeRef}
+                  filepath="/"
+                  fs={fs}
+                />
+              </div>
             </div>
           </Resizable>
+
+          <div className="w-full h-full flex">
+            {currentFile === null && (
+              <div className="w-full h-full text-center flex items-center justify-center">
+                <Icon
+                  icon="fluent:code-text-edit-20-filled"
+                  className="w-120px h-120px text-gray-400"
+                />
+              </div>
+            )}
+
+            {currentFile !== null && (
+              <Editor
+                width="100%"
+                options={{
+                  automaticLayout: true
+                }}
+                // defaultLanguage={currentFile ? extname(currentFile) : undefined}
+                value={contentFile}
+                theme="vs-dark"
+                path={Uri.file(currentFile).toString()}
+                onChange={autoSave}
+                onMount={(
+                  editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
+                  monaco: Monaco
+                ) => {
+                  // eslint-disable-next-line functional/immutable-data
+                  editorRef.current = editor
+                  initAutoTypes(editor, monaco)
+                  installFormatter(editor, monaco)
+                  // installESlint(editor, monaco)
+                }}
+              />
+            )}
+            <Resizable
+              defaultSize={{
+                width: "50%",
+                height: "100%"
+              }}
+              maxWidth="60%"
+              minWidth="1"
+              enable={{
+                top: false,
+                right: false,
+                bottom: false,
+                left: true,
+                topRight: false,
+                bottomRight: false,
+                bottomLeft: false,
+                topLeft: false
+              }}
+              onResize={() =>
+                editorRef.current?.layout({} as unknown as editor.IDimension)
+              }
+            >
+              <div className="border-x border-gray-700 preview w-full h-full">
+                preview
+              </div>
+            </Resizable>
+          </div>
         </div>
       </div>
     </div>

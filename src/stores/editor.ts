@@ -1,6 +1,5 @@
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createSlice } from "@reduxjs/toolkit"
-import { relative } from "path-browserify"
 
 const editorSlice = createSlice({
   name: "editor",
@@ -11,7 +10,7 @@ const editorSlice = createSlice({
   reducers: {
     setCurrentSelect(state, { payload }: PayloadAction<string>) {
       // eslint-disable-next-line functional/immutable-data
-      state.currentSelect = relative("/", payload)
+      state.currentSelect = payload
     },
     setCurrentFile(state, { payload }: PayloadAction<string>) {
       // eslint-disable-next-line functional/immutable-data
