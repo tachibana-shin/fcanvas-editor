@@ -6,7 +6,7 @@ const CDN_PKG = "https://unpkg.com"
 
 function fetchPackageJSON(name: string, version: string) {
   return fetch(`${CDN_PKG}/${name}@${version}/package.json`).then((res) =>
-    res.json()
+    res.text()
   )
 }
 
@@ -15,12 +15,15 @@ async function fetchInfoPackage(
   version: string,
   cached = new Map<string, unknown>()
 ) {
-  const pkg = await fetchPackageJSON(name, version)
+  const pkgText = await fetchPackageJSON(name, version)
+  const pkg = JSON.parse(pkgText)
   const types: string = pkg.types ?? pkg.typings
   const pkgIsTypes = name.startsWith("@types/")
 
   return {
     name: `${name}@${version}`,
+    fname: name,
+    pkgText,
     types: types && `${name}@${version}/${types}`,
     pkgIsTypes,
     dependencies: (await Promise.all(
@@ -72,6 +75,8 @@ async function fetchTypesPackage(name: string, version: string) {
 async function load(depends: Record<string, string>) {
   const types: {
     text: string
+    pkgText: string
+    pkgPath: string
     file: string
   }[][] = []
 
@@ -79,12 +84,18 @@ async function load(depends: Record<string, string>) {
     const type = await fetchTypesPackage(name, version)
 
     const thisTypes = (await Promise.all(
-      type.map(async ({ name, types }) => {
+      type.map(async ({ fname, pkgText, types }) => {
         if (types === undefined) return undefined
 
         return {
           text: await fetch(`${CDN_PKG}/${types}`).then((res) => res.text()),
-          file: `file:///node_modules/${name}/${types}`
+          pkgText,
+          pkgPath: `file:///node_modules/${fname}/package.json`,
+          file: `file:///node_modules/${fname}/${types
+            .split("/")
+            .slice(1)
+            .join("/")
+            .replace("./", "")}`
         }
       })
     ).then((res) => {
@@ -94,6 +105,8 @@ async function load(depends: Record<string, string>) {
       })
     })) as {
       text: string
+      pkgText: string
+      pkgPath: string
       file: string
     }[]
 

@@ -1,5 +1,5 @@
 import type { Monaco } from "@monaco-editor/react"
-import type { editor } from "monaco-editor"
+import type { editor, languages as Languages } from "monaco-editor"
 import { v4 } from "uuid"
 
 import { readFileConfig } from "~/helpers/readFileConfig"
@@ -12,6 +12,8 @@ function typings(depends: Record<string, string>) {
     {
       text: string
       file: string
+      pkgText: string
+      pkgPath: string
     }[]
   >((resolve) => {
     const id = v4()
@@ -21,6 +23,8 @@ function typings(depends: Record<string, string>) {
         types: {
           text: string
           file: string
+          pkgText: string
+          pkgPath: string
         }[]
       }>
     ) => {
@@ -41,6 +45,22 @@ export async function installPackages(
   _editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
   monaco: Monaco
 ) {
+  const compilerOptions = {
+    allowJs: true,
+    allowSyntheticDefaultImports: true,
+    alwaysStrict: true,
+    jsx: "React",
+    jsxFactory: "React.createElement"
+    // moduleResolution: "node"
+  } as unknown as Languages.typescript.CompilerOptions
+
+  monaco.languages.typescript.typescriptDefaults.setCompilerOptions(
+    compilerOptions
+  )
+  monaco.languages.typescript.javascriptDefaults.setCompilerOptions(
+    compilerOptions
+  )
+
   const packageJSON = await readFileConfig(
     fs,
     ["/package.json"],
@@ -51,8 +71,13 @@ export async function installPackages(
 
   const types = await typings(packageJSON.dependencies ?? {})
 
-  types.forEach(({ text, file }) => {
+  console.log(types)
+
+  types.forEach(({ text, pkgPath, pkgText, file }) => {
     monaco.languages.typescript.javascriptDefaults.addExtraLib(text, file)
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(text, file)
+    monaco.languages.typescript.javascriptDefaults.addExtraLib(pkgText, pkgPath)
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(pkgText, pkgPath)
   })
 }
-window.typings=typings
+window.typings = typings
