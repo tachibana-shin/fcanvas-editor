@@ -14,7 +14,7 @@ import { useEffect, useImperativeHandle, useMemo, useState } from "react"
 import { useDispatch } from "react-redux"
 
 import { RenameFileOrDir } from "../components/RenameFileOrDir"
-import { createContextMenu } from "../create/createContextMenu"
+import { createContextMenu } from "../../../creators/createContextMenu"
 import { sortListFiles } from "../utils/sortListFiles"
 import { splice } from "../utils/splice"
 

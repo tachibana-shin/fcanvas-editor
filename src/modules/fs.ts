@@ -1,7 +1,8 @@
-import FileSystem from "@isomorphic-git/lightning-fs"
 import mitt from "mitt"
 
-export const fs = new FileSystem("local").promises
+import { InMemoryFS } from "~/libs/InMemoryFS"
+
+export const fs = new InMemoryFS()
 
 if (import.meta.env.NODE_ENV !== "production") {
   // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
@@ -19,10 +20,10 @@ export const events = mitt<{
 const { writeFile, rename, unlink } = fs
 
 // eslint-disable-next-line functional/immutable-data
-fs.writeFile = (path, data, options) => {
+fs.writeFile = (path, data) => {
   events.emit("writeFile", path)
 
-  return writeFile.call(fs, path, data, options)
+  return writeFile.call(fs, path, data)
 }
 // eslint-disable-next-line functional/immutable-data
 fs.rename = (oldPath, newPath) => {

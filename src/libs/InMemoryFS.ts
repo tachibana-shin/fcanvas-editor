@@ -95,7 +95,7 @@ export class InMemoryFS {
     this.memory.childs = []
   }
 
-  readFile(path: string) {
+  async readFile(path: string) {
     return this.queryObject(
       this.normalize(path).split("/"),
       "FILE_NOT_EXISTS: ",
@@ -103,7 +103,7 @@ export class InMemoryFS {
     ).content
   }
 
-  writeFile(path: string, content: string) {
+  async writeFile(path: string, content: string) {
     const pathsSplited = this.normalize(path).split("/")
     const filename = this.getFilename(pathsSplited)
 
@@ -131,7 +131,7 @@ export class InMemoryFS {
     this.sortFilesDir(dir)
   }
 
-  mkdir(path: string) {
+  async mkdir(path: string) {
     const pathsSplited = this.normalize(path).split("/")
     const filename = this.getFilename(pathsSplited)
 
@@ -157,7 +157,7 @@ export class InMemoryFS {
     this.sortFilesDir(parent)
   }
 
-  rename(from: string, to: string) {
+  async rename(from: string, to: string) {
     const pathsSplitedFrom = this.normalize(from).split("/")
     const filenameFrom = this.getFilename(pathsSplitedFrom)
     const parentFrom = this.queryObject(
@@ -192,7 +192,7 @@ export class InMemoryFS {
     this.sortFilesDir(parentTo)
   }
 
-  unlink(path: string) {
+  async unlink(path: string) {
     const pathsSplited = this.normalize(path).split("/")
     const filename = this.getFilename(pathsSplited)
     const parent = this.queryObject(
@@ -209,7 +209,7 @@ export class InMemoryFS {
     parent.childs.splice(index, 1)
   }
 
-  lstat(path: string) {
+  async lstat(path: string) {
     const obj = this.queryObject(
       this.normalize(path).split("/"),
       "PATH_NOT_EXISTS: "
@@ -225,7 +225,7 @@ export class InMemoryFS {
     }
   }
 
-  readdir(path: string) {
+  async readdir(path: string) {
     return this.queryObject(
       this.normalize(path).split("/"),
       "DIR_NOT_EXISTS: ",
@@ -233,7 +233,7 @@ export class InMemoryFS {
     ).childs.map((item) => item.name)
   }
 
-  exists(path: string) {
+  async exists(path: string) {
     try {
       return !!this.queryObject(this.normalize(path).split("/"), "")
     } catch {

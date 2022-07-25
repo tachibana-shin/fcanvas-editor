@@ -5,162 +5,166 @@ import { InMemoryFS } from "./InMemoryFS"
 describe("InMemoryFS", () => {
   const fs = new InMemoryFS()
 
-  test("writeFile", () => {
-    fs.clean()
+  test("writeFile", async () => {
+    await fs.clean()
 
-    fs.writeFile("/test.txt", "hello world")
+    await fs.writeFile("/test.txt", "hello world")
 
-    expect(fs.readFile("/test.txt")).toEqual("hello world")
+    expect(await fs.readFile("/test.txt")).toEqual("hello world")
 
-    fs.writeFile("/test.txt", "hello world2")
+    await fs.writeFile("/test.txt", "hello world2")
 
-    expect(fs.readFile("/test.txt")).toEqual("hello world2")
+    expect(await fs.readFile("/test.txt")).toEqual("hello world2")
 
-    fs.mkdir("/examples")
+    await fs.mkdir("/examples")
 
-    expect(() => fs.writeFile("/examples", "")).toThrowError("IS_DIR")
+    await expect(fs.writeFile("/examples", "")).rejects.toThrowError("IS_DIR")
   })
 
-  test("readFile", () => {
-    fs.clean()
+  test("readFile", async () => {
+    await fs.clean()
 
-    fs.writeFile("/test.txt", "hello world")
+    await fs.writeFile("/test.txt", "hello world")
 
-    expect(fs.readFile("/test.txt")).toEqual("hello world")
+    expect(await fs.readFile("/test.txt")).toEqual("hello world")
 
-    fs.clean()
+    await fs.clean()
 
-    expect(() => fs.readFile("/test.txt")).toThrowError("NOT_EXISTS")
+    await expect(fs.readFile("/test.txt")).rejects.toThrowError("NOT_EXISTS")
   })
 
-  test("mkdir", () => {
-    fs.clean()
+  test("mkdir", async () => {
+    await fs.clean()
 
-    fs.mkdir("/examples")
-    fs.writeFile("/test.txt", "")
+    await fs.mkdir("/examples")
+    await fs.writeFile("/test.txt", "")
 
-    expect(fs.lstat("/examples").isDirectory()).toEqual(true)
-    expect(fs.lstat("/test.txt").isDirectory()).toEqual(false)
+    expect((await fs.lstat("/examples")).isDirectory()).toEqual(true)
+    expect((await fs.lstat("/test.txt")).isDirectory()).toEqual(false)
 
-    expect(() => fs.mkdir("/examples")).toThrowError("IS_DIR: /examples")
-    expect(() => fs.mkdir("/test.txt")).toThrowError("IS_FILE: /test.txt")
+    await expect(fs.mkdir("/examples")).rejects.toThrowError(
+      "IS_DIR: /examples"
+    )
+    await expect(fs.mkdir("/test.txt")).rejects.toThrowError(
+      "IS_FILE: /test.txt"
+    )
   })
 
   describe("rename", () => {
-    test("dir", () => {
-      fs.clean()
+    test("dir", async () => {
+      await fs.clean()
 
-      fs.mkdir("/examples")
+      await fs.mkdir("/examples")
 
-      expect(fs.exists("/examples")).toEqual(true)
-      expect(fs.lstat("/examples").isDirectory()).toEqual(true)
+      expect(await fs.exists("/examples")).toEqual(true)
+      expect((await fs.lstat("/examples")).isDirectory()).toEqual(true)
 
-      fs.rename("/examples", "/examples-rename")
+      await fs.rename("/examples", "/examples-rename")
 
-      expect(fs.exists("/examples")).toEqual(false)
-      expect(fs.lstat("/examples-rename").isDirectory()).toEqual(true)
+      expect(await fs.exists("/examples")).toEqual(false)
+      expect((await fs.lstat("/examples-rename")).isDirectory()).toEqual(true)
     })
 
-    test("file", () => {
-      fs.clean()
+    test("file", async () => {
+      await fs.clean()
 
-      fs.writeFile("/test.txt", "hello world")
+      await fs.writeFile("/test.txt", "hello world")
 
-      expect(fs.exists("/test.txt")).toEqual(true)
-      expect(fs.lstat("/test.txt").isFile()).toEqual(true)
+      expect(await fs.exists("/test.txt")).toEqual(true)
+      expect((await fs.lstat("/test.txt")).isFile()).toEqual(true)
 
-      fs.rename("/test.txt", "/test-rename.txt")
+      await fs.rename("/test.txt", "/test-rename.txt")
 
-      expect(fs.exists("/test.txt")).toEqual(false)
-      expect(fs.lstat("/test-rename.txt").isFile()).toEqual(true)
+      expect(await fs.exists("/test.txt")).toEqual(false)
+      expect((await fs.lstat("/test-rename.txt")).isFile()).toEqual(true)
     })
   })
 
   describe("unlink", () => {
-    test("dir", () => {
-      fs.clean()
+    test("dir", async () => {
+      await fs.clean()
 
-      fs.mkdir("/examples")
+      await fs.mkdir("/examples")
 
-      expect(fs.lstat("/examples").isDirectory()).toEqual(true)
+      expect((await fs.lstat("/examples")).isDirectory()).toEqual(true)
 
-      fs.unlink("/examples")
+      await fs.unlink("/examples")
 
-      expect(fs.exists("/examples")).toEqual(false)
+      expect(await fs.exists("/examples")).toEqual(false)
     })
 
-    test("file", () => {
-      fs.clean()
+    test("file", async () => {
+      await fs.clean()
 
-      fs.writeFile("/test.txt", "hello world")
+      await fs.writeFile("/test.txt", "hello world")
 
-      expect(fs.lstat("/test.txt").isFile()).toEqual(true)
+      expect((await fs.lstat("/test.txt")).isFile()).toEqual(true)
 
-      fs.unlink("/test.txt")
+      await fs.unlink("/test.txt")
 
-      expect(fs.exists("/test.txt")).toEqual(false)
+      expect(await fs.exists("/test.txt")).toEqual(false)
     })
   })
 
   describe("lstat", () => {
-    test("isFile", () => {
-      fs.clean()
+    test("isFile", async () => {
+      await fs.clean()
 
-      expect(() => fs.lstat("/test.txt")).toThrowError("NOT_EXISTS")
+      await expect(fs.lstat("/test.txt")).rejects.toThrowError("NOT_EXISTS")
 
-      fs.writeFile("/test.txt", "hello world")
+      await fs.writeFile("/test.txt", "hello world")
 
-      expect(fs.lstat("/test.txt").isFile()).toEqual(true)
-      expect(fs.lstat("/test.txt").isDirectory()).toEqual(false)
+      expect((await fs.lstat("/test.txt")).isFile()).toEqual(true)
+      expect((await fs.lstat("/test.txt")).isDirectory()).toEqual(false)
     })
-    test("isDirectory", () => {
-      fs.clean()
+    test("isDirectory", async () => {
+      await fs.clean()
 
-      expect(() => fs.lstat("examples")).toThrowError("NOT_EXISTS")
+      await expect(fs.lstat("examples")).rejects.toThrowError("NOT_EXISTS")
 
-      fs.mkdir("/examples")
+      await fs.mkdir("/examples")
 
-      expect(fs.lstat("/examples").isDirectory()).toEqual(true)
-      expect(fs.lstat("/examples").isFile()).toEqual(false)
+      expect((await fs.lstat("/examples")).isDirectory()).toEqual(true)
+      expect((await fs.lstat("/examples")).isFile()).toEqual(false)
     })
   })
 
   describe("readdir", () => {
-    test("in root", () => {
-      fs.clean()
+    test("in root", async () => {
+      await fs.clean()
 
-      expect(fs.readdir("/")).toEqual([])
+      expect(await fs.readdir("/")).toEqual([])
 
-      fs.mkdir("/examples")
+      await fs.mkdir("/examples")
 
-      expect(fs.readdir("/")).toEqual(["examples"])
+      expect(await fs.readdir("/")).toEqual(["examples"])
     })
-    test("in children", () => {
-      fs.clean()
+    test("in children", async () => {
+      await fs.clean()
 
-      expect(() => fs.readdir("/examples")).toThrowError("NOT_EXISTS")
+      await expect(fs.readdir("/examples")).rejects.toThrowError("NOT_EXISTS")
 
-      fs.mkdir("/examples")
-      fs.writeFile("/examples/test.txt", "hello world")
+      await fs.mkdir("/examples")
+      await fs.writeFile("/examples/test.txt", "hello world")
 
-      expect(fs.readdir("/examples")).toEqual(["test.txt"])
+      expect(await fs.readdir("/examples")).toEqual(["test.txt"])
     })
   })
 
   describe("exists", () => {
-    test("file", () => {
-      fs.clean()
+    test("file", async () => {
+      await fs.clean()
 
-      expect(fs.exists("/test.txt")).toEqual(false)
-      fs.writeFile("/test.txt", "hello world")
-      expect(fs.exists("/test.txt")).toEqual(true)
+      expect(await fs.exists("/test.txt")).toEqual(false)
+      await fs.writeFile("/test.txt", "hello world")
+      expect(await fs.exists("/test.txt")).toEqual(true)
     })
-    test("directory", () => {
-      fs.clean()
+    test("directory", async () => {
+      await fs.clean()
 
-      expect(fs.exists("/examples")).toEqual(false)
-      fs.mkdir("/examples")
-      expect(fs.exists("/examples")).toEqual(true)
+      expect(await fs.exists("/examples")).toEqual(false)
+      await fs.mkdir("/examples")
+      expect(await fs.exists("/examples")).toEqual(true)
     })
   })
 })
