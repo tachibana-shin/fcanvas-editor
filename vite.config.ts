@@ -1,5 +1,4 @@
 /// <reference types="vitest" />
-/// <reference types="vite/client" />
 
 import { fileURLToPath, URL } from "url"
 
@@ -44,9 +43,5 @@ export default defineConfig({
       autoInstall: true,
       compiler: "jsx"
     })
-  ],
-  test: {
-    globals: true,
-    environment: "jsdom"
-  }
+  ]
 })

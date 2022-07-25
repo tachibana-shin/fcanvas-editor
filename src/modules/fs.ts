@@ -10,7 +10,7 @@ if (import.meta.env.NODE_ENV !== "production") {
 
 export type FS = typeof fs
 
-// readFile, writeFile, rename, unlink, mkdir, lstat
+// readFile, writeFile, rename, unlink, mkdir, lstat, readdir
 export const events = mitt<{
   writeFile: string
   unlink: string
