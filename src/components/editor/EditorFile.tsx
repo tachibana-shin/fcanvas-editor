@@ -74,7 +74,7 @@ export function EditorFile(props: {
       </div>
     )
   }
-console.log(Uri.file(currentFile).toString())
+  console.log(Uri.file(currentFile).toString())
   return (
     <Editor
       width="100%"
