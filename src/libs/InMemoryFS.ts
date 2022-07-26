@@ -1,10 +1,11 @@
+import mitt from "mitt"
 import sort from "sort-array"
 
-interface File {
+export interface File {
   name: string
   content: string
 }
-interface Directory {
+export interface Directory {
   name: string
   childs: (Directory | File)[]
 }
@@ -19,6 +20,11 @@ export class InMemoryFS {
     name: "",
     childs: []
   }
+
+  public readonly events = mitt<{
+    writeFile: string
+    unlink: string
+  }>()
 
   private queryObject(
     pathsSplited: string[],
@@ -96,11 +102,15 @@ export class InMemoryFS {
   }
 
   async readFile(path: string) {
+    return (await this.readFileObject(path)).content
+  }
+
+  async readFileObject(path: string) {
     return this.queryObject(
       this.normalize(path).split("/"),
       "FILE_NOT_EXISTS: ",
       true
-    ).content
+    )
   }
 
   async writeFile(path: string, content: string) {
@@ -119,16 +129,20 @@ export class InMemoryFS {
       if (isDirectory(inMemory)) throw new Error("IS_DIR: " + path)
       // eslint-disable-next-line functional/immutable-data
       inMemory.content = content
+      this.events.emit("writeFile", path)
 
       return
     }
 
-    dir.childs.push({
+    const obj = {
       name: filename,
       content
-    })
+    }
+    dir.childs.push(obj)
 
     this.sortFilesDir(dir)
+
+    this.events.emit("writeFile", path)
   }
 
   async mkdir(path: string) {
@@ -166,15 +180,16 @@ export class InMemoryFS {
       false
     )
 
-    const obj = parentFrom.childs.find((item) => item.name === filenameFrom)
+    const objIndex = parentFrom.childs.findIndex(
+      (item) => item.name === filenameFrom
+    )
+    const obj = parentFrom.childs[objIndex]
 
     // eslint-disable-next-line functional/no-throw-statement
     if (!obj) throw new Error("PATH_NOT_EXISTS: " + from)
     // remove
-    // eslint-disable-next-line functional/immutable-data
-    parentFrom.childs = parentFrom.childs.filter(
-      (item) => item.name !== filenameFrom
-    )
+    parentFrom.childs.splice(objIndex >>> 0, 1)
+    this.events.emit("unlink", from)
 
     const pathsSplitedTo = this.normalize(to).split("/")
     const filenameTo = this.getFilename(pathsSplitedTo)
@@ -184,10 +199,12 @@ export class InMemoryFS {
       false
     )
 
-    parentTo.childs.push({
+    const newObj = {
       ...obj,
       name: filenameTo
-    })
+    }
+    parentTo.childs.push(newObj)
+    this.events.emit("unlink", to)
 
     this.sortFilesDir(parentTo)
   }
@@ -207,6 +224,7 @@ export class InMemoryFS {
     if (index === -1) throw new Error("PATH_NOT_EXISTS: " + path)
 
     parent.childs.splice(index, 1)
+    this.events.emit("unlink", path)
   }
 
   async lstat(path: string) {

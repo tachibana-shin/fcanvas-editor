@@ -1,62 +1,55 @@
-import { watchEffect } from "fcanvas"
 import type { editor } from "monaco-editor"
 import { join } from "path-browserify"
 import { Resizable } from "re-resizable"
-import type { useRef } from "react"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
+
+import customSystemjsNormalize from "./raw/custom-systemjs-normalize.js?raw"
+import handleRequestRefrersh from "./raw/handle-request-refresh.js?raw"
 
 import SystemJS from "~/../node_modules/systemjs/dist/system.src.js?raw"
-import type { FS } from "~/modules/fs"
 import { fs } from "~/modules/fs"
 
-const storeBlobs = new Map<string, string>()
-function createBlobURL(id: string, content: string) {
-  const inStore = storeBlobs.get(id)
-  if (inStore) return inStore
-
+function createBlobURL(content: string) {
   // eslint-disable-next-line n/no-unsupported-features/node-builtins
-  const url = URL.createObjectURL(new Blob([content]))
-
-  storeBlobs.set(id, url)
-
-  return url
+  return URL.createObjectURL(new Blob([content]))
 }
 
-async function renderPreview(fs: FS) {
+const fileURLObjectMap = new Map<string, string>()
+// free memory
+fs.events.on("writeFile", (file) => {
+  // clean
+  fileURLObjectMap.forEach((url, path) => {
+    if (file === path || path.startsWith(`${file}/`)) {
+      // cancel
+      // eslint-disable-next-line n/no-unsupported-features/node-builtins
+      URL.revokeObjectURL(url)
+      fileURLObjectMap.delete(path)
+    }
+  })
+})
+async function getBlobURLOfFile(path: string) {
+  const inM = fileURLObjectMap.get(path)
+  if (inM) return inM
+  // wji
+  const url = createBlobURL(await fs.readFile(path))
+
+  fileURLObjectMap.set(path, url)
+}
+
+// ~~~~~~~ end helper ~~~~~~~
+
+async function renderPreview() {
   // load index.html
   return `
   <html>
     <!--- load systemjs -->
-    <script src="${createBlobURL("systemjs", SystemJS)}"></script>
+    <script src="${createBlobURL(SystemJS)}"></script>
     <script>
     {
-      let id = 0
-      function getURLFile(filepath) {
-        return new Promise((resolve, reject) => {
-          const uid = id++ + ""
-          const handle = (event) => {
-            if (event.data.id === uid && event.data.type === "GET_URL") {
-              // this event
-              // console.log(event.data)
-              if (event.data.error) {
-                reject(new Error(event.data.error))
-              } else {
-                resolve(event.data.filepath)
-              }
-              window.removeEventListener("message", handle)
-            }
-          }
-          window.addEventListener("message", handle)
-          parent.postMessage({
-            id: uid,
-            type: "GET_URL",
-            filepath
-          })
-        })
-      }
-      const { normalize } = System
-
-      window.getURLFile = getURLFile
+      ${customSystemjsNormalize}
+    }
+    {
+      ${handleRequestRefrersh}
     }
     </script>
     <body>
@@ -78,7 +71,7 @@ async function renderPreview(fs: FS) {
           },
           map: {
             "plugin-babel": "systemjs-plugin-babel@latest/plugin-babel.js",
-            "system-babel-build": "systemjs-plugin-babel@latest/system-babel-browser.js"
+            "systemjs-babel-build": "systemjs-plugin-babel@latest/systemjs-babel-browser.js"
           },
           transpiler: "plugin-babel"
         })
@@ -90,56 +83,89 @@ async function renderPreview(fs: FS) {
 
 function Iframe() {
   const [srcdoc, setSrcdoc] = useState("")
-  watchEffect(() => {
-    // eslint-disable-next-line promise/catch-or-return
-    renderPreview(fs).then((code) => setSrcdoc(code))
-  })
 
-  return (
-    <iframe
-      className="w-full h-full"
-      srcDoc={srcdoc}
-      onLoad={(event) => {
-        const iframe = event.target as unknown as HTMLIFrameElement
+  useEffect(() => {
+    const handle = async (path: string) => {
+      if (path === "/index.html") {
+        // eslint-disable-next-line promise/catch-or-return
+        renderPreview().then((code) => setSrcdoc(code))
+      }
+    }
+    handle()
 
-        window.addEventListener(
-          "message",
-          async (
-            event: MessageEvent<{
-              id: string
-              type: "GET_URL"
-              filepath: string
-            }>
-          ) => {
-            if (event.data.type === "GET_URL" && iframe.contentWindow) {
-              // scan fs
-              try {
-                // read file
-                const filepathResolved = createBlobURL(
-                  event.data.filepath,
-                  await fs.readFile(join("/", event.data.filepath), "utf8")
-                )
+    fs.events.on("writeFile", handle)
+    fs.events.on("unlink", handle)
 
-                iframe.contentWindow.postMessage({
-                  id: event.data.id,
-                  type: "GET_URL",
-                  filepath: filepathResolved
-                })
-              } catch (err) {
-                // not exists
-                // reject
-                iframe.contentWindow.postMessage({
-                  id: event.data.id,
-                  type: "GET_URL",
-                  error: (err as Error).message
-                })
-              }
-            }
-          }
-        )
-      }}
-    />
-  )
+    return () => {
+      fs.events.off("writeFile", handle)
+      fs.events.off("unlink", handle)
+    }
+  }, [])
+
+  const iframeRef = useRef<HTMLIFrameElement | null>(null)
+  useEffect(() => {
+    const depends: string[] = []
+    const iframePreview = iframeRef.current
+
+    const handleFileChange = (path: string) => {
+      const needRefresh = depends.some((depend) => {
+        return path === depend || depend.startsWith(`${path}/`)
+      })
+
+      if (!needRefresh) return
+
+      // file changed //
+      console.log("file changed")
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      iframePreview?.contentWindow!.postMessage({
+        type: "REFRESH"
+      })
+    }
+    const controllerReadFS = async (
+      event: MessageEvent<{
+        id: string
+        type: "GET_URL"
+        filepath: string
+      }>
+    ) => {
+      if (event.data.type === "GET_URL" && iframePreview?.contentWindow) {
+        // scan fs
+        try {
+          const fsPath = join("/", event.data.filepath)
+
+          depends.push(fsPath)
+
+          const filepathResolved = await getBlobURLOfFile(fsPath)
+
+          iframePreview.contentWindow.postMessage({
+            id: event.data.id,
+            type: "GET_URL",
+            filepath: filepathResolved
+          })
+        } catch (err) {
+          // not exists
+          // reject
+          iframePreview.contentWindow.postMessage({
+            id: event.data.id,
+            type: "GET_URL",
+            error: (err as Error).message
+          })
+        }
+      }
+    }
+
+    window.addEventListener("message", controllerReadFS)
+    fs.events.on("writeFile", handleFileChange)
+    fs.events.on("unlink", handleFileChange)
+    return () => {
+      window.removeEventListener("message", controllerReadFS)
+
+      fs.events.off("writeFile", handleFileChange)
+      fs.events.off("unlink", handleFileChange)
+    }
+  }, [iframeRef.current])
+
+  return <iframe ref={iframeRef} className="w-full h-full" srcDoc={srcdoc} />
 }
 
 export function Preview(props: {
