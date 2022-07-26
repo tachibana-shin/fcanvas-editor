@@ -25,9 +25,9 @@ export function loadFilesDepends(
     const path = `${dirname(currentFile)}/${cpath}.ts`
 
     monaco.editor.createModel(
-      (await fs.readFile(path, "utf8")) as string,
+      (await fs.readFile(path)) as string,
       undefined,
-      Uri.file(path).toString()
+      Uri.file(path)
     )
   })
 }

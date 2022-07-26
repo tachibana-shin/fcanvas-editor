@@ -3,7 +3,7 @@ import type { editor, languages as Languages } from "monaco-editor"
 import { v4 } from "uuid"
 
 import { readFileConfig } from "~/helpers/readFileConfig"
-import { events, fs } from "~/modules/fs"
+import { fs } from "~/modules/fs"
 import TypingsWorker from "~/workers/typings?worker"
 
 const typing = new TypingsWorker()
@@ -95,9 +95,7 @@ export async function installPackages(
   monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true)
 
   monacoSelf = monaco
-  events.off("writeFile", loadPackages)
-  events.on("writeFile", loadPackages)
+  fs.events.off("writeFile", loadPackages)
+  fs.events.on("writeFile", loadPackages)
   loadPackages("/package.json")
 }
-// eslint-disable-next-line functional/immutable-data
-window.typings = typings

@@ -1,6 +1,6 @@
 import { Icon } from "@iconify/react"
 import type { Monaco } from "@monaco-editor/react"
-import Editor from "@monaco-editor/react"
+import Editor, { useMonaco } from "@monaco-editor/react"
 import debounce from "debounce"
 import { Uri } from "monaco-editor"
 import type { editor } from "monaco-editor"
@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from "react"
 
 import { installPackages } from "./logic/installPackage"
 import { installFormatter } from "./logic/installPrettier"
+import { loadFilesDepends } from "./logic/loadFilesDepends"
 
 import { fs } from "~/modules/fs"
 import { useStoreState } from "~/stores"
@@ -35,6 +36,7 @@ export function EditorFile(props: {
   >
 }) {
   const { editorRef } = props
+  const monaco = useMonaco()
 
   const { currentFile } = useStoreState().editor
 
@@ -44,12 +46,16 @@ export function EditorFile(props: {
     if (currentFile) {
       console.log("reading %s", currentFile)
       // eslint-disable-next-line promise/catch-or-return, promise/always-return
-      fs.readFile(currentFile, "utf8").then((code) => {
+      fs.readFile(currentFile).then((code) => {
         setContentFile(code as string)
         console.log({ code })
       })
     }
   }, [currentFile])
+  useEffect(() => {
+    if (monaco && contentFile && currentFile)
+      loadFilesDepends(monaco, currentFile, contentFile)
+  }, [monaco, contentFile])
 
   const autoSave = useMemo(() => {
     if (!currentFile) return undefined
@@ -60,7 +66,7 @@ export function EditorFile(props: {
 
       console.log("auto saving %s", file)
 
-      await fs.writeFile(file, code, "utf8")
+      await fs.writeFile(file, code)
     }, 1e3)
   }, [currentFile])
 

@@ -1,5 +1,3 @@
-import mitt from "mitt"
-
 import { InMemoryFS } from "~/libs/InMemoryFS"
 
 export const fs = new InMemoryFS()
@@ -11,30 +9,31 @@ if (import.meta.env.NODE_ENV !== "production") {
 
 export type FS = typeof fs
 
-// readFile, writeFile, rename, unlink, mkdir, lstat, readdir
-export const events = mitt<{
-  writeFile: string
-  unlink: string
-}>()
-
-const { writeFile, rename, unlink } = fs
-
-// eslint-disable-next-line functional/immutable-data
-fs.writeFile = (path, data) => {
-  events.emit("writeFile", path)
-
-  return writeFile.call(fs, path, data)
+export function createBlobURL(content: string) {
+  // eslint-disable-next-line n/no-unsupported-features/node-builtins
+  return URL.createObjectURL(new Blob([content]))
 }
-// eslint-disable-next-line functional/immutable-data
-fs.rename = (oldPath, newPath) => {
-  events.emit("writeFile", newPath)
-  events.emit("unlink", oldPath)
 
-  return rename.call(fs, oldPath, newPath)
-}
-// eslint-disable-next-line functional/immutable-data
-fs.unlink = (path) => {
-  events.emit("unlink", path)
+const fileURLObjectMap = new Map<string, string>()
+// free memory
+fs.events.on("writeFile", (file) => {
+  // clean
+  fileURLObjectMap.forEach((url, path) => {
+    if (file === path || path.startsWith(`${file}/`)) {
+      // cancel
+      // eslint-disable-next-line n/no-unsupported-features/node-builtins
+      URL.revokeObjectURL(url)
+      fileURLObjectMap.delete(path)
+    }
+  })
+})
+export async function getBlobURLOfFile(path: string): Promise<string> {
+  const inM = fileURLObjectMap.get(path)
+  if (inM) return inM
+  // wji
+  const url = createBlobURL(await fs.readFile(path))
 
-  return unlink.call(fs, path)
+  fileURLObjectMap.set(path, url)
+
+  return url
 }

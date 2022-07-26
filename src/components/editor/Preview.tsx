@@ -7,36 +7,7 @@ import customSystemjsNormalize from "./raw/custom-systemjs-normalize.js?raw"
 import handleRequestRefrersh from "./raw/handle-request-refresh.js?raw"
 
 import SystemJS from "~/../node_modules/systemjs/dist/system.src.js?raw"
-import { fs } from "~/modules/fs"
-
-function createBlobURL(content: string) {
-  // eslint-disable-next-line n/no-unsupported-features/node-builtins
-  return URL.createObjectURL(new Blob([content]))
-}
-
-const fileURLObjectMap = new Map<string, string>()
-// free memory
-fs.events.on("writeFile", (file) => {
-  // clean
-  fileURLObjectMap.forEach((url, path) => {
-    if (file === path || path.startsWith(`${file}/`)) {
-      // cancel
-      // eslint-disable-next-line n/no-unsupported-features/node-builtins
-      URL.revokeObjectURL(url)
-      fileURLObjectMap.delete(path)
-    }
-  })
-})
-async function getBlobURLOfFile(path: string): Promise<string> {
-  const inM = fileURLObjectMap.get(path)
-  if (inM) return inM
-  // wji
-  const url = createBlobURL(await fs.readFile(path))
-
-  fileURLObjectMap.set(path, url)
-
-  return url
-}
+import { createBlobURL, fs, getBlobURLOfFile } from "~/modules/fs"
 
 // ~~~~~~~ end helper ~~~~~~~
 
