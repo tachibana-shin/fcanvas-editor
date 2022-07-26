@@ -3,15 +3,22 @@ import { join } from "path-browserify"
 import { Resizable } from "re-resizable"
 import { useEffect, useRef, useState } from "react"
 
+import cacheSystemjsFetch from "./raw/cache-systemjs-fetch.jse?raw"
 import customSystemjsNormalize from "./raw/custom-systemjs-normalize.jse?raw"
 import handleRequestRefrersh from "./raw/handle-request-refresh.jse?raw"
 
+import fcanvas from "~/../node_modules/fcanvas/dist/index.browser.mjs?raw"
 import SystemJS from "~/../node_modules/systemjs/dist/system.src.js?raw"
+import { readFileConfig } from "~/helpers/readFileConfig"
 import { createBlobURL, fs, getBlobURLOfFile } from "~/modules/fs"
 
 // ~~~~~~~ end helper ~~~~~~~
 
-async function renderPreview(code: string) {
+async function renderPreview(
+  code: string,
+  dependencies: Record<string, string>
+) {
+  console.log(dependencies)
   // load index.html
   // now get src file main.js
   code = code.replace(
@@ -24,6 +31,7 @@ async function renderPreview(code: string) {
     "<!--- load systemjs -->" +
     ` <script src="${createBlobURL(SystemJS)}"></script>` +
     `<script>{${customSystemjsNormalize}}` +
+    `{${cacheSystemjsFetch}}` +
     `{${handleRequestRefrersh}}</script>` +
     `<script>
   System.config({
@@ -37,12 +45,21 @@ async function renderPreview(code: string) {
     },
     meta: {
       "*.js": {
-        babelOptions: {}
       }
     },
+    babelOptions: {
+      es2015: false
+    },
     map: {
-      "plugin-babel": "systemjs-plugin-babel@latest/plugin-babel.js",
-      "systemjs-babel-build": "systemjs-plugin-babel@latest/systemjs-babel-browser.js"
+      "plugin-babel": "https://unpkg.com/systemjs-plugin-babel@0.0.25/plugin-babel.js",
+      "systemjs-babel-build": "https://unpkg.com/systemjs-plugin-babel@0.0.25/systemjs-babel-browser.js",
+      "fcanvas": "${createBlobURL(fcanvas)}",
+      "babel-preset-es2017": "https://unpkg.com/babel-preset-es2017@6.24.1/lib/index.js",
+      ${Object.entries(dependencies)
+        .map(([name, version]) => {
+          return `"${name}": "${name}@${version}"`
+        })
+        .join(",")}
     },
     transpiler: "plugin-babel"
   })
@@ -53,8 +70,33 @@ async function renderPreview(code: string) {
 
 function Iframe() {
   const [srcdoc, setSrcdoc] = useState("")
+  const [dependencies, setDependencies] = useState({})
 
   useEffect(() => {
+    const handle = async (path: string) => {
+      if (path === "/package.json") {
+        const packageJSON = await readFileConfig(
+          fs,
+          ["/package.json"],
+          (_f, content) => JSON.parse(content),
+          {}
+        )
+
+        setDependencies({
+          ...packageJSON.dependencies,
+          ...packageJSON.devDependencies
+        })
+      }
+    }
+
+    handle("/package.json")
+    fs.events.on("writeFile", handle)
+
+    return () => fs.events.off("writeFile", handle)
+  }, [])
+
+  useEffect(() => {
+    console.log("bind event index.html")
     const handle = async (path: string) => {
       if (path === "/index.html") {
         console.log("re-render preview")
@@ -65,7 +107,8 @@ function Iframe() {
 
             // eslint-disable-next-line promise/no-return-wrap
             return Promise.reject(err)
-          })
+          }),
+          dependencies
         ).then((code) => setSrcdoc(code))
       }
     }
@@ -78,7 +121,8 @@ function Iframe() {
       fs.events.off("writeFile", handle)
       fs.events.off("unlink", handle)
     }
-  }, [])
+    // eslint-disable-next-line no-sparse-arrays
+  }, [, dependencies])
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
   useEffect(() => {

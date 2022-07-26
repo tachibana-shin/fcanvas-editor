@@ -1,0 +1,60 @@
+/* eslint-disable functional/immutable-data */
+function promisifyRequest(request) {
+  return new Promise((resolve, reject) => {
+    // @ts-expect-error - file size hacks
+    request.oncomplete = request.onsuccess = () => resolve(request.result)
+    // @ts-expect-error - file size hacks
+    request.onabort = request.onerror = () => reject(request.error)
+  })
+}
+function createStore(dbName, storeName) {
+  const request = indexedDB.open(dbName)
+  request.onupgradeneeded = () => request.result.createObjectStore(storeName)
+  const dbp = promisifyRequest(request)
+  return (txMode, callback) =>
+    dbp.then((db) =>
+      // eslint-disable-next-line promise/no-callback-in-promise
+      callback(db.transaction(storeName, txMode).objectStore(storeName))
+    )
+}
+// eslint-disable-next-line functional/no-let
+let defaultGetStoreFunc
+function defaultGetStore() {
+  if (!defaultGetStoreFunc)
+    defaultGetStoreFunc = createStore("keyval-store", "keyval")
+
+  return defaultGetStoreFunc
+}
+
+function get(key, customStore = defaultGetStore()) {
+  return customStore("readonly", (store) => promisifyRequest(store.get(key)))
+}
+
+function set(key, value, customStore = defaultGetStore()) {
+  return customStore("readwrite", (store) => {
+    store.put(value, key)
+    return promisifyRequest(store.transaction)
+  })
+}
+
+const { fetch } = System
+
+System.fetch = async function (inf) {
+  try {
+    const inMemory = await get(inf.address)
+
+    if (inMemory) return inMemory
+
+    // eslint-disable-next-line functional/no-throw-statement
+    throw new Error()
+  } catch {
+    const content = await fetch.call(this, inf)
+
+    if (!inf.address.startsWith("blob:")) {
+      // set async
+      set(inf.address, content)
+    }
+
+    return content
+  }
+}

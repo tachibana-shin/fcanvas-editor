@@ -39,6 +39,7 @@ specifiers:
   '@vitejs/plugin-react': ^2.0.0
   browserfs: ^1.4.3
   debounce: ^1.2.1
+  esbuild-wasm: ^0.14.50
   eslint: ^8.20.0
   fcanvas: ^1.0.6
   firebase: ^9.9.1
@@ -88,6 +89,7 @@ dependencies:
   '@reduxjs/toolkit': 1.8.3_kkwg4cbsojnjnupd3btipussee
   browserfs: 1.4.3
   debounce: 1.2.1
+  esbuild-wasm: 0.14.50
   fcanvas: 1.0.6
   mitt: 3.0.0
   monaco-editor: 0.33.0
@@ -2636,6 +2638,12 @@ packages:
     os: [sunos]
     requiresBuild: true
     optional: true
+
+  /esbuild-wasm/0.14.50:
+    resolution: {integrity: sha512-m8isoEF9+XUOpx+OjJOPUDQjlfO+7eGqlxIsVIxcJVixj8Hq/sJ4ViXkK4RMraJeizdEsjF4/luWVWWMZ43meQ==}
+    engines: {node: '>=12'}
+    hasBin: true
+    dev: false
 
   /esbuild-windows-32/0.14.50:
     resolution: {integrity: sha512-MOOe6J9cqe/iW1qbIVYSAqzJFh0p2LBLhVUIWdMVnNUNjvg2/4QNX4oT4IzgDeldU+Bym9/Tn6+DxvUHJXL5Zw==}

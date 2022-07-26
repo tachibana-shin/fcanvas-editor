@@ -37,3 +37,11 @@ export async function getBlobURLOfFile(path: string): Promise<string> {
 
   return url
 }
+
+fs.writeFile("/main.js", "console.log(123)")
+fs.writeFile(
+  "/index.html",
+  `
+<script src="main.js"></script>
+`
+)

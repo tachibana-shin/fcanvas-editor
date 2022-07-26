@@ -8,7 +8,7 @@ export async function readFileConfig<T>(
 ): Promise<T> {
   for (const file of files) {
     try {
-      return parser(file, (await fs.readFile(file)) as string)
+      return parser(file, (await fs.readFile(file)) as string) ?? defaultValue
     } catch {}
   }
 
