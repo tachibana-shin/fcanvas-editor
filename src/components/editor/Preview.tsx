@@ -3,8 +3,8 @@ import { join } from "path-browserify"
 import { Resizable } from "re-resizable"
 import { useEffect, useRef, useState } from "react"
 
-import customSystemjsNormalize from "./raw/custom-systemjs-normalize.js?raw"
-import handleRequestRefrersh from "./raw/handle-request-refresh.js?raw"
+import customSystemjsNormalize from "./raw/custom-systemjs-normalize.jse?raw"
+import handleRequestRefrersh from "./raw/handle-request-refresh.jse?raw"
 
 import SystemJS from "~/../node_modules/systemjs/dist/system.src.js?raw"
 import { createBlobURL, fs, getBlobURLOfFile } from "~/modules/fs"
