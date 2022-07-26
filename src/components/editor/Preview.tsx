@@ -27,58 +27,57 @@ fs.events.on("writeFile", (file) => {
     }
   })
 })
-async function getBlobURLOfFile(path: string) {
+async function getBlobURLOfFile(path: string): Promise<string> {
   const inM = fileURLObjectMap.get(path)
   if (inM) return inM
   // wji
   const url = createBlobURL(await fs.readFile(path))
 
   fileURLObjectMap.set(path, url)
+
+  return url
 }
 
 // ~~~~~~~ end helper ~~~~~~~
 
-async function renderPreview() {
+async function renderPreview(code: string) {
   // load index.html
-  return `
-  <html>
-    <!--- load systemjs -->
-    <script src="${createBlobURL(SystemJS)}"></script>
-    <script>
-    {
-      ${customSystemjsNormalize}
-    }
-    {
-      ${handleRequestRefrersh}
-    }
-    </script>
-    <body>
-    
-      <script>
-        System.config({
-          baseURL: "https://unpkg.com/",
-          defaultExtension: true,
-          packages: {
-            ".": {
-              main: "./main.js",
-              defaultExtension: "js"
-            }
-          },
-          meta: {
-            "*.js": {
-              babelOptions: {}
-            }
-          },
-          map: {
-            "plugin-babel": "systemjs-plugin-babel@latest/plugin-babel.js",
-            "systemjs-babel-build": "systemjs-plugin-babel@latest/systemjs-babel-browser.js"
-          },
-          transpiler: "plugin-babel"
-        })
-      </script>
-    </body>
-  </html>
-  `
+  // now get src file main.js
+  code = code.replace(
+    /<script(?:\s+)src=(?:'|")([^'"]+)(?:'|")(?:[^>]*)??>(?:\s*)/gi,
+    // eslint-disable-next-line quotes
+    '<script>System.import("./$1")'
+  )
+
+  return (
+    "<!--- load systemjs -->" +
+    ` <script src="${createBlobURL(SystemJS)}"></script>` +
+    `<script>{${customSystemjsNormalize}}` +
+    `{${handleRequestRefrersh}}</script>` +
+    `<script>
+  System.config({
+    baseURL: "https://unpkg.com/",
+    defaultExtension: true,
+    packages: {
+      ".": {
+        main: "./main.js",
+        defaultExtension: "js"
+      }
+    },
+    meta: {
+      "*.js": {
+        babelOptions: {}
+      }
+    },
+    map: {
+      "plugin-babel": "systemjs-plugin-babel@latest/plugin-babel.js",
+      "systemjs-babel-build": "systemjs-plugin-babel@latest/systemjs-babel-browser.js"
+    },
+    transpiler: "plugin-babel"
+  })
+</script>` +
+    code
+  )
 }
 
 function Iframe() {
@@ -87,11 +86,19 @@ function Iframe() {
   useEffect(() => {
     const handle = async (path: string) => {
       if (path === "/index.html") {
+        console.log("re-render preview")
         // eslint-disable-next-line promise/catch-or-return
-        renderPreview().then((code) => setSrcdoc(code))
+        renderPreview(
+          await fs.readFile("/index.html").catch((err) => {
+            console.warn("Error loading index.html")
+
+            // eslint-disable-next-line promise/no-return-wrap
+            return Promise.reject(err)
+          })
+        ).then((code) => setSrcdoc(code))
       }
     }
-    handle()
+    handle("/index.html")
 
     fs.events.on("writeFile", handle)
     fs.events.on("unlink", handle)
@@ -120,6 +127,8 @@ function Iframe() {
       iframePreview?.contentWindow!.postMessage({
         type: "REFRESH"
       })
+      // if change file require reload preview -> reset depends
+      depends.splice(0)
     }
     const controllerReadFS = async (
       event: MessageEvent<{
@@ -136,6 +145,7 @@ function Iframe() {
           depends.push(fsPath)
 
           const filepathResolved = await getBlobURLOfFile(fsPath)
+          console.log({ filepath: filepathResolved })
 
           iframePreview.contentWindow.postMessage({
             id: event.data.id,
