@@ -32,6 +32,7 @@ specifiers:
   '@types/react-dom': ^18.0.6
   '@types/react-transition-group': ^4.4.5
   '@types/sort-array': ^4.1.0
+  '@types/systemjs': ^6.1.1
   '@types/uuid': ^8.3.4
   '@types/validator': ^13.7.4
   '@types/validatorjs': ^3.15.0
@@ -60,6 +61,7 @@ specifiers:
   react-transition-group: ^4.4.2
   sass: ^1.54.0
   sort-array: ^4.1.5
+  systemjs: 0.19.47
   typescript: ^4.7.4
   unplugin-auto-import: ^0.10.1
   unplugin-icons: ^0.14.7
@@ -102,6 +104,7 @@ dependencies:
   react-router-dom: 6.3.0_biqbaboplfbrettd7655fr4n2y
   react-transition-group: 4.4.2_biqbaboplfbrettd7655fr4n2y
   sort-array: 4.1.5
+  systemjs: 0.19.47
   uuid: 8.3.2
   validator: 13.7.0
   validatorjs: 3.22.1
@@ -126,6 +129,7 @@ devDependencies:
   '@types/react-dom': 18.0.6
   '@types/react-transition-group': 4.4.5
   '@types/sort-array': 4.1.0
+  '@types/systemjs': 6.1.1
   '@types/uuid': 8.3.4
   '@types/validator': 13.7.4
   '@types/validatorjs': 3.15.0
@@ -1738,6 +1742,10 @@ packages:
 
   /@types/sort-array/4.1.0:
     resolution: {integrity: sha512-mnk6jrs36bAavj7EPYTzBEWqdybrzjS8muhV9knFY0YOCsI5HpBeq3+gN/E/nTSZxTKgSoW7+xVCrlTyD6+Rxw==}
+    dev: true
+
+  /@types/systemjs/6.1.1:
+    resolution: {integrity: sha512-d1M6eDKBGWx7RbYy295VEFoOF9YDJkPI959QYnmzcmeaV+SP4D0xV7dEh3sN5XF3GvO3PhGzm+17Z598nvHQuQ==}
     dev: true
 
   /@types/use-sync-external-store/0.0.3:
@@ -4639,6 +4647,12 @@ packages:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
     dev: true
 
+  /systemjs/0.19.47:
+    resolution: {integrity: sha512-6P+63y7bQhZXqOcim7QU0TKEjCmQArFkKa+CxlDchIerej7wrXLUoyGuWk+L0yC5rYrZ5LI6Eh1QOawttQq5xw==}
+    dependencies:
+      when: 3.7.8
+    dev: false
+
   /text-table/0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
     dev: true
@@ -5074,6 +5088,10 @@ packages:
     dependencies:
       tr46: 0.0.3
       webidl-conversions: 3.0.1
+
+  /when/3.7.8:
+    resolution: {integrity: sha512-5cZ7mecD3eYcMiCH4wtRPA5iFJZ50BJYDfckI5RRpQiktMiYTcn0ccLTZOvcbBume+1304fQztxeNzNS9Gvrnw==}
+    dev: false
 
   /which-boxed-primitive/1.0.2:
     resolution: {integrity: sha512-bwZdv0AKLpplFY2KZRX6TvyuN7ojjr7lwkg6ml0roIy9YeuSr7JS372qlNW18UQYzgYK9ziGcerWqZOmEn9VNg==}
