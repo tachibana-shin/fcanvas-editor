@@ -1,4 +1,5 @@
 /* eslint-disable no-redeclare */
+
 import type { FirebaseApp } from "@firebase/app"
 import { getAuth } from "@firebase/auth"
 import type {
@@ -9,6 +10,9 @@ import type {
 import { deleteField, doc, getFirestore, writeBatch } from "@firebase/firestore"
 import mitt from "mitt"
 import sort from "sort-array"
+import { v4 } from "uuid"
+
+import DiffObjectWorker from "~/workers/diff-object?worker"
 
 type File = string
 
@@ -106,6 +110,8 @@ export class InMemoryFS {
 
     // eslint-disable-next-line functional/immutable-data
     delete this.batch
+    // eslint-disable-next-line functional/immutable-data
+    delete this.backupMemory
   }
 
   async readFile(path: string) {
@@ -293,6 +299,7 @@ export class InMemoryFS {
 
     this.sketch = doc(db, "users", auth.currentUser.uid, "sketches", id)
 
+    this.backup()
     this.batch = writeBatch(db)
 
     this.events.off("write", this.onWrite)
@@ -315,6 +322,44 @@ export class InMemoryFS {
   fromFDBObject(object: Directory) {
     this.clean()
     Object.assign(this.memory, decodeObject(object))
+  }
+
+  private backupMemory?: string
+
+  backup() {
+    this.backupMemory = JSON.stringify(this.memory)
+  }
+
+  private diffObjectWorker?: Worker
+
+  async getdiff() {
+    if (!this.diffObjectWorker) this.diffObjectWorker = new DiffObjectWorker()
+
+    const uid = v4()
+
+    return new Promise((resolve) => {
+      const handle = ({
+        data
+      }: MessageEvent<{
+        id: string
+        diff: Directory
+      }>) => {
+        if (uid === data.id) resolve(data.diff)
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.diffObjectWorker!.removeEventListener("message", handle)
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      this.diffObjectWorker!.addEventListener("message", handle)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      this.diffObjectWorker!.postMessage({
+        id: uid,
+
+        oldMemory: this.backupMemory,
+        newMemory: this.memory
+      })
+    })
   }
 }
 
