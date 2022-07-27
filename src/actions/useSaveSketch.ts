@@ -34,19 +34,19 @@ export function useSaveSketch() {
 
     const sketches = collection(db, "users", auth.currentUser.uid, "sketches")
 
-    if (fs.root.id) {
+    if (fs.id) {
       // saved ok
-      await setDoc(doc(sketches, fs.root.id), {
-        fs: JSON.stringify(sketches)
+      await setDoc(doc(sketches, fs.id), {
+        fs: fs.root
       })
+
+      addToast("Project saved successfully.")
 
       return
     }
 
     const { id } = await addDoc(sketches, {
-      name: "Los Angeles",
-      state: "CA",
-      country: "USA"
+      fs: fs.root
     })
 
     // eslint-disable-next-line functional/immutable-data
@@ -54,5 +54,6 @@ export function useSaveSketch() {
     navigate(`/${auth.currentUser.uid}/sketch/${id}`, {
       replace: true
     })
+    addToast("Project saved successfully.")
   }
 }
