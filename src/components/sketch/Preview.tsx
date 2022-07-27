@@ -1,5 +1,5 @@
 import type { editor } from "monaco-editor"
-import { join } from "path-browserify"
+import { dirname, join, relative } from "path-browserify"
 import { Resizable } from "re-resizable"
 import { useEffect, useRef, useState } from "react"
 
@@ -155,7 +155,10 @@ function Iframe() {
       if (event.data.type === "GET_URL" && iframePreview?.contentWindow) {
         // scan fs
         try {
-          const fsPath = join("/", event.data.filepath)
+          const fsPath = join(
+            "/",
+            relative(dirname(location.pathname), event.data.filepath)
+          )
 
           depends.push(fsPath)
 

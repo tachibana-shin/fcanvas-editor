@@ -27,7 +27,7 @@ const { normalize } = System
 System.normalize = async function (path) {
   const pathResolved = await normalize.call(this, path)
 
-  const inSystem = pathResolved.startsWith(parent.location.href)
+  const inSystem = pathResolved.startsWith(parent.location.origin)
 
   if (inSystem) {
     // eslint-disable-next-line n/no-unsupported-features/node-builtins
