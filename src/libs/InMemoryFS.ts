@@ -1,3 +1,4 @@
+/* eslint-disable no-redeclare */
 import type { FirebaseApp } from "@firebase/app"
 import { getAuth } from "@firebase/auth"
 import type {
@@ -20,7 +21,62 @@ function isDirectory(dir: Directory | File): dir is Directory {
   return typeof dir === "object"
 }
 
-// readdir
+function queryObject(
+  memory: Directory,
+  pathsSplited: string[],
+  message: string,
+  queryFile: true
+): File
+
+function queryObject(
+  memory: Directory,
+  pathsSplited: string[],
+  message: string,
+  queryFile: false
+): Directory
+
+function queryObject(
+  memory: Directory,
+  pathsSplited: string[],
+  message: string
+): File | Directory
+function queryObject(
+  memory: Directory,
+  pathsSplited: string[],
+  message: string,
+  queryFile?: boolean
+): string | Directory {
+  const paths = pathsSplited.slice(0, -1)
+  const filename = pathsSplited[pathsSplited.length - 1]
+  // eslint-disable-next-line functional/no-let
+  for (let i = 0; i < paths.length; i++) {
+    const name = paths[i]
+
+    if (name === "") continue
+
+    const tmemory = memory[name]
+
+    if (!isDirectory(tmemory))
+      // eslint-disable-next-line functional/no-throw-statement
+      throw new Error(message + pathsSplited.join("/"))
+
+    memory = tmemory
+  }
+
+  const obj = !filename ? memory : memory[filename]
+
+  // eslint-disable-next-line functional/no-throw-statement
+  if (obj === undefined) throw new Error(message + pathsSplited.join("/"))
+
+  if (queryFile === undefined) return obj
+
+  if (isDirectory(obj) ? queryFile : !queryFile)
+    // eslint-disable-next-line functional/no-throw-statement
+    throw new Error(message + pathsSplited.join("/"))
+
+  return obj
+}
+
 export class InMemoryFS {
   private readonly memory: Directory = {
     [CHAR_KEEP]: ""
@@ -31,56 +87,6 @@ export class InMemoryFS {
     unlink: string
     mkdir: string
   }>()
-
-  private queryObject(
-    pathsSplited: string[],
-    message: string,
-    queryFile: true
-  ): File
-  private queryObject(
-    pathsSplited: string[],
-    message: string,
-    queryFile: false
-  ): Directory
-  private queryObject(pathsSplited: string[], message: string): File | Directory
-  private queryObject(
-    pathsSplited: string[],
-    message: string,
-    queryFile?: boolean
-  ): string | Directory {
-    // eslint-disable-next-line functional/no-let
-    let { memory } = this
-
-    const paths = pathsSplited.slice(0, -1)
-    const filename = pathsSplited[pathsSplited.length - 1]
-    // eslint-disable-next-line functional/no-let
-    for (let i = 0; i < paths.length; i++) {
-      const name = paths[i]
-
-      if (name === "") continue
-
-      const tmemory = memory[name]
-
-      if (!isDirectory(tmemory))
-        // eslint-disable-next-line functional/no-throw-statement
-        throw new Error(message + pathsSplited.join("/"))
-
-      memory = tmemory
-    }
-
-    const obj = !filename ? memory : memory[filename]
-
-    // eslint-disable-next-line functional/no-throw-statement
-    if (obj === undefined) throw new Error(message + pathsSplited.join("/"))
-
-    if (queryFile === undefined) return obj
-
-    if (isDirectory(obj) ? queryFile : !queryFile)
-      // eslint-disable-next-line functional/no-throw-statement
-      throw new Error(message + pathsSplited.join("/"))
-
-    return obj
-  }
 
   private getParentPaths(paths: string[]) {
     return paths.slice(0, -1)
@@ -97,10 +103,14 @@ export class InMemoryFS {
   clean() {
     for (const name in this.memory)
       if (name !== CHAR_KEEP) delete this.memory[name]
+
+    // eslint-disable-next-line functional/immutable-data
+    delete this.batch
   }
 
   async readFile(path: string) {
-    return this.queryObject(
+    return queryObject(
+      this.memory,
       this.normalize(path).split("/"),
       "FILE_NOT_EXISTS: ",
       true
@@ -111,7 +121,8 @@ export class InMemoryFS {
     const pathsSplited = this.normalize(path).split("/")
     const name = this.getFilename(pathsSplited)
 
-    const dir = this.queryObject(
+    const dir = queryObject(
+      this.memory,
       this.getParentPaths(pathsSplited),
       "DIR_NOT_EXISTS: ",
       false
@@ -131,7 +142,8 @@ export class InMemoryFS {
     const pathsSplited = this.normalize(path).split("/")
     const name = this.getFilename(pathsSplited)
 
-    const parent = this.queryObject(
+    const parent = queryObject(
+      this.memory,
       this.getParentPaths(pathsSplited),
       "DIR_NOT_EXISTS: ",
       false
@@ -154,7 +166,8 @@ export class InMemoryFS {
   async rename(from: string, to: string) {
     const pathsSplitedFrom = this.normalize(from).split("/")
     const nameFrom = this.getFilename(pathsSplitedFrom)
-    const parentFrom = this.queryObject(
+    const parentFrom = queryObject(
+      this.memory,
       this.getParentPaths(pathsSplitedFrom),
       "DIR_NOT_EXISTS: ",
       false
@@ -171,7 +184,8 @@ export class InMemoryFS {
 
     const pathsSplitedTo = this.normalize(to).split("/")
     const nameTo = this.getFilename(pathsSplitedTo)
-    const parentTo = this.queryObject(
+    const parentTo = queryObject(
+      this.memory,
       this.getParentPaths(pathsSplitedFrom),
       "DIR_NOT_EXISTS: ",
       false
@@ -185,7 +199,8 @@ export class InMemoryFS {
   async unlink(path: string) {
     const pathsSplited = this.normalize(path).split("/")
     const name = this.getFilename(pathsSplited)
-    const parent = this.queryObject(
+    const parent = queryObject(
+      this.memory,
       this.getParentPaths(pathsSplited),
       "DIR_NOT_EXISTS: ",
       false
@@ -202,7 +217,8 @@ export class InMemoryFS {
   }
 
   async lstat(path: string) {
-    const obj = this.queryObject(
+    const obj = queryObject(
+      this.memory,
       this.normalize(path).split("/"),
       "PATH_NOT_EXISTS: "
     )
@@ -220,7 +236,8 @@ export class InMemoryFS {
   async readdir(path: string) {
     return sort(
       Object.keys(
-        this.queryObject(
+        queryObject(
+          this.memory,
           this.normalize(path).split("/"),
           "DIR_NOT_EXISTS: ",
           false
@@ -231,7 +248,7 @@ export class InMemoryFS {
 
   async exists(path: string) {
     try {
-      return !!this.queryObject(this.normalize(path).split("/"), "")
+      return !!queryObject(this.memory, this.normalize(path).split("/"), "")
     } catch {
       return false
     }
@@ -252,7 +269,7 @@ export class InMemoryFS {
 
     this.batch?.update(this.sketch, {
       ["fs" + paths.join(".")]: encodeObject(
-        await this.queryObject(path.split("/"), "")
+        await queryObject(this.memory, path.split("/"), "")
       )
     })
   }
