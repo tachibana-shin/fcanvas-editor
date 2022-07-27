@@ -4,9 +4,10 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined"
 import Checkbox from "@mui/material/Checkbox"
 import Fab from "@mui/material/Fab"
 import { InputAutoFocus } from "components/ui/InputAutoFocus"
-import gen from "project-name-generator"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useDispatch } from "react-redux"
+
+import { useStoreState } from "~/stores"
 
 function Rename(props: {
   defaultValue: string
@@ -41,21 +42,10 @@ function Rename(props: {
 
 export function ToolBar() {
   const dispatch = useDispatch()
+  const store = useStoreState()
 
-  const [name, setName] = useState(
-    () =>
-      gen({
-        words: 2,
-        alliterative: true
-      }).spaced
-  )
-
-  useEffect(() => {
-    dispatch({
-      type: "editor/setSketchName",
-      payload: name
-    })
-  }, [name])
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const name = store.editor.sketchName!
 
   const [renaming, setRenaming] = useState(false)
 
@@ -70,7 +60,12 @@ export function ToolBar() {
       {renaming && (
         <Rename
           defaultValue={name}
-          onSave={setName}
+          onSave={(newName) => {
+            dispatch({
+              type: "editor/setSketchName",
+              payload: newName
+            })
+          }}
           onBlur={() => setRenaming(false)}
         />
       )}
