@@ -9,7 +9,7 @@ import { useEffect, useMemo, useState } from "react"
 
 import { installPackages } from "./logic/installPackage"
 import { installFormatter } from "./logic/installPrettier"
-import { loadFilesDepends } from "./logic/loadFilesDepends"
+// import { loadFilesDepends } from "./logic/loadFilesDepends"
 
 import { fs } from "~/modules/fs"
 import { useStoreState } from "~/stores"
@@ -53,8 +53,8 @@ export function EditorFile(props: {
     }
   }, [currentFile])
   useEffect(() => {
-    if (monaco && contentFile && currentFile)
-      loadFilesDepends(monaco, currentFile, contentFile)
+    // if (monaco && contentFile && currentFile)
+    //   loadFilesDepends(monaco, currentFile, contentFile)
   }, [monaco, contentFile])
 
   const autoSave = useMemo(() => {

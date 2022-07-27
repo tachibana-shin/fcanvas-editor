@@ -1,5 +1,8 @@
 import type { AuthError } from "@firebase/auth"
-import { getAuth, signInWithEmailAndPassword } from "@firebase/auth"
+import {
+  getAuth,
+  signInWithEmailAndPassword
+} from "@firebase/auth"
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined"
 import Avatar from "@mui/material/Avatar"
 import Box from "@mui/material/Box"
@@ -25,7 +28,10 @@ import { useToast } from "~/plugins/toast"
 
 export function SignIn(): JSX.Element {
   const auth = getAuth(app)
-  // connectEmulator(auth, connectAuthEmulator, 9099)
+  // connectAuthEmulator(
+  //   auth,
+  //   "https://9099-tachibanash-fcanvasedit-sezqurpgd2w.ws-us54.gitpod.io"
+  // )
   const { addToast } = useToast()
 
   const signIn = async (event: React.FormEvent<HTMLFormElement>) => {

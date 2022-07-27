@@ -40,12 +40,13 @@ async function renderPreview(
     packages: {
       ".": {
         main: "./main.js",
-        defaultExtension: "js"
+        defaultExtension: "js",
       }
     },
     meta: {
-      "*.js": {
-      }
+      "*.js": {},
+      "*.ts": {
+      },
     },
     babelOptions: {
       es2015: false
@@ -54,7 +55,6 @@ async function renderPreview(
       "plugin-babel": "https://unpkg.com/systemjs-plugin-babel@0.0.25/plugin-babel.js",
       "systemjs-babel-build": "https://unpkg.com/systemjs-plugin-babel@0.0.25/systemjs-babel-browser.js",
       "fcanvas": "${createBlobURL(fcanvas)}",
-      "babel-preset-es2017": "https://unpkg.com/babel-preset-es2017@6.24.1/lib/index.js",
       ${Object.entries(dependencies)
         .map(([name, version]) => {
           return `"${name}": "${name}@${version}"`
@@ -160,7 +160,6 @@ function Iframe() {
           depends.push(fsPath)
 
           const filepathResolved = await getBlobURLOfFile(fsPath)
-          console.log({ filepath: filepathResolved })
 
           iframePreview.contentWindow.postMessage({
             id: event.data.id,

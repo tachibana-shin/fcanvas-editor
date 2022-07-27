@@ -1,3 +1,7 @@
+import esbuildWASM from "esbuild-wasm"
+import esbuildDotWASM from "esbuild-wasm/esbuild.wasm?url"
+import { extname } from "path-browserify"
+
 import { InMemoryFS } from "~/libs/InMemoryFS"
 
 export const fs = new InMemoryFS()
@@ -31,17 +35,34 @@ export async function getBlobURLOfFile(path: string): Promise<string> {
   const inM = fileURLObjectMap.get(path)
   if (inM) return inM
   // wji
-  const url = createBlobURL(await fs.readFile(path))
+  const url = createBlobURL(await complier(await fs.readFile(path), path))
 
   fileURLObjectMap.set(path, url)
 
   return url
 }
 
-fs.writeFile("/main.js", "console.log(123)")
+fs.writeFile("/main.js", "console.log('hello world');\n import './t.ts'")
+fs.writeFile("/t.ts", "console.log('hello world ts')")
 fs.writeFile(
   "/index.html",
   `
 <script src="main.js"></script>
 `
 )
+
+esbuildWASM.initialize({
+  wasmURL: esbuildDotWASM
+})
+async function complier(content: string, filename: string): Promise<string> {
+  switch (extname(filename)) {
+    case ".ts":
+      return (
+        await esbuildWASM.transform(content, {
+          loader: "ts"
+        })
+      ).code
+  }
+
+  return content
+}
