@@ -5,9 +5,9 @@ import Checkbox from "@mui/material/Checkbox"
 import Fab from "@mui/material/Fab"
 import { InputAutoFocus } from "components/ui/InputAutoFocus"
 import { useState } from "react"
-import { useDispatch } from "react-redux"
 
 import { useStoreState } from "~/stores"
+import { useSaveSketchName } from "~/useActions/editor-actions"
 
 function Rename(props: {
   defaultValue: string
@@ -41,11 +41,12 @@ function Rename(props: {
 }
 
 export function ToolBar() {
-  const dispatch = useDispatch()
   const store = useStoreState()
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const name = store.editor.sketchName!
+
+  const saveSketchName = useSaveSketchName()
 
   const [renaming, setRenaming] = useState(false)
 
@@ -61,10 +62,7 @@ export function ToolBar() {
         <Rename
           defaultValue={name}
           onSave={(newName) => {
-            dispatch({
-              type: "editor/setSketchName",
-              payload: newName
-            })
+            saveSketchName(newName)
           }}
           onBlur={() => setRenaming(false)}
         />

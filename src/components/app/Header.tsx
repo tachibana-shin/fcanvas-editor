@@ -24,12 +24,12 @@ import Popover from "@mui/material/Popover"
 import type { MouseEvent } from "react"
 import { useState } from "react"
 
-import { useSaveSketch } from "~/useApi/useSaveSketch"
 import type { MenuItemOption } from "~/creators/createMenuItems"
 import { createMenuItems } from "~/creators/createMenuItems"
 import { app } from "~/modules/firebase"
 import { useToast } from "~/plugins/toast"
 import { useStoreState } from "~/stores"
+import { useSaveSketch } from "~/useActions/editor-actions"
 
 function Btn(props: {
   label: string | JSX.Element
@@ -121,6 +121,8 @@ export function Header() {
   const auth = getAuth(app)
   const { addToast } = useToast()
 
+  const saveSketch = useSaveSketch()
+
   return (
     <header className="h-[42px] w-full top-0 left-0 flex items-center px-3">
       <NavItem
@@ -136,7 +138,7 @@ export function Header() {
                 icon: <SaveOutlinedIcon />,
                 name: "Save",
                 sub: "⌘S",
-                onClick: useSaveSketch()
+                onClick: saveSketch
               },
               {
                 icon: <FileOpenOutlinedIcon />,

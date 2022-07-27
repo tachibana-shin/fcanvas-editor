@@ -13,4 +13,11 @@ export const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>
 
-export const useStoreState = () => useSelector((state) => state) as RootState
+type DeepReadonly<T> = {
+  readonly [P in keyof T]: T[P] extends object
+    ? DeepReadonly<T[P]>
+    : Readonly<T[P]>
+}
+
+export const useStoreState = () =>
+  useSelector((state) => state) as DeepReadonly<RootState>

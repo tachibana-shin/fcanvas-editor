@@ -1,10 +1,9 @@
 import "./Index.scss"
 
 import { doc, getDoc, getFirestore } from "@firebase/firestore"
+import { Icon } from "@iconify/react"
 import type { editor } from "monaco-editor"
-import gen from "project-name-generator"
-import { useEffect, useRef } from "react"
-import { useDispatch } from "react-redux"
+import { useEffect, useRef, useState } from "react"
 import { useParams } from "react-router"
 
 import { EditorFile } from "~/components/sketch/EditorFile"
@@ -12,15 +11,17 @@ import { Preview } from "~/components/sketch/Preview"
 import { SideBar } from "~/components/sketch/SideBar"
 import { ToolBar } from "~/components/sketch/ToolBar"
 import { app } from "~/modules/firebase"
-import { fs } from "~/modules/fs"
 import { useToast } from "~/plugins/toast"
 import sketchDefault from "~/templates/sketch-default"
+import { useCreateSketch } from "~/useActions/editor-actions"
 
 export function Sketch() {
   const editorRef = useRef<editor.ICodeEditor | editor.IStandaloneCodeEditor>()
   const params = useParams()
-  const dispatch = useDispatch()
   const { addToast } = useToast()
+
+  const [loading, setLoading] = useState(true)
+  const createSketch = useCreateSketch()
 
   useEffect(() => {
     const db = getFirestore(app)
@@ -35,36 +36,43 @@ export function Sketch() {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         params.sketchId!
       )
+      // eslint-disable-next-line promise/catch-or-return
       getDoc(docRef)
         // eslint-disable-next-line promise/always-return
         .then((snap) => {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const { fs: fsFile, name } = snap.data()!
+          const { fs: template, name } = snap.data()!
 
-          fs.fromFDBObject(fsFile)
-
-          dispatch({
-            type: "editor/setSketchName",
-            payload: name
+          createSketch({
+            id: snap.id,
+            name,
+            template
           })
-          fs.createbatch(app, snap.id)
         })
         .catch(() => {
           addToast("Sketch not found")
         })
+        .finally(() => setLoading(false))
     } else {
-      fs.fromFDBObject(sketchDefault)
-
-      dispatch({
-        type: "editor/setSketchName",
-        payload: gen({
-          words: 2
-        }).spaced
+      createSketch({
+        template: sketchDefault
       })
 
-      addToast("Created sketch from template default")
+      setLoading(false)
     }
   }, [])
+
+  if (loading) {
+    return (
+      <div className="absolute w-full h-full flex items-center justify-center text-sm">
+        <div className="text-center">
+          <Icon icon="line-md:loading-loop" className="w-45px h-45px" />
+          <br />
+          Fetching Sketch...
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="page">
