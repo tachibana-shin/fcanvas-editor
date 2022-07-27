@@ -26,8 +26,6 @@ export class InMemoryFS {
     [CHAR_KEEP]: ""
   }
 
-  public name?: string
-  public id?: string
   public readonly events = mitt<{
     write: string
     unlink: string
@@ -98,7 +96,6 @@ export class InMemoryFS {
 
   clean() {
     for (const name in this.memory)
-      // eslint-disable-next-line functional/immutable-data
       if (name !== CHAR_KEEP) delete this.memory[name]
   }
 
@@ -270,15 +267,14 @@ export class InMemoryFS {
     })
   }
 
-  createbatch(app: FirebaseApp) {
+  createbatch(app: FirebaseApp, id: string) {
     // this.batch.
     const db = getFirestore(app)
     const auth = getAuth(app)
 
     if (!auth.currentUser) return
-    if (!this.id) return
 
-    this.sketch = doc(db, "users", auth.currentUser.uid, "sketches", this.id)
+    this.sketch = doc(db, "users", auth.currentUser.uid, "sketches", id)
 
     this.batch = writeBatch(db)
 

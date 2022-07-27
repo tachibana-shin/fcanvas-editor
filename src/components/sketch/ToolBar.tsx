@@ -6,8 +6,7 @@ import Fab from "@mui/material/Fab"
 import { InputAutoFocus } from "components/ui/InputAutoFocus"
 import gen from "project-name-generator"
 import { useEffect, useState } from "react"
-
-import { fs } from "~/modules/fs"
+import { useDispatch } from "react-redux"
 
 function Rename(props: {
   defaultValue: string
@@ -41,6 +40,8 @@ function Rename(props: {
 }
 
 export function ToolBar() {
+  const dispatch = useDispatch()
+
   const [name, setName] = useState(
     () =>
       gen({
@@ -50,8 +51,10 @@ export function ToolBar() {
   )
 
   useEffect(() => {
-    // eslint-disable-next-line functional/immutable-data
-    fs.name = name
+    dispatch({
+      type: "editor/setSketchName",
+      payload: name
+    })
   }, [name])
 
   const [renaming, setRenaming] = useState(false)

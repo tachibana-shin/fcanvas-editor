@@ -5,7 +5,9 @@ const editorSlice = createSlice({
   name: "editor",
   initialState: {
     currentSelect: <string | null>null,
-    currentFile: <string | null>null
+    currentFile: <string | null>null,
+
+    sketchName: <string | null>null
   },
   reducers: {
     setCurrentSelect(state, { payload }: PayloadAction<string>) {
@@ -15,6 +17,10 @@ const editorSlice = createSlice({
     setCurrentFile(state, { payload }: PayloadAction<string>) {
       // eslint-disable-next-line functional/immutable-data
       state.currentFile = payload
+    },
+    setSketchName(state, { payload }: PayloadAction<string>) {
+      // eslint-disable-next-line functional/immutable-data
+      state.sketchName = payload
     }
   }
 })
