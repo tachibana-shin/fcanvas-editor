@@ -104,8 +104,7 @@ export function useSaveSketch() {
 
     addToast("Project saved successfully.")
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    navigate(`/${auth.currentUser!.uid}/sketch/${id}`, {
+    navigate(`/${auth.currentUser.uid}/sketch/${id}`, {
       replace: true
     })
   }
