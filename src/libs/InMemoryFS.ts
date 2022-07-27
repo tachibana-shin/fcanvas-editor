@@ -225,7 +225,7 @@ export class InMemoryFS {
           "DIR_NOT_EXISTS: ",
           false
         )
-      )
+      ).filter((name) => name !== CHAR_KEEP)
     )
   }
 
