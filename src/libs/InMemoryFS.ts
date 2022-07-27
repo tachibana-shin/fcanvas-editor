@@ -97,8 +97,9 @@ export class InMemoryFS {
   }
 
   clean() {
-    // eslint-disable-next-line functional/immutable-data
-    for (const name in this.memory) delete this.memory[name]
+    for (const name in this.memory)
+      // eslint-disable-next-line functional/immutable-data
+      if (name !== CHAR_KEEP) delete this.memory[name]
   }
 
   async readFile(path: string) {
@@ -250,20 +251,22 @@ export class InMemoryFS {
   private onWrite = async (path: string) => {
     if (!this.sketch) return
 
-    const paths = path.split("/").filter(Boolean)
+    const paths = encodePath(path).split("/")
 
     this.batch?.update(this.sketch, {
-      [paths.join(".")]: await this.queryObject(paths, "")
+      ["fs" + paths.join(".")]: encodeObject(
+        await this.queryObject(path.split("/"), "")
+      )
     })
   }
 
   private onUnlink = async (path: string) => {
     if (!this.sketch) return
 
-    const paths = path.split("/").filter(Boolean)
+    const paths = encodePath(path).split("/")
 
     this.batch?.update(this.sketch, {
-      [paths.join(".")]: deleteField()
+      ["fs" + paths.join(".")]: deleteField()
     })
   }
 
@@ -291,4 +294,47 @@ export class InMemoryFS {
   commit() {
     return this.batch?.commit()
   }
+
+  toFDBObject(): Directory {
+    return encodeObject(this.memory)
+  }
+
+  fromFDBObject(object: Directory) {
+    this.clean()
+    Object.assign(this.memory, decodeObject(object))
+  }
+}
+
+function encodePath(path: string) {
+  return path.replaceAll(".", "#dot")
+}
+function decodePath(path: string) {
+  return path.replaceAll("#dot", ".")
+}
+
+function coding<T extends Directory | File>(
+  obj: T,
+  coder: (v: string) => string
+): T {
+  if (!isDirectory(obj)) return obj
+
+  const newObj: Directory = {}
+
+  for (const name in obj) {
+    const dir = obj[name]
+    if (isDirectory(dir))
+      // eslint-disable-next-line functional/immutable-data
+      newObj[coder(name)] = encodeObject(dir)
+    // eslint-disable-next-line functional/immutable-data
+    else newObj[coder(name)] = dir
+  }
+
+  return newObj as T
+}
+
+function encodeObject<T extends Directory | File>(obj: T): T {
+  return coding(obj, encodePath)
+}
+function decodeObject<T extends Directory | File>(obj: T): T {
+  return coding(obj, decodePath)
 }

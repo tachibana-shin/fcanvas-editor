@@ -2,9 +2,7 @@ import { getAuth } from "@firebase/auth"
 import {
   addDoc,
   collection,
-  doc,
-  getFirestore,
-  setDoc
+  getFirestore
 } from "@firebase/firestore"
 import { useNavigate } from "react-router"
 
@@ -36,21 +34,23 @@ export function useSaveSketch() {
 
     if (fs.id) {
       // saved ok
-      await setDoc(doc(sketches, fs.id), {
-        fs: fs.root
-      })
-
+      // await setDoc(doc(sketches, fs.id), {
+      //   fs: fs.root
+      // })
+      await fs.commit()
+      fs.createbatch(app)
       addToast("Project saved successfully.")
 
       return
     }
 
     const { id } = await addDoc(sketches, {
-      fs: fs.root
+      fs: fs.toFDBObject()
     })
 
     // eslint-disable-next-line functional/immutable-data
     fs.id = id
+    fs.createbatch(app)
     navigate(`/${auth.currentUser.uid}/sketch/${id}`, {
       replace: true
     })
