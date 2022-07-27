@@ -6,7 +6,7 @@ describe("InMemoryFS", () => {
   const fs = new InMemoryFS()
 
   test("writeFile", async () => {
-    await fs.clean()
+    fs.clean()
 
     await fs.writeFile("/test.txt", "hello world")
 
@@ -22,19 +22,19 @@ describe("InMemoryFS", () => {
   })
 
   test("readFile", async () => {
-    await fs.clean()
+    fs.clean()
 
     await fs.writeFile("/test.txt", "hello world")
 
     expect(await fs.readFile("/test.txt")).toEqual("hello world")
 
-    await fs.clean()
+    fs.clean()
 
     await expect(fs.readFile("/test.txt")).rejects.toThrowError("NOT_EXISTS")
   })
 
   test("mkdir", async () => {
-    await fs.clean()
+    fs.clean()
 
     await fs.mkdir("/examples")
     await fs.writeFile("/test.txt", "")
@@ -45,6 +45,7 @@ describe("InMemoryFS", () => {
     await expect(fs.mkdir("/examples")).rejects.toThrowError(
       "IS_DIR: /examples"
     )
+
     await expect(fs.mkdir("/test.txt")).rejects.toThrowError(
       "IS_FILE: /test.txt"
     )
@@ -52,7 +53,7 @@ describe("InMemoryFS", () => {
 
   describe("rename", () => {
     test("dir", async () => {
-      await fs.clean()
+      fs.clean()
 
       await fs.mkdir("/examples")
 
@@ -66,7 +67,7 @@ describe("InMemoryFS", () => {
     })
 
     test("file", async () => {
-      await fs.clean()
+      fs.clean()
 
       await fs.writeFile("/test.txt", "hello world")
 
@@ -82,7 +83,7 @@ describe("InMemoryFS", () => {
 
   describe("unlink", () => {
     test("dir", async () => {
-      await fs.clean()
+      fs.clean()
 
       await fs.mkdir("/examples")
 
@@ -94,7 +95,7 @@ describe("InMemoryFS", () => {
     })
 
     test("file", async () => {
-      await fs.clean()
+      fs.clean()
 
       await fs.writeFile("/test.txt", "hello world")
 
@@ -108,7 +109,7 @@ describe("InMemoryFS", () => {
 
   describe("lstat", () => {
     test("isFile", async () => {
-      await fs.clean()
+      fs.clean()
 
       await expect(fs.lstat("/test.txt")).rejects.toThrowError("NOT_EXISTS")
 
@@ -118,7 +119,7 @@ describe("InMemoryFS", () => {
       expect((await fs.lstat("/test.txt")).isDirectory()).toEqual(false)
     })
     test("isDirectory", async () => {
-      await fs.clean()
+      fs.clean()
 
       await expect(fs.lstat("examples")).rejects.toThrowError("NOT_EXISTS")
 
@@ -131,7 +132,7 @@ describe("InMemoryFS", () => {
 
   describe("readdir", () => {
     test("in root", async () => {
-      await fs.clean()
+      fs.clean()
 
       expect(await fs.readdir("/")).toEqual([])
 
@@ -140,7 +141,7 @@ describe("InMemoryFS", () => {
       expect(await fs.readdir("/")).toEqual(["examples"])
     })
     test("in children", async () => {
-      await fs.clean()
+      fs.clean()
 
       await expect(fs.readdir("/examples")).rejects.toThrowError("NOT_EXISTS")
 
@@ -153,14 +154,14 @@ describe("InMemoryFS", () => {
 
   describe("exists", () => {
     test("file", async () => {
-      await fs.clean()
+      fs.clean()
 
       expect(await fs.exists("/test.txt")).toEqual(false)
       await fs.writeFile("/test.txt", "hello world")
       expect(await fs.exists("/test.txt")).toEqual(true)
     })
     test("directory", async () => {
-      await fs.clean()
+      fs.clean()
 
       expect(await fs.exists("/examples")).toEqual(false)
       await fs.mkdir("/examples")

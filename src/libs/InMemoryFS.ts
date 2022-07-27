@@ -1,29 +1,29 @@
+import type { FirebaseApp } from "@firebase/app"
+import { getAuth } from "@firebase/auth"
+import type {
+  DocumentData,
+  DocumentReference,
+  WriteBatch
+} from "@firebase/firestore"
+import { doc, getFirestore, writeBatch } from "@firebase/firestore"
 import mitt from "mitt"
 import sort from "sort-array"
 
-export interface File {
-  name: string
-  content: string
-}
-export interface Directory {
-  name: string
-  readonly childs: (Directory | File)[]
+type File = string
+interface Directory {
+  [name: string]: File | Directory
 }
 
 function isDirectory(dir: Directory | File): dir is Directory {
-  return "childs" in dir
+  return typeof dir === "object"
 }
 
-interface Root extends Directory {
-  id?: string
-}
 // readdir
 export class InMemoryFS {
-  private readonly memory: Root = {
-    name: "",
-    childs: []
-  }
+  private readonly memory: Directory = Object.create(null)
 
+  public name?: string
+  public id?: string
   public readonly events = mitt<{
     writeFile: string
     unlink: string
@@ -44,40 +44,39 @@ export class InMemoryFS {
     pathsSplited: string[],
     message: string,
     queryFile?: boolean
-  ): File | Directory {
+  ): string | Directory {
     // eslint-disable-next-line functional/no-let
     let { memory } = this
 
-    const pathsDir = this.getParentPaths(pathsSplited)
-    const filename = this.getFilename(pathsSplited)
-
-    // return
+    const paths = pathsSplited.slice(0, -1)
+    const filename = pathsSplited[pathsSplited.length - 1]
     // eslint-disable-next-line functional/no-let
-    for (let i = 0; i < pathsDir.length; i++) {
-      if (pathsDir[i] === "") continue
+    for (let i = 0; i < paths.length; i++) {
+      const name = paths[i]
 
-      const dir = memory.childs.find((item) => item.name === pathsDir[i])
+      if (name === "") continue
 
-      if (dir && isDirectory(dir)) memory = dir
-      // eslint-disable-next-line functional/no-throw-statement
-      else throw new Error(message + pathsSplited.join("/"))
-    }
+      const tmemory = memory[name]
 
-    const obj = !filename
-      ? memory
-      : memory.childs.find((item) => item.name === filename)
-
-    if (obj) {
-      if (queryFile === undefined) return obj
-
-      if (isDirectory(obj) ? queryFile : !queryFile)
+      if (!isDirectory(tmemory))
         // eslint-disable-next-line functional/no-throw-statement
         throw new Error(message + pathsSplited.join("/"))
 
-      return obj
+      memory = tmemory
     }
+
+    const obj = !filename ? memory : memory[filename]
+
     // eslint-disable-next-line functional/no-throw-statement
-    throw new Error(message + pathsSplited.join("/"))
+    if (obj === undefined) throw new Error(message + pathsSplited.join("/"))
+
+    if (queryFile === undefined) return obj
+
+    if (isDirectory(obj) ? queryFile : !queryFile)
+      // eslint-disable-next-line functional/no-throw-statement
+      throw new Error(message + pathsSplited.join("/"))
+
+    return obj
   }
 
   private getParentPaths(paths: string[]) {
@@ -88,25 +87,16 @@ export class InMemoryFS {
     return pathsSplited[pathsSplited.length - 1]
   }
 
-  private sortFilesDir(dir: Directory) {
-    sort(dir.childs, {
-      by: "name"
-    })
-  }
-
   private normalize(path: string) {
     return path.replace(/\/+$/g, "")
   }
 
   clean() {
-    this.memory.childs.splice(0)
+    // eslint-disable-next-line functional/immutable-data
+    for (const name in this.memory) delete this.memory[name]
   }
 
   async readFile(path: string) {
-    return (await this.readFileObject(path)).content
-  }
-
-  async readFileObject(path: string) {
     return this.queryObject(
       this.normalize(path).split("/"),
       "FILE_NOT_EXISTS: ",
@@ -116,7 +106,7 @@ export class InMemoryFS {
 
   async writeFile(path: string, content: string) {
     const pathsSplited = this.normalize(path).split("/")
-    const filename = this.getFilename(pathsSplited)
+    const name = this.getFilename(pathsSplited)
 
     const dir = this.queryObject(
       this.getParentPaths(pathsSplited),
@@ -124,31 +114,19 @@ export class InMemoryFS {
       false
     )
 
-    const inMemory = dir.childs.find((item) => item.name === filename) as File
-    if (inMemory) {
+    if (name in dir && isDirectory(dir[name]))
       // eslint-disable-next-line functional/no-throw-statement
-      if (isDirectory(inMemory)) throw new Error("IS_DIR: " + path)
-      // eslint-disable-next-line functional/immutable-data
-      inMemory.content = content
-      this.events.emit("writeFile", path)
+      throw new Error("IS_DIR: " + path)
 
-      return
-    }
-
-    const obj = {
-      name: filename,
-      content
-    }
-    dir.childs.push(obj)
-
-    this.sortFilesDir(dir)
+    // eslint-disable-next-line functional/immutable-data
+    dir[name] = content
 
     this.events.emit("writeFile", path)
   }
 
   async mkdir(path: string) {
     const pathsSplited = this.normalize(path).split("/")
-    const filename = this.getFilename(pathsSplited)
+    const name = this.getFilename(pathsSplited)
 
     const parent = this.queryObject(
       this.getParentPaths(pathsSplited),
@@ -156,75 +134,63 @@ export class InMemoryFS {
       false
     )
 
-    const has = parent.childs.find((item) => item.name === filename)
-    if (has) {
-      // eslint-disable-next-line functional/no-throw-statement
-      if (isDirectory(has)) throw new Error("IS_DIR: " + path)
-      // eslint-disable-next-line functional/no-throw-statement
-      else throw new Error("IS_FILE: " + path)
-    }
+    const has = parent[name]
 
-    parent.childs.push({
-      name: filename,
-      childs: []
-    })
+    if (has !== undefined)
+      // eslint-disable-next-line functional/no-throw-statement
+      throw new Error((isDirectory(has) ? "IS_DIR: " : "IS_FILE: ") + path)
 
-    this.sortFilesDir(parent)
+    // eslint-disable-next-line functional/immutable-data
+    parent[name] = Object.create(null)
   }
 
   async rename(from: string, to: string) {
     const pathsSplitedFrom = this.normalize(from).split("/")
-    const filenameFrom = this.getFilename(pathsSplitedFrom)
+    const nameFrom = this.getFilename(pathsSplitedFrom)
     const parentFrom = this.queryObject(
       this.getParentPaths(pathsSplitedFrom),
       "DIR_NOT_EXISTS: ",
       false
     )
 
-    const objIndex = parentFrom.childs.findIndex(
-      (item) => item.name === filenameFrom
-    )
-    const obj = parentFrom.childs[objIndex]
+    const obj = parentFrom[nameFrom]
+    if (obj === undefined)
+      // eslint-disable-next-line functional/no-throw-statement
+      throw new Error("PATH_NOT_EXISTS: " + from)
 
-    // eslint-disable-next-line functional/no-throw-statement
-    if (!obj) throw new Error("PATH_NOT_EXISTS: " + from)
-    // remove
-    parentFrom.childs.splice(objIndex >>> 0, 1)
+    // eslint-disable-next-line functional/immutable-data
+    delete parentFrom[nameFrom]
     this.events.emit("unlink", from)
 
     const pathsSplitedTo = this.normalize(to).split("/")
-    const filenameTo = this.getFilename(pathsSplitedTo)
+    const nameTo = this.getFilename(pathsSplitedTo)
     const parentTo = this.queryObject(
       this.getParentPaths(pathsSplitedFrom),
       "DIR_NOT_EXISTS: ",
       false
     )
 
-    const newObj = {
-      ...obj,
-      name: filenameTo
-    }
-    parentTo.childs.push(newObj)
+    // eslint-disable-next-line functional/immutable-data
+    parentTo[nameTo] = obj
     this.events.emit("unlink", to)
-
-    this.sortFilesDir(parentTo)
   }
 
   async unlink(path: string) {
     const pathsSplited = this.normalize(path).split("/")
-    const filename = this.getFilename(pathsSplited)
+    const name = this.getFilename(pathsSplited)
     const parent = this.queryObject(
       this.getParentPaths(pathsSplited),
       "DIR_NOT_EXISTS: ",
       false
     )
 
-    const index = parent.childs.findIndex((item) => item.name === filename)
+    const obj = parent[name]
 
     // eslint-disable-next-line functional/no-throw-statement
-    if (index === -1) throw new Error("PATH_NOT_EXISTS: " + path)
+    if (obj === undefined) throw new Error("PATH_NOT_EXISTS: " + path)
 
-    parent.childs.splice(index, 1)
+    // eslint-disable-next-line functional/immutable-data
+    delete parent[name]
     this.events.emit("unlink", path)
   }
 
@@ -245,11 +211,15 @@ export class InMemoryFS {
   }
 
   async readdir(path: string) {
-    return this.queryObject(
-      this.normalize(path).split("/"),
-      "DIR_NOT_EXISTS: ",
-      false
-    ).childs.map((item) => item.name)
+    return sort(
+      Object.keys(
+        this.queryObject(
+          this.normalize(path).split("/"),
+          "DIR_NOT_EXISTS: ",
+          false
+        )
+      )
+    )
   }
 
   async exists(path: string) {
@@ -264,12 +234,24 @@ export class InMemoryFS {
     return this.memory
   }
 
-  get rootName() {
-    return this.memory.name
+  // bactch
+  private batch?: WriteBatch
+  private sketch?: DocumentReference<DocumentData>
+
+  createbatch(app: FirebaseApp) {
+    // this.batch.
+    const db = getFirestore(app)
+    const auth = getAuth(app)
+
+    if (!auth.currentUser) return
+    if (!this.id) return
+
+    this.sketch = doc(db, "users", auth.currentUser.uid, "sketches", this.id)
+
+    this.batch = writeBatch(db)
   }
 
-  set rootName(name: string) {
-    // eslint-disable-next-line functional/immutable-data
-    this.memory.name = name
+  commit() {
+    return this.batch?.commit()
   }
 }

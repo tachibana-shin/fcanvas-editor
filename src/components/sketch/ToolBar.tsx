@@ -51,7 +51,7 @@ export function ToolBar() {
 
   useEffect(() => {
     // eslint-disable-next-line functional/immutable-data
-    fs.rootName = name
+    fs.name = name
   }, [name])
 
   const [renaming, setRenaming] = useState(false)
