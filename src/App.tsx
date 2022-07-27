@@ -8,9 +8,9 @@ import { LayoutAction } from "./layouts/action"
 import { LayoutDefault } from "./layouts/default"
 import { app } from "./modules/firebase"
 import { ForgotPassword } from "./pages/ForgotPassword"
-import { Index } from "./pages/Index"
 import { SignIn } from "./pages/SignIn"
 import { SignUp } from "./pages/SignUp"
+import { Sketch } from "./pages/Sketch"
 import { useStoreState } from "./stores"
 
 // eslint-disable-next-line functional/no-let
@@ -42,8 +42,8 @@ export function App() {
 
       <Routes>
         <Route path="/" element={<LayoutDefault />}>
-          <Route path="" element={<Index />} />
-          <Route path=":userId/sketch/:sketchId" element={<Index />} />
+          <Route path="" element={<Sketch />} />
+          <Route path=":userId/sketch/:sketchId" element={<Sketch />} />
         </Route>
 
         <Route path="/" element={<LayoutAction />}>

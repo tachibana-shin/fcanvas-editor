@@ -1,14 +1,14 @@
 import "./Index.scss"
 
-import { ToolBar } from "components/editor/ToolBar"
 import type { editor } from "monaco-editor"
 import { useRef } from "react"
 
-import { EditorFile } from "~/components/editor/EditorFile"
-import { Preview } from "~/components/editor/Preview"
-import { SideBar } from "~/components/editor/SideBar"
+import { EditorFile } from "~/components/sketch/EditorFile"
+import { Preview } from "~/components/sketch/Preview"
+import { SideBar } from "~/components/sketch/SideBar"
+import { ToolBar } from "~/components/sketch/ToolBar"
 
-export function Index() {
+export function Sketch() {
   const editorRef = useRef<editor.ICodeEditor | editor.IStandaloneCodeEditor>()
 
   return (
