@@ -50,7 +50,7 @@ export function useSaveSketch() {
     })
 
     // eslint-disable-next-line functional/immutable-data
-    fs.root.id = id
+    fs.id = id
     navigate(`/${auth.currentUser.uid}/sketch/${id}`, {
       replace: true
     })
