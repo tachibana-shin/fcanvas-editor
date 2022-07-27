@@ -43,6 +43,7 @@ export function App() {
       <Routes>
         <Route path="/" element={<LayoutDefault />}>
           <Route path="" element={<Index />} />
+          <Route path=":userId/sketch/:sketchId" element={<Index />} />
         </Route>
 
         <Route path="/" element={<LayoutAction />}>

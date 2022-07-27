@@ -15,6 +15,8 @@
     "@emotion/styled": "^11.9.3",
     "@firebase/app": "^0.7.29",
     "@firebase/auth": "^0.20.5",
+    "@firebase/database": "^0.13.3",
+    "@firebase/firestore": "^3.4.13",
     "@iconify/icons-flat-color-icons": "^1.2.2",
     "@iconify/icons-logos": "^1.2.14",
     "@iconify/react": "^3.2.2",

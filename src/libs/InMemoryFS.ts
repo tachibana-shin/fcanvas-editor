@@ -7,16 +7,19 @@ export interface File {
 }
 export interface Directory {
   name: string
-  childs: (Directory | File)[]
+  readonly childs: (Directory | File)[]
 }
 
 function isDirectory(dir: Directory | File): dir is Directory {
   return "childs" in dir
 }
 
+interface Root extends Directory {
+  id?: string
+}
 // readdir
 export class InMemoryFS {
-  private readonly memory: Directory = {
+  private readonly memory: Root = {
     name: "",
     childs: []
   }
@@ -86,8 +89,7 @@ export class InMemoryFS {
   }
 
   private sortFilesDir(dir: Directory) {
-    // eslint-disable-next-line functional/immutable-data
-    dir.childs = sort(dir.childs, {
+    sort(dir.childs, {
       by: "name"
     })
   }
@@ -97,8 +99,7 @@ export class InMemoryFS {
   }
 
   clean() {
-    // eslint-disable-next-line functional/immutable-data
-    this.memory.childs = []
+    this.memory.childs.splice(0)
   }
 
   async readFile(path: string) {
@@ -257,6 +258,10 @@ export class InMemoryFS {
     } catch {
       return false
     }
+  }
+
+  get root() {
+    return this.memory
   }
 
   get rootName() {
