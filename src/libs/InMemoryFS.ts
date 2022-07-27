@@ -258,4 +258,13 @@ export class InMemoryFS {
       return false
     }
   }
+
+  get rootName() {
+    return this.memory.name
+  }
+
+  set rootName(name: string) {
+    // eslint-disable-next-line functional/immutable-data
+    this.memory.name = name
+  }
 }

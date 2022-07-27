@@ -4,28 +4,56 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined"
 import Checkbox from "@mui/material/Checkbox"
 import Fab from "@mui/material/Fab"
 import { InputAutoFocus } from "components/ui/InputAutoFocus"
-import { useState } from "react"
+import gen from "project-name-generator"
+import { useEffect, useState } from "react"
+
+import { fs } from "~/modules/fs"
 
 function Rename(props: {
   defaultValue: string
   onSave: (newValue: string) => void
   onBlur: () => void
-}) {
-  const [tmpName, setTmpName] = useState(props.defaultValue)
+}): JSX.Element {
+  const [inputName, setInputName] = useState(props.defaultValue ?? "")
 
   return (
     <InputAutoFocus
-      value={tmpName}
+      value={inputName}
       className="text-[14px] bg-gray-800 rounded py-1 px-2 mx-[-8px] hover:text-[#d9d9d9] focus-visible:outline-none"
-      onInput={({ target }) => {
-        setTmpName((target as HTMLInputElement).value)
+      onInput={(event) =>
+        setInputName((event.target as HTMLInputElement).value)
+      }
+      onBlur={() => {
+        if (inputName !== "" && inputName !== props.defaultValue)
+          props.onSave(inputName)
+
+        props.onBlur?.()
       }}
-      onBlur={props.onBlur}
+      onKeyDown={(event) => {
+        if ((event as unknown as KeyboardEvent).key === "Enter") {
+          if (inputName !== "") {
+            ;(event.target as HTMLInputElement).blur()
+          }
+        }
+      }}
     />
   )
 }
 
 export function ToolBar() {
+  const [name, setName] = useState(
+    () =>
+      gen({
+        words: 2,
+        alliterative: true
+      }).spaced
+  )
+
+  useEffect(() => {
+    // eslint-disable-next-line functional/immutable-data
+    fs.rootName = name
+  }, [name])
+
   const [renaming, setRenaming] = useState(false)
 
   const reamer = (
@@ -33,16 +61,13 @@ export function ToolBar() {
       className="flex items-center ml-7 text-[#d9d9d9] text-[12px] cursor-pointer hover:text-green-400"
       onClick={() => setRenaming(true)}
     >
-      {!renaming && (
-        <span className="text-[14px] bg-transparent">Hello fCanvas</span>
-      )}
+      {!renaming && <span className="text-[14px] bg-transparent">{name}</span>}
       {!renaming && <Icon icon="bx:edit-alt" className="ml-1" />}
 
       {renaming && (
         <Rename
-          defaultValue="Hello fCanvas"
-          // eslint-disable-next-line @typescript-eslint/no-empty-function
-          onSave={() => {}}
+          defaultValue={name}
+          onSave={setName}
           onBlur={() => setRenaming(false)}
         />
       )}
