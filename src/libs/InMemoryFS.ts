@@ -5,7 +5,7 @@ import type {
   DocumentReference,
   WriteBatch
 } from "@firebase/firestore"
-import { doc, getFirestore, writeBatch } from "@firebase/firestore"
+import { deleteField, doc, getFirestore, writeBatch } from "@firebase/firestore"
 import mitt from "mitt"
 import sort from "sort-array"
 
@@ -29,8 +29,9 @@ export class InMemoryFS {
   public name?: string
   public id?: string
   public readonly events = mitt<{
-    writeFile: string
+    write: string
     unlink: string
+    mkdir: string
   }>()
 
   private queryObject(
@@ -125,7 +126,7 @@ export class InMemoryFS {
     // eslint-disable-next-line functional/immutable-data
     dir[name] = content
 
-    this.events.emit("writeFile", path)
+    this.events.emit("write", path)
   }
 
   async mkdir(path: string) {
@@ -148,6 +149,8 @@ export class InMemoryFS {
     parent[name] = {
       [CHAR_KEEP]: ""
     }
+
+    this.events.emit("mkdir", path)
   }
 
   async rename(from: string, to: string) {
@@ -244,6 +247,26 @@ export class InMemoryFS {
   private batch?: WriteBatch
   private sketch?: DocumentReference<DocumentData>
 
+  private onWrite = async (path: string) => {
+    if (!this.sketch) return
+
+    const paths = path.split("/").filter(Boolean)
+
+    this.batch?.update(this.sketch, {
+      [paths.join(".")]: await this.queryObject(paths, "")
+    })
+  }
+
+  private onUnlink = async (path: string) => {
+    if (!this.sketch) return
+
+    const paths = path.split("/").filter(Boolean)
+
+    this.batch?.update(this.sketch, {
+      [paths.join(".")]: deleteField()
+    })
+  }
+
   createbatch(app: FirebaseApp) {
     // this.batch.
     const db = getFirestore(app)
@@ -255,6 +278,14 @@ export class InMemoryFS {
     this.sketch = doc(db, "users", auth.currentUser.uid, "sketches", this.id)
 
     this.batch = writeBatch(db)
+
+    this.events.off("write", this.onWrite)
+    this.events.off("unlink", this.onUnlink)
+    this.events.off("mkdir", this.onWrite)
+
+    this.events.on("write", this.onWrite)
+    this.events.on("unlink", this.onUnlink)
+    this.events.on("mkdir", this.onWrite)
   }
 
   commit() {

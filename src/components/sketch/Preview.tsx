@@ -90,9 +90,9 @@ function Iframe() {
     }
 
     handle("/package.json")
-    fs.events.on("writeFile", handle)
+    fs.events.on("write", handle)
 
-    return () => fs.events.off("writeFile", handle)
+    return () => fs.events.off("write", handle)
   }, [])
 
   useEffect(() => {
@@ -114,11 +114,11 @@ function Iframe() {
     }
     handle("/index.html")
 
-    fs.events.on("writeFile", handle)
+    fs.events.on("write", handle)
     fs.events.on("unlink", handle)
 
     return () => {
-      fs.events.off("writeFile", handle)
+      fs.events.off("write", handle)
       fs.events.off("unlink", handle)
     }
     // eslint-disable-next-line no-sparse-arrays
@@ -179,12 +179,12 @@ function Iframe() {
     }
 
     window.addEventListener("message", controllerReadFS)
-    fs.events.on("writeFile", handleFileChange)
+    fs.events.on("write", handleFileChange)
     fs.events.on("unlink", handleFileChange)
     return () => {
       window.removeEventListener("message", controllerReadFS)
 
-      fs.events.off("writeFile", handleFileChange)
+      fs.events.off("write", handleFileChange)
       fs.events.off("unlink", handleFileChange)
     }
   }, [iframeRef.current])

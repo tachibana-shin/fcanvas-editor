@@ -20,7 +20,7 @@ export function createBlobURL(content: string) {
 
 const fileURLObjectMap = new Map<string, string>()
 // free memory
-fs.events.on("writeFile", (file) => {
+fs.events.on("write", (file) => {
   // clean
   fileURLObjectMap.forEach((url, path) => {
     if (file === path || path.startsWith(`${file}/`)) {

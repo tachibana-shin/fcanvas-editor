@@ -95,7 +95,7 @@ export async function installPackages(
   monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true)
 
   monacoSelf = monaco
-  fs.events.off("writeFile", loadPackages)
-  fs.events.on("writeFile", loadPackages)
+  fs.events.off("write", loadPackages)
+  fs.events.on("write", loadPackages)
   loadPackages("/package.json")
 }
