@@ -1,15 +1,10 @@
 import { Icon } from "@iconify/react"
-import CreateNewFolderOutlined from "@mui/icons-material/CreateNewFolderOutlined"
-import NoteAddOutlined from "@mui/icons-material/NoteAddOutlined"
-import ReplayOutlinedIcon from "@mui/icons-material/ReplayOutlined"
 import type { editor } from "monaco-editor"
 import { Resizable } from "re-resizable"
-import { useRef, useState } from "react"
+import type { useRef } from "react"
+import { useState } from "react"
 
-import type { FuncShared } from "./sidebar/FileTree"
-import { FileTreeNoRoot } from "./sidebar/FileTree"
-
-import { fs } from "~/modules/fs"
+import { Files } from "./sidebar/Files"
 
 export function SideBar(props: {
   editorRef: ReturnType<
@@ -17,8 +12,6 @@ export function SideBar(props: {
   >
 }) {
   const { editorRef } = props
-
-  const fileTreeRef = useRef<FuncShared>()
 
   const [tabSelection, setTabSelection] = useState<
     null | "file" | "search" | "change" | "setting"
@@ -90,27 +83,7 @@ export function SideBar(props: {
         className={tabSelection !== null ? undefined : "hidden"}
       >
         <div className="pl-3 pt-1 h-full border-r border-gray-700 overflow-x-hidden">
-          <div className="ml-[-27px]">
-            <div className="flex items-center justify-between ml-[22px] mr-[7px] py-1">
-              <h1 className="text-[12px] uppercase font-bold">FCanvas</h1>
-              <div className="text-[1.1rem] flex items-center children:mr-1 children:cursor-pointer">
-                <NoteAddOutlined
-                  fontSize="inherit"
-                  onClick={() => fileTreeRef.current?.createFile()}
-                />
-                <CreateNewFolderOutlined
-                  fontSize="inherit"
-                  onClick={() => fileTreeRef.current?.createDir()}
-                />
-                <ReplayOutlinedIcon
-                  fontSize="inherit"
-                  onClick={() => fileTreeRef.current?.reloadDir()}
-                />
-              </div>
-            </div>
-
-            <FileTreeNoRoot funcSharedRef={fileTreeRef} filepath="/" fs={fs} />
-          </div>
+          <Files />
         </div>
       </Resizable>
     </>
