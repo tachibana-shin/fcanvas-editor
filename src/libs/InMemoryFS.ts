@@ -106,6 +106,7 @@ export class InMemoryFS {
 
   clean() {
     for (const name in this.memory)
+      // eslint-disable-next-line functional/immutable-data
       if (name !== CHAR_KEEP) delete this.memory[name]
 
     // eslint-disable-next-line functional/immutable-data
@@ -323,6 +324,7 @@ export class InMemoryFS {
   fromFDBObject(object: Directory) {
     this.clean()
     Object.assign(this.memory, decodeObject(object))
+    this.events.emit("write", "/")
   }
 
   private backupMemory?: string
@@ -341,7 +343,7 @@ export class InMemoryFS {
 
     const uid = v4()
 
-    return new Promise((resolve) => {
+    return new Promise<Directory>((resolve) => {
       const handle = ({
         data
       }: MessageEvent<{
