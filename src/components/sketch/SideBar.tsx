@@ -4,7 +4,7 @@ import { Resizable } from "re-resizable"
 import type { useRef } from "react"
 import { useState } from "react"
 
-import { DiffValue } from "./sidebar/Diff"
+import { Diff } from "./sidebar/Diff"
 import { Files } from "./sidebar/Files"
 
 export function SideBar(props: {
@@ -85,7 +85,7 @@ export function SideBar(props: {
       >
         <div className="pl-3 pt-1 h-full border-r border-gray-700 overflow-x-hidden">
           {tabSelection === "file" && <Files />}
-          <DiffValue />
+          <Diff />
         </div>
       </Resizable>
     </>
