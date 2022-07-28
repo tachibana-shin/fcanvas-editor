@@ -1,5 +1,4 @@
-
-import { diff } from "./helpers/diff"
+import { diff } from "@tachibana-shin/diff-object"
 
 import type { Directory } from "~/libs/InMemoryFS"
 

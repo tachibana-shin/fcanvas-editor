@@ -8,12 +8,12 @@ import type {
   WriteBatch
 } from "@firebase/firestore"
 import { deleteField, doc, getFirestore, writeBatch } from "@firebase/firestore"
+import type { DiffReturn } from "@tachibana-shin/diff-object"
 import mitt from "mitt"
 import sort from "sort-array"
 import { v4 } from "uuid"
 
 import DiffObjectWorker from "~/workers/diff-object?worker"
-import type { Diff } from "~/workers/helpers/diff"
 
 type File = string
 
@@ -107,7 +107,6 @@ export class InMemoryFS {
 
   clean() {
     for (const name in this.memory)
-      // eslint-disable-next-line functional/immutable-data
       if (name !== CHAR_KEEP) delete this.memory[name]
 
     // eslint-disable-next-line functional/immutable-data
@@ -344,12 +343,12 @@ export class InMemoryFS {
 
     const uid = v4()
 
-    return new Promise<Diff>((resolve) => {
+    return new Promise<DiffReturn>((resolve) => {
       const handle = ({
         data
       }: MessageEvent<{
         id: string
-        diff: Diff
+        diff: DiffReturn
       }>) => {
         if (uid === data.id) resolve(data.diff)
 
