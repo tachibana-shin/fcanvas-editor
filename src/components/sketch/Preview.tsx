@@ -1,3 +1,4 @@
+import { debounce } from "debounce"
 import type { editor } from "monaco-editor"
 import { dirname, join, relative } from "path-browserify"
 import { Resizable } from "re-resizable"
@@ -10,7 +11,7 @@ import handleRequestRefrersh from "./raw/handle-request-refresh.jse?raw"
 import fcanvas from "~/../node_modules/fcanvas/dist/index.browser.mjs?raw"
 import SystemJS from "~/../node_modules/systemjs/dist/system.src.js?raw"
 import { readFileConfig } from "~/helpers/readFileConfig"
-import { createBlobURL, fs, getBlobURLOfFile } from "~/modules/fs"
+import { createBlobURL, fs, getBlobURLOfFile, isPathChange } from "~/modules/fs"
 
 // ~~~~~~~ end helper ~~~~~~~
 
@@ -74,7 +75,7 @@ function Iframe() {
 
   useEffect(() => {
     const handle = async (path: string) => {
-      if (path === "/package.json") {
+      if (isPathChange(path, "/package.json")) {
         const packageJSON = await readFileConfig(
           fs,
           ["/package.json"],
@@ -98,7 +99,7 @@ function Iframe() {
   useEffect(() => {
     console.log("bind event index.html")
     const handle = async (path: string) => {
-      if (path === "/index.html") {
+      if (isPathChange(path, "/index.html")) {
         console.log("re-render preview")
         // eslint-disable-next-line promise/catch-or-return
         renderPreview(
@@ -129,9 +130,9 @@ function Iframe() {
     const depends: string[] = []
     const iframePreview = iframeRef.current
 
-    const handleFileChange = (path: string) => {
+    const handleFileChange = debounce((path: string) => {
       const needRefresh = depends.some((depend) => {
-        return path === depend || depend.startsWith(`${path}/`)
+        return isPathChange(path, depend)
       })
 
       if (!needRefresh) return
@@ -144,7 +145,7 @@ function Iframe() {
       })
       // if change file require reload preview -> reset depends
       depends.splice(0)
-    }
+    }, 500)
     const controllerReadFS = async (
       event: MessageEvent<{
         id: string

@@ -23,7 +23,7 @@ const fileURLObjectMap = new Map<string, string>()
 fs.events.on("write", (file) => {
   // clean
   fileURLObjectMap.forEach((url, path) => {
-    if (file === path || path.startsWith(`${file}/`)) {
+    if (isPathChange(file, path)) {
       // cancel
       // eslint-disable-next-line n/no-unsupported-features/node-builtins
       URL.revokeObjectURL(url)
@@ -40,6 +40,13 @@ export async function getBlobURLOfFile(path: string): Promise<string> {
   fileURLObjectMap.set(path, url)
 
   return url
+}
+export function isPathChange(pathChange: string, pathTest: string) {
+  return (
+    pathTest === pathChange ||
+    pathTest.startsWith(`${pathChange}/`) ||
+    pathChange === "/"
+  )
 }
 
 fs.writeFile("/main.js", "console.log('hello world');\n import './t.ts'")

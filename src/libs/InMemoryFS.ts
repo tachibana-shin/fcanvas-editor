@@ -270,6 +270,7 @@ export class InMemoryFS {
 
   private onWrite = async (path: string) => {
     if (!this.sketch) return
+    if (path === "/") return
 
     const paths = encodePath(path).split("/")
 
@@ -333,6 +334,9 @@ export class InMemoryFS {
   private diffObjectWorker?: Worker
 
   async getdiff() {
+    // eslint-disable-next-line functional/no-throw-statement
+    if (!this.backupMemory) throw new Error("Backup memory not found")
+
     if (!this.diffObjectWorker) this.diffObjectWorker = new DiffObjectWorker()
 
     const uid = v4()
