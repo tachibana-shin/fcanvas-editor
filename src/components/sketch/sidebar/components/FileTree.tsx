@@ -8,7 +8,7 @@ import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined"
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"
 import FolderDeleteOutlinedIcon from "@mui/icons-material/FolderDeleteOutlined"
 import NoteAddOutlined from "@mui/icons-material/NoteAddOutlined"
-import { basename, dirname, join, relative } from "path-browserify"
+import { basename, dirname, join } from "path-browserify"
 import type { MutableRefObject } from "react"
 import { useEffect, useImperativeHandle, useMemo, useState } from "react"
 import { useDispatch } from "react-redux"
@@ -86,7 +86,7 @@ function File(props: Omit<OptionFile, "isDir">) {
           "flex items-center pl-20px " +
           CLASS_PATH_ACTIVE +
           (renaming ? " hidden" : "") +
-          (relative("/", props.filepath) === storeState.editor.currentSelect
+          (props.filepath === storeState.editor.currentSelect
             ? " before:content-DEFAULT !before:bg-dark-300"
             : "")
         }
@@ -305,7 +305,7 @@ function Dir(props: Omit<OptionDir, "isDir">) {
           <div
             className={
               `flex items-center mb-1.5 ${CLASS_PATH_ACTIVE}` +
-              (relative("/", props.filepath) === storeState.editor.currentSelect
+              (props.filepath === storeState.editor.currentSelect
                 ? " before:content-DEFAULT !before:bg-dark-300"
                 : "") +
               (renaming ? " hidden" : "")
