@@ -1,7 +1,7 @@
 import "./Index.scss"
 
 import { doc, getDoc, getFirestore } from "@firebase/firestore"
-import { Icon } from "@iconify/react"
+import CircularProgress from "@mui/material/CircularProgress"
 import type { editor } from "monaco-editor"
 import { useEffect, useRef, useState } from "react"
 import { useParams } from "react-router"
@@ -66,7 +66,7 @@ export function Sketch() {
     return (
       <div className="absolute w-full h-full flex items-center justify-center text-sm">
         <div className="text-center">
-          <Icon icon="line-md:loading-loop" className="w-45px h-45px" />
+          <CircularProgress />
           <br />
           Fetching Sketch...
         </div>

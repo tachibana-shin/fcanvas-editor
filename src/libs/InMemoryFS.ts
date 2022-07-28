@@ -107,6 +107,7 @@ export class InMemoryFS {
 
   clean() {
     for (const name in this.memory)
+      // eslint-disable-next-line functional/immutable-data
       if (name !== CHAR_KEEP) delete this.memory[name]
 
     // eslint-disable-next-line functional/immutable-data
@@ -343,12 +344,12 @@ export class InMemoryFS {
 
     const uid = v4()
 
-    return new Promise<DiffReturn>((resolve) => {
+    return new Promise<DiffReturn<false>>((resolve) => {
       const handle = ({
         data
       }: MessageEvent<{
         id: string
-        diff: DiffReturn
+        diff: DiffReturn<false>
       }>) => {
         if (uid === data.id) resolve(data.diff)
 

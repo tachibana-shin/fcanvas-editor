@@ -83,9 +83,9 @@ export function SideBar(props: {
         }
         className={tabSelection !== null ? undefined : "hidden"}
       >
-        <div className="pl-3 pt-1 h-full border-r border-gray-700 overflow-x-hidden">
+        <div className="pt-1 h-full border-r border-gray-700 overflow-x-hidden">
           {tabSelection === "file" && <Files />}
-          <Diff />
+          {tabSelection === "change" && <Diff />}
         </div>
       </Resizable>
     </>

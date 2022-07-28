@@ -12,7 +12,9 @@ addEventListener(
     oldMemory: string
     newMemory: Directory
   }>) => {
-    const diffs = diff(data.newMemory, JSON.parse(data.oldMemory))
+    const diffs = diff(JSON.parse(data.oldMemory), data.newMemory, {
+      symbol: false
+    })
 
     postMessage({
       id: data.id,
