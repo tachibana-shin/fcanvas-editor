@@ -4,6 +4,7 @@ import { Resizable } from "re-resizable"
 import type { useRef } from "react"
 import { useState } from "react"
 
+import { Diff } from "./sidebar/Diff"
 import { Files } from "./sidebar/Files"
 
 export function SideBar(props: {
@@ -15,7 +16,7 @@ export function SideBar(props: {
 
   const [tabSelection, setTabSelection] = useState<
     null | "file" | "search" | "change" | "setting"
-  >("file")
+  >("change")
   const tabs: {
     icon: string
     value: Exclude<typeof tabSelection, null>
@@ -83,7 +84,8 @@ export function SideBar(props: {
         className={tabSelection !== null ? undefined : "hidden"}
       >
         <div className="pl-3 pt-1 h-full border-r border-gray-700 overflow-x-hidden">
-          <Files />
+          {tabSelection === "file" && <Files />}
+          <Diff />
         </div>
       </Resizable>
     </>
