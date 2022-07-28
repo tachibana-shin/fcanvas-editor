@@ -7,7 +7,7 @@ interface DiffObject {
   valueA: unknown
   valueB: unknown
 }
-interface Diff {
+export interface Diff {
   [name: string]: DiffObject | Diff
 }
 

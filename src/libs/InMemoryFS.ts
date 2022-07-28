@@ -13,6 +13,7 @@ import sort from "sort-array"
 import { v4 } from "uuid"
 
 import DiffObjectWorker from "~/workers/diff-object?worker"
+import type { Diff } from "~/workers/helpers/diff"
 
 type File = string
 
@@ -343,12 +344,12 @@ export class InMemoryFS {
 
     const uid = v4()
 
-    return new Promise<Directory>((resolve) => {
+    return new Promise<Diff>((resolve) => {
       const handle = ({
         data
       }: MessageEvent<{
         id: string
-        diff: Directory
+        diff: Diff
       }>) => {
         if (uid === data.id) resolve(data.diff)
 
