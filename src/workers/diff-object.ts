@@ -1,4 +1,5 @@
-import { diff } from "deep-object-diff"
+
+import { diff } from "./helpers/diff"
 
 import type { Directory } from "~/libs/InMemoryFS"
 
