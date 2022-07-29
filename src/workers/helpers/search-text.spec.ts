@@ -16,7 +16,9 @@ describe("search-text", () => {
     expect(result).toEqual([
       {
         index: 0,
-        match: "Hello"
+        match: "Hello",
+        after: " World",
+        before: ""
       }
     ])
   })
@@ -43,7 +45,9 @@ describe("search-text", () => {
     expect(result).toEqual([
       {
         index: 0,
-        match: "Hello"
+        match: "Hello",
+        after: " World",
+        before: ""
       }
     ])
   })
@@ -59,7 +63,9 @@ describe("search-text", () => {
     expect(result).toEqual([
       {
         index: 0,
-        match: "Hello"
+        match: "Hello",
+        after: " World",
+        before: ""
       }
     ])
   })
@@ -75,7 +81,9 @@ describe("search-text", () => {
     expect(result).toEqual([
       {
         index: 0,
-        match: "Hello"
+        match: "Hello",
+        after: " World",
+        before: ""
       }
     ])
   })
@@ -91,7 +99,9 @@ describe("search-text", () => {
     expect(result).toEqual([
       {
         index: 0,
-        match: "Hello"
+        match: "Hello",
+        after: " World",
+        before: ""
       }
     ])
   })
@@ -107,7 +117,45 @@ describe("search-text", () => {
     expect(result).toEqual([
       {
         index: 0,
-        match: "Hello"
+        match: "Hello",
+        after: " World",
+        before: ""
+      }
+    ])
+  })
+  test("before text matches", () => {
+    const text = "Shin! Hello World"
+    const options = {
+      search: "Hello",
+      caseSensitive: false,
+      wholeWord: true,
+      regex: true
+    }
+    const result = Array.from(searchText(text, options))
+    expect(result).toEqual([
+      {
+        index: 6,
+        match: "Hello",
+        after: " World",
+        before: ""
+      }
+    ])
+  })
+  test("after text matches", () => {
+    const text = "Hello World! Ohayo! Shin"
+    const options = {
+      search: "Hello",
+      caseSensitive: false,
+      wholeWord: true,
+      regex: true
+    }
+    const result = Array.from(searchText(text, options))
+    expect(result).toEqual([
+      {
+        index: 0,
+        match: "Hello",
+        after: " World! Ohayo",
+        before: ""
       }
     ])
   })
