@@ -1,5 +1,6 @@
-import fg from "fast-glob"
 import { v4 } from "uuid"
+
+import { fastGlob } from "./fast-glob"
 
 import { fs } from "~/modules/fs"
 import type { SearchOptions } from "~/workers/helpers/search-text"
@@ -20,12 +21,7 @@ export async function * search(
 
   searchInFileWorker = new SearchInFileWorker()
 
-  const files = await fg(options.include, {
-    ignore: options.exclude,
-    onlyFiles: true,
-    cwd: "/",
-    fs
-  })
+  const files = await fastGlob(options.include, options.exclude)
 
   console.log("[search]: in files %s", files)
 
