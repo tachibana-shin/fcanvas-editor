@@ -8,12 +8,8 @@ import type {
   WriteBatch
 } from "@firebase/firestore"
 import { deleteField, doc, getFirestore, writeBatch } from "@firebase/firestore"
-import type { DiffReturn } from "@tachibana-shin/diff-object"
 import mitt from "mitt"
 import sort from "sort-array"
-import { v4 } from "uuid"
-
-import DiffObjectWorker from "~/workers/diff-object?worker"
 
 type File = string
 
@@ -83,7 +79,7 @@ function queryObject(
 }
 
 export class InMemoryFS {
-  private readonly memory: Directory = {
+  protected readonly memory: Directory = {
     [CHAR_KEEP]: ""
   }
 
@@ -328,45 +324,10 @@ export class InMemoryFS {
     this.events.emit("write", "/")
   }
 
-  private backupMemory?: string
+  protected backupMemory?: string
 
   backup() {
     this.backupMemory = JSON.stringify(this.memory)
-  }
-
-  private diffObjectWorker?: Worker
-
-  async getdiff() {
-    // eslint-disable-next-line functional/no-throw-statement
-    if (!this.backupMemory) throw new Error("Backup memory not found")
-
-    if (!this.diffObjectWorker) this.diffObjectWorker = new DiffObjectWorker()
-
-    const uid = v4()
-
-    return new Promise<DiffReturn<false>>((resolve) => {
-      const handle = ({
-        data
-      }: MessageEvent<{
-        id: string
-        diff: DiffReturn<false>
-      }>) => {
-        if (uid === data.id) resolve(data.diff)
-
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.diffObjectWorker!.removeEventListener("message", handle)
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.diffObjectWorker!.addEventListener("message", handle)
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      this.diffObjectWorker!.postMessage({
-        id: uid,
-
-        oldMemory: this.backupMemory,
-        newMemory: this.memory
-      })
-    })
   }
 }
 

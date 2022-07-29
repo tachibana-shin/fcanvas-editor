@@ -2,9 +2,9 @@ import esbuildWASM from "esbuild-wasm"
 import esbuildDotWASM from "esbuild-wasm/esbuild.wasm?url"
 import { extname } from "path-browserify"
 
-import { InMemoryFS } from "~/libs/InMemoryFS"
+import { InMemoryFSWatch } from "~/libs/InMemoryFSWatch"
 
-export const fs = new InMemoryFS()
+export const fs = new InMemoryFSWatch()
 
 if (import.meta.env.NODE_ENV !== "production") {
   // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
