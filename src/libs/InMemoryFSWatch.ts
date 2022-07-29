@@ -2,7 +2,7 @@ import type { DiffReturn } from "@tachibana-shin/diff-object"
 import { v4 } from "uuid"
 
 import type { Directory } from "./InMemoryFS"
-import { InMemoryFS } from "./InMemoryFS"
+import { CHAR_KEEP, InMemoryFS } from "./InMemoryFS"
 
 import DiffObjectWorker from "~/workers/diff-object?worker"
 
@@ -43,7 +43,7 @@ export class InMemoryFSWatch extends InMemoryFS {
   }
 
   async readFiles() {
-    return readFiles("/", this.memory)
+    return readFiles("", this.memory)
   }
 }
 
@@ -51,9 +51,11 @@ function readFiles(cwd: string, dir: Directory) {
   const files: string[] = []
 
   for (const name in dir) {
+    if (name === CHAR_KEEP) continue
+
     if (typeof dir[name] === "object")
-      files.push(...readFiles(`${cwd}/${name}`, dir[name] as Directory))
-    else files.push(`${cwd}/${name}`)
+      files.push(...readFiles(`${cwd}/${name}/`, dir[name] as Directory))
+    else files.push(`${cwd}${name}`)
   }
 
   return files

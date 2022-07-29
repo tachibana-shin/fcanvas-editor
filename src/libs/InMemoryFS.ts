@@ -13,7 +13,7 @@ import sort from "sort-array"
 
 type File = string
 
-const CHAR_KEEP = "@#"
+export const CHAR_KEEP = "@#"
 export interface Directory {
   [name: string]: File | Directory
 }
