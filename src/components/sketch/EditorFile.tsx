@@ -1,7 +1,7 @@
 import { Icon } from "@iconify/react"
 import type { Monaco } from "@monaco-editor/react"
 import Editor, { useMonaco } from "@monaco-editor/react"
-import debounce from "debounce"
+import throttle from "lodash.throttle"
 import { Uri } from "monaco-editor"
 import type { editor } from "monaco-editor"
 import type { useRef } from "react"
@@ -61,7 +61,7 @@ export function EditorFile(props: {
     if (!currentFile) return undefined
 
     const file = currentFile
-    return debounce(async (code: string | undefined) => {
+    return throttle(async (code: string | undefined) => {
       if (code === undefined) return
 
       console.log("auto saving %s", file)

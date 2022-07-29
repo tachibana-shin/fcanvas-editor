@@ -172,7 +172,7 @@ export function Diff() {
       {diff && (
         <>
           <div
-            className="block mx-2 max-w-[250px] mt-1 mb-3 text-sm py-[3px] text-center bg-cyan-600 cursor-pointer"
+            className="block max-w-[250px] mt-1 mb-3 text-sm py-[3px] text-center bg-cyan-600 cursor-pointer"
             onClick={async () => {
               setLoading(true)
               await saveSketch()

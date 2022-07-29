@@ -6,6 +6,7 @@ import { useState } from "react"
 
 import { Diff } from "./sidebar/Diff"
 import { Files } from "./sidebar/Files"
+import { Search } from "./sidebar/Search"
 
 export function SideBar(props: {
   editorRef: ReturnType<
@@ -86,6 +87,7 @@ export function SideBar(props: {
         <div className="pt-1 h-full border-r border-gray-700 overflow-x-hidden">
           {tabSelection === "file" && <Files />}
           {tabSelection === "change" && <Diff />}
+          <Search />
         </div>
       </Resizable>
     </>

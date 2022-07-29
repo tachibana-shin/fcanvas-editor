@@ -2,9 +2,9 @@ import escapeRegex from "escape-string-regexp"
 
 export interface SearchOptions {
   search: string
-  caseSensitive?: boolean
-  wholeWord?: boolean
-  regex?: boolean
+  caseSensitive: boolean
+  wholeWord: boolean
+  regexp: boolean
 }
 export interface Match {
   index: number
@@ -62,7 +62,7 @@ export function * searchText(
 ): SearchResult {
   // search
   const regular =
-    (options.regex ? options.search : escapeRegex(options.search)) +
+    (options.regexp ? options.search : escapeRegex(options.search)) +
     (options.wholeWord ? "(?=[^a-zA-Z0-9]|$)" : "")
 
   const regex = new RegExp(regular, options.caseSensitive ? "g" : "gi")

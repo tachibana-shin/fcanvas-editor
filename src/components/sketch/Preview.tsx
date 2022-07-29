@@ -1,4 +1,4 @@
-import { debounce } from "debounce"
+import throttle from "lodash.throttle"
 import type { editor } from "monaco-editor"
 import { dirname, join, relative } from "path-browserify"
 import { Resizable } from "re-resizable"
@@ -130,7 +130,7 @@ function Iframe() {
     const depends: string[] = []
     const iframePreview = iframeRef.current
 
-    const handleFileChange = debounce((path: string) => {
+    const handleFileChange = throttle((path: string) => {
       const needRefresh = depends.some((depend) => {
         return isPathChange(path, depend)
       })
