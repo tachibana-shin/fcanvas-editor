@@ -23,11 +23,11 @@ export async function * search(
 
   const files = await fastGlob(options.include, options.exclude)
 
-  console.log("[search]: in files %s", files)
+  console.log("[search]: in files", files)
 
   for (const filepath of files) {
     // eslint-disable-next-line no-async-promise-executor
-    const promise = new Promise<Result["matches"]>(async (resolve) => {
+    yield await new Promise<Result["matches"]>(async (resolve) => {
       const id = v4()
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -42,13 +42,12 @@ export async function * search(
       // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-non-null-assertion
       searchInFileWorker!.onmessage = (event: MessageEvent<Result>) => {
         if (id === event.data.id) {
-          console.log("[search]: %s", event.data.matches)
+          console.log("[search]: result ", event.data.matches)
           resolve(event.data.matches)
           // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-non-null-assertion
           searchInFileWorker!.onmessage = null
         }
       }
     })
-    yield await promise
   }
 }
