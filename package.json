@@ -30,6 +30,8 @@
     "debounce": "^1.2.1",
     "deep-object-diff": "^1.1.7",
     "esbuild-wasm": "^0.14.50",
+    "escape-string-regexp": "^5.0.0",
+    "fast-glob": "^3.2.11",
     "fcanvas": "^1.0.6",
     "lodash.isequal": "^4.5.0",
     "mitt": "^3.0.0",

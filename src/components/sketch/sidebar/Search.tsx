@@ -1,8 +1,16 @@
+import Input from "@mui/material/Input"
 import LinearProgress from "@mui/material/LinearProgress"
 import { useState } from "react"
 
+import { search } from "./logic/search"
+window.search = search
 export function Search() {
   const [loading, setLoading] = useState(false)
+
+  const [search, setSearch] = useState("")
+  const [replace, setReplace] = useState("")
+  const [include, setInclude] = useState("")
+  const [exclude, setExclude] = useState("")
 
   return (
     <div className="w-full">
@@ -16,6 +24,8 @@ export function Search() {
           />
         </div>
       )}
+
+      <Input size="small" />
     </div>
   )
 }

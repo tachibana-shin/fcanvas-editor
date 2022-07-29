@@ -8,24 +8,15 @@ export interface Options {
 }
 export interface Result {
   id: string
-  status: "done" | "running"
-  match: Match
+  matches: Match[]
 }
 
 addEventListener(
   "message",
   ({ data: { id, text, options } }: MessageEvent<Options>) => {
-    for (const match of searchText(text, options)) {
-      postMessage({
-        id,
-        status: "running",
-        match
-      } as Result)
-    }
-
     postMessage({
       id,
-      status: "done"
+      matches: Array.from(searchText(text, options))
     } as Result)
   }
 )
