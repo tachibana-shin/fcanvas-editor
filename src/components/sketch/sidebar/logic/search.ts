@@ -26,8 +26,11 @@ export async function * search(
   console.log("[search]: in files", files)
 
   for (const filepath of files) {
-    // eslint-disable-next-line no-async-promise-executor
-    yield await new Promise<Result["matches"]>(async (resolve) => {
+    yield await new Promise<{
+      filepath: string
+      matches: Result["matches"]
+      // eslint-disable-next-line no-async-promise-executor
+    }>(async (resolve) => {
       const id = v4()
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -43,9 +46,13 @@ export async function * search(
       searchInFileWorker!.onmessage = (event: MessageEvent<Result>) => {
         if (id === event.data.id) {
           console.log("[search]: result ", event.data.matches)
-          resolve(event.data.matches)
           // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-non-null-assertion
           searchInFileWorker!.onmessage = null
+
+          resolve({
+            filepath,
+            matches: event.data.matches
+          })
         }
       }
     })
