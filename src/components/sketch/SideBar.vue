@@ -1,0 +1,67 @@
+<template>
+  <div
+    className="flex flex-col items-center flex-nowrap border-r border-gray-700"
+  >
+    <button
+      v-for="{ icon, value } in tabs"
+      :key="value"
+      class="w-[48px] h-[48px] text-gray-500 hover:text-gray-400"
+      :class="{
+        '!text-inherit': tabSelection === value
+      }"
+      @click="
+        () => {
+          if (tabSelection === value) tabSelection = null
+          else tabSelection = value
+        }
+      "
+    >
+      <Icon :icon="icon" className="w-[24px] h-[24px]" />
+    </button>
+  </div>
+
+  <div
+    class="w-[220px]"
+    :class="{
+      hidden: tabSelection === null
+    }"
+  >
+    <div className="pt-1 h-full border-r border-gray-700 overflow-x-hidden">
+      <Files v-if="tabSelection === 'file'" />
+      <Diff v-if="tabSelection === 'change'" />
+      <Search />
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue"
+import Files from "./sidebar/Files.vue"
+import Diff from "./sidebar/Diff.vue"
+import Search from "./sidebar/Search.vue"
+
+const tabSelection = ref<null | "file" | "search" | "change" | "setting">(
+  "change"
+)
+const tabs: {
+  icon: string
+  value: Exclude<typeof tabSelection.value, null>
+}[] = [
+  {
+    icon: "codicon:files",
+    value: "file"
+  },
+  {
+    icon: "codicon:search",
+    value: "search"
+  },
+  {
+    icon: "codicon:request-changes",
+    value: "change"
+  },
+  {
+    icon: "codicon:settings-gear",
+    value: "setting"
+  }
+]
+</script>

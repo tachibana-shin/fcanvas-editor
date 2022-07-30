@@ -4,7 +4,7 @@ import { v4 } from "uuid"
 import type { Directory } from "./InMemoryFS"
 import { CHAR_KEEP, InMemoryFS } from "./InMemoryFS"
 
-import DiffObjectWorker from "~/workers/diff-object?worker"
+import DiffObjectWorker from "src/workers/diff-object?worker"
 
 export class InMemoryFSWatch extends InMemoryFS {
   private diffObjectWorker?: Worker

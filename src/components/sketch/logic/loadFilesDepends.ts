@@ -2,7 +2,7 @@ import type { Monaco } from "@monaco-editor/react"
 import { Uri } from "monaco-editor"
 import { dirname } from "path-browserify"
 
-import { fs } from "~/modules/fs"
+import { fs } from "src/modules/fs"
 
 function getAllImport(code: string) {
   return code

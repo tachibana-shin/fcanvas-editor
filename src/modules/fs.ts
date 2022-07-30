@@ -2,7 +2,7 @@ import esbuildWASM from "esbuild-wasm"
 import esbuildDotWASM from "esbuild-wasm/esbuild.wasm?url"
 import { extname } from "path-browserify"
 
-import { InMemoryFSWatch } from "~/libs/InMemoryFSWatch"
+import { InMemoryFSWatch } from "src/libs/InMemoryFSWatch"
 
 export const fs = new InMemoryFSWatch()
 

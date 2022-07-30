@@ -1,6 +1,6 @@
 import { diff } from "@tachibana-shin/diff-object"
 
-import type { Directory } from "~/libs/InMemoryFS"
+import type { Directory } from "src/libs/InMemoryFS"
 
 addEventListener(
   "message",

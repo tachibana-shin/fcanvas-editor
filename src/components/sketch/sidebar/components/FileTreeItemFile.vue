@@ -1,0 +1,125 @@
+<template>
+  <div className="py-[3px] pl-[10px] cursor-pointer">
+    <div
+      :class="[
+        `flex items-center pl-20px ${CLASS_PATH_ACTIVE}`,
+        {
+          hidden: renaming,
+          'before:content-DEFAULT !before:bg-dark-300':
+            filepath === editorStore.currentSelect
+        }
+      ]"
+      @click="onClick"
+    >
+      <Icon
+        v-if="loading"
+        icon="eos-icons:loading"
+        className="w-[1.25rem] h-[1.25rem] ml-[-1.25rem]"
+      />
+      <img
+        className="w-[1.2rem] h-[1.2rem]"
+        :src="
+          getIcon({
+            light: false,
+            isFolder: false,
+            isOpen: false,
+            filepath
+          })
+        "
+      />
+      <span className="text-[14px] pl-2">{{ filename }}</span>
+    </div>
+
+    <RenameFileOrDir
+      v-if="renaming"
+      :dir="false"
+      :default-value="filename"
+      @save="rename"
+      @blur="renaming = false"
+    />
+
+    <Menu :menu="menu" />
+  </div>
+</template>
+
+<script lang="ts" setup>
+import Menu from "src/components/ui/Menu.vue"
+import { join, dirname, basename } from "path"
+import { computed, ref } from "vue"
+import { useEditorStore } from "src/stores/editor"
+import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
+import { CLASS_PATH_ACTIVE } from "./class-path-active"
+import { FS } from "src/modules/fs"
+import RenameFileOrDir from "./components/RenameFileOrDir.vue"
+
+const props = defineProps<{
+  filepath: string
+  fs: FS
+}>()
+const emit = defineEmits<{
+  (name: "rename", value: string): void
+  (name: "unlink"): void
+}>()
+
+const editorStore = useEditorStore()
+
+const filename = computed(() => basename(props.filepath))
+const renaming = ref(false)
+const loading = ref(false)
+
+function onClick() {
+  editorStore.currentSelect = props.filepath
+  editorStore.currentFile = props.filepath
+}
+
+const menu = [
+  {
+    icon: "mdi-content-cut",
+    name: "Cut",
+    sub: "⌘X"
+  },
+  {
+    icon: "mdi-content-copy",
+    name: "Copy",
+    sub: "⌘C"
+  },
+  {
+    icon: "mdi-content-paste",
+    name: "Paste",
+    sub: "⌘V"
+  },
+  {
+    divider: true
+  },
+  {
+    icon: "mdi-drive-file-rename-outline",
+    name: "Rename",
+    onClick() {
+      renaming.value = true
+    }
+  },
+  {
+    icon: "mdi-delete-outline",
+    name: "Delete",
+    onClick: () => unlink()
+  }
+]
+
+async function rename(newFileName: string) {
+  const newPath = join(dirname(props.filepath), newFileName)
+
+  console.log("rename %s => %s", props.filepath, newPath)
+
+  loading.value = true
+  await props.fs.rename(props.filepath, newPath)
+  loading.value = false
+
+  emit("rename", newPath)
+}
+async function unlink() {
+  loading.value = true
+  await props.fs.unlink(props.filepath)
+
+  emit("unlink")
+}
+</script>

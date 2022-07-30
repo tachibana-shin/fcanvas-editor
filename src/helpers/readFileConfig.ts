@@ -1,4 +1,4 @@
-import type { FS } from "~/modules/fs"
+import type { FS } from "src/modules/fs"
 
 export async function readFileConfig<T>(
   fs: FS,

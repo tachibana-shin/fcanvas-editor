@@ -3,7 +3,7 @@ import type { editor } from "monaco-editor"
 import type { Options } from "prettier"
 import { v4 } from "uuid"
 
-import PrettierWorker from "~/workers/prettier?worker"
+import PrettierWorker from "src/workers/prettier?worker"
 
 const languages = [
   {

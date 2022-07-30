@@ -2,9 +2,9 @@ import type { Monaco } from "@monaco-editor/react"
 import type { editor, languages as Languages } from "monaco-editor"
 import { v4 } from "uuid"
 
-import { readFileConfig } from "~/helpers/readFileConfig"
-import { fs, isPathChange } from "~/modules/fs"
-import TypingsWorker from "~/workers/typings?worker"
+import { readFileConfig } from "src/helpers/readFileConfig"
+import { fs, isPathChange } from "src/modules/fs"
+import TypingsWorker from "src/workers/typings?worker"
 
 const typing = new TypingsWorker()
 function typings(depends: Record<string, string>) {

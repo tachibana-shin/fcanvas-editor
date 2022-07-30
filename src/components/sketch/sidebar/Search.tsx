@@ -7,7 +7,7 @@ import { Component, useEffect, useMemo, useState } from "react"
 
 import { search as searcher } from "./logic/search"
 
-import type { Match } from "~/workers/helpers/search-text"
+import type { Match } from "src/workers/helpers/search-text"
 
 function Input({
   placeholder,
@@ -74,19 +74,19 @@ export function Search() {
     () =>
       search.trim()
         ? searcher({
-          search,
-          caseSensitive,
-          wholeWord,
-          regexp,
-          include: include
-            .split(",")
-            .map((item) => item.trim())
-            .filter(Boolean),
-          exclude: exclude
-            .split(",")
-            .map((item) => item.trim())
-            .filter(Boolean)
-        })
+            search,
+            caseSensitive,
+            wholeWord,
+            regexp,
+            include: include
+              .split(",")
+              .map((item) => item.trim())
+              .filter(Boolean),
+            exclude: exclude
+              .split(",")
+              .map((item) => item.trim())
+              .filter(Boolean)
+          })
         : null,
 
     [search, include, exclude, caseSensitive, wholeWord, regexp]

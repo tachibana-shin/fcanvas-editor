@@ -1,6 +1,6 @@
 import micromatch from "micromatch"
 
-import { fs } from "~/modules/fs"
+import { fs } from "src/modules/fs"
 
 export async function fastGlob(patterns: string[], ignore: string[]) {
   return micromatch(
