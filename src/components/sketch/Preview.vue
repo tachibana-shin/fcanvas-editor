@@ -1,13 +1,12 @@
 <template>
   <div class="w-[50%]">
-    <div className="border-l border-gray-700 preview w-full h-full">
-      <iframe ref="iframeRef" className="w-full h-full" :srcdoc="srcDoc" />
+    <div class="border-l border-gray-700 preview w-full h-full">
+      <iframe ref="iframeRef" class="w-full h-full" :srcdoc="srcDoc" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { watch } from "fs"
 import { join, relative, dirname } from "path";
 import { throttle } from "quasar";
 import { readFileConfig } from "src/helpers/readFileConfig";
@@ -152,12 +151,11 @@ async function renderPreview(
     '<script>System.import("./$1")'
   )
 
-  return (
-    "<!--- load systemjs -->" +
+  return "<!--- load systemjs -->" +
     ` <script src="${createBlobURL(SystemJS)}"></script>` +
     `<script>{{customSystemjsNormalize}}` +
-    `{{cacheSystemjsFetch}}` +
-    `{{handleRequestRefrersh}}</script>` +
+    `{${cacheSystemjsFetch}}` +
+    `{${handleRequestRefrersh}}</script>` +
     `<script>
   System.config({
     baseURL: "https://unpkg.com/",
@@ -190,7 +188,7 @@ async function renderPreview(
   })
 </script>` +
     code
-  )
+
 }
 
 </script>

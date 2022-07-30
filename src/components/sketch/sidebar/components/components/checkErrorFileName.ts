@@ -17,7 +17,7 @@ export function checkErrorFileName(
       type: "error",
       message: `
         <span>
-          File or folder <span className="font-bold">${fileName}</span> already
+          File or folder <span class="font-bold">${fileName}</span> already
           exists at this location.
         </span>
       `
@@ -28,7 +28,7 @@ export function checkErrorFileName(
     return {
       type: "error",
       message: `<span>
-          The name <span className="font-bold">${fileName}</span> is not a valid
+          The name <span class="font-bold">${fileName}</span> is not a valid
           as file or directory. Please select a different file name.
         </span>`
     }
@@ -53,7 +53,7 @@ export function checkErrorFileName(
     return {
       type: "error",
       message: `<span>
-          The name <span className="font-bold">${fileName}</span> is not a valid
+          The name <span class="font-bold">${fileName}</span> is not a valid
           as file or folder name. Please select a different file name.
         </span>`
     }

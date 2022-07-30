@@ -1,5 +1,5 @@
 <template>
-  <div className="select-none cursor-pointer pl-[10px]">
+  <div class="select-none cursor-pointer pl-[10px]">
     <div
       v-if="!show"
       :class="`flex items-center mb-1.5 ${CLASS_PATH_ACTIVE}`"
@@ -12,7 +12,7 @@
         }"
       />
       <img
-        className="w-[1.2rem] h-[1.2rem]"
+        class="w-[1.2rem] h-[1.2rem]"
         :src="
           getIcon({
             light: false,
@@ -22,7 +22,7 @@
           })
         "
       />
-      <span className="text-[14px] pl-2 truncate">{{ name }}</span>
+      <span class="text-[14px] pl-2 truncate">{{ name }}</span>
     </div>
 
     <div

@@ -6,7 +6,7 @@
 
         <template v-for="item in menu" :key="item.name">
           <q-separator v-if="isDivider(item)" />
-          <q-list-item v-clickable v-ripple @click="item.onClick" v-else>
+          <q-item clickable v-ripple @click="item.onClick" v-else>
             <q-item-section avatar v-if="item.icon">
               <q-icon :icon="item.icon" />
             </q-item-section>
@@ -16,7 +16,7 @@
             <q-item-section side v-if="item.sub">
               {{ item.sub }}
             </q-item-section>
-          </q-list-item>
+          </q-item>
         </template>
       </template>
     </q-list>

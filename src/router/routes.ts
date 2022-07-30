@@ -7,7 +7,10 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: "",
-        alias: [":userId/sketch/:sketchId"],
+        component: () => import("pages/Sketch.vue")
+      },
+      {
+        path: ":userId/sketch/:sketchId",
         component: () => import("pages/Sketch.vue")
       },
       {

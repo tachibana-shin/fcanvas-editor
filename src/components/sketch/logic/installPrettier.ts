@@ -1,5 +1,4 @@
-import type { Monaco } from "@monaco-editor/react"
-import type { editor } from "monaco-editor"
+import monaco from "monaco-editor"
 import type { Options } from "prettier"
 import { v4 } from "uuid"
 
@@ -121,10 +120,7 @@ function format(code: string, parser: string, options: Options) {
   })
 }
 
-export async function installFormatter(
-  _editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
-  monaco: Monaco
-) {
+export async function installFormatter() {
   languages.forEach((language) => {
     language.vscodeLanguageIds.forEach((id) => {
       monaco.languages.registerDocumentFormattingEditProvider(id, {

@@ -1,12 +1,12 @@
 <template>
-  <div className="py-[3px] pl-[10px] cursor-pointer">
+  <div class="py-[3px] pl-[10px] cursor-pointer">
     <div
       :class="`flex items-center pl-20px ${CLASS_PATH_ACTIVE} ${
         FILE_COLOR[props.type]
       }`"
     >
       <img
-        className="w-[1.2rem] h-[1.2rem]"
+        class="w-[1.2rem] h-[1.2rem]"
         :src="
           getIcon({
             light: false,
@@ -16,8 +16,8 @@
           })
         "
       />
-      <span className="text-[14px] pl-2 w-full truncate">{{ name }}</span>
-      <small className="pr-1.5">{{ type[0] }}</small>
+      <span class="text-[14px] pl-2 w-full truncate">{{ name }}</span>
+      <small class="pr-1.5">{{ type[0] }}</small>
     </div>
   </div>
 </template>

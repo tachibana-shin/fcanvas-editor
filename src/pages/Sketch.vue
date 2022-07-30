@@ -1,25 +1,25 @@
 <template>
   <div
     v-if="loading"
-    className="absolute w-full h-full flex items-center justify-center text-sm"
+    class="absolute w-full h-full flex items-center justify-center text-sm"
   >
-    <div className="text-center">
-      <CircularProgress />
+    <div class="text-center">
+      <q-spinner-hourglass color="primary" size="2em" />
       <br />
       Fetching Sketch...
     </div>
   </div>
 
-  <div v-else className="page">
+  <div v-else class="page">
     <ToolBar />
 
-    <div className="flex h-full">
-      <SideBar editorRef="{editorRef}" />
+    <div class="flex h-full">
+      <SideBar />
 
-      <div className="flex relative w-full flex-1">
-        <div className="w-full h-full flex">
-          <EditorFile editorRef="{editorRef}" />
-          <Preview editorRef="{editorRef}" />
+      <div class="flex relative w-full flex-1">
+        <div class="w-full h-full flex">
+          <EditorFile />
+          <Preview />
         </div>
       </div>
     </div>
@@ -28,13 +28,17 @@
 
 <script lang="ts" setup>
 import { getFirestore, doc, getDoc } from "@firebase/firestore"
-import { watch } from "fs"
+import { watch } from "vue"
 import { useQuasar } from "quasar"
 import { app } from "src/modules/firebase"
 import { useEditorStore } from "src/stores/editor"
 import sketchDefault from "src/templates/sketch-default"
 import { ref } from "vue"
 import { useRoute } from "vue-router"
+import ToolBar from "components/sketch/ToolBar.vue"
+import SideBar from "components/sketch/SideBar.vue"
+import EditorFile from "components/sketch/EditorFile.vue"
+import Preview from "components/sketch/Preview.vue"
 
 const loading = ref(false)
 
@@ -43,6 +47,10 @@ const db = getFirestore(app)
 const route = useRoute()
 const $q = useQuasar()
 const { createSketch } = useEditorStore()
+
+watch(() => route.params.userId, loadSketch)
+watch(() => route.params.sketchId, loadSketch)
+loadSketch()
 
 async function loadSketch() {
   loading.value = true
@@ -57,7 +65,6 @@ async function loadSketch() {
     )
 
     try {
-      // eslint-disable-next-line promise/catch-or-return
       const snap = await getDoc(docRef)
 
       const { fs: template, name } = snap.data()!

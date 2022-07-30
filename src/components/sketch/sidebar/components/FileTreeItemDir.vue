@@ -1,5 +1,5 @@
 <template>
-  <div className="select-none pl-[10px] cursor-pointer">
+  <div class="select-none pl-[10px] cursor-pointer">
     <template v-if="!show">
       <div
         :class="[
@@ -15,7 +15,7 @@
         <Icon
           v-if="loading"
           icon="eos-icons:loading"
-          className="w-[1.25rem] h-[1.25rem]"
+          class="w-[1.25rem] h-[1.25rem]"
         />
         <ChevronRight
           v-else
@@ -25,7 +25,7 @@
           }"
         />
         <img
-          className="w-[1.2rem] h-[1.2rem]"
+          class="w-[1.2rem] h-[1.2rem]"
           :src="
             getIcon({
               light: false,
@@ -35,7 +35,7 @@
             })
           "
         />
-        <span className="text-[14px] pl-2 truncate">{{ filename }}</span>
+        <span class="text-[14px] pl-2 truncate">{{ filename }}</span>
       </div>
 
       <RenameFileOrDir
@@ -56,7 +56,7 @@
       >
         <RenameFileOrDir
           v-if="item.filepath === ''"
-          className="pl-[10px]"
+          class="pl-[10px]"
           :dir="item.isDir"
           :siblings="siblings"
           @save="createNewFile($event, item.isDir)"

@@ -2,16 +2,16 @@
   <div class="flex items-center mb-1.5 select-none">
     <q-icon v-if="dir" icon="mdi-chevron-right" />
 
-    <div className="absolute top-0 left-0 w-full h-full bg-[rgba(0,0,0,.5)]" />
+    <div class="absolute top-0 left-0 w-full h-full bg-[rgba(0,0,0,.5)]" />
 
     <div
-      className="flex items-center relative z-10"
+      class="flex items-center relative z-10"
       :class="{
         'ml-20px': dir
       }"
     >
       <img
-        className="w-[1.2rem] h-[1.2rem]"
+        class="w-[1.2rem] h-[1.2rem]"
         :src="
           getIcon({
             light: false,
@@ -26,7 +26,7 @@
         v-model="inputName"
         @blur="onBlur"
         @keydown="onKeydown"
-        className="bg-transparent text-[14px] ml-2 truncate w-full border focus-visible:outline-none"
+        class="bg-transparent text-[14px] ml-2 truncate w-full border focus-visible:outline-none"
         :class="
           errorFileName
             ? errorFileName.type === 'warn'
@@ -36,12 +36,9 @@
         "
       />
 
-      <div
-        v-if="errorFileName"
-        className="absolute pl-[1.7rem] w-full top-[100%]"
-      >
+      <div v-if="errorFileName" class="absolute pl-[1.7rem] w-full top-[100%]">
         <span
-          className="text-[12px] px-1 py-[5px] border border-top-none block w-full"
+          class="text-[12px] px-1 py-[5px] border border-top-none block w-full"
           :class="
             errorFileName.type === 'warn'
               ? ' bg-yellow-900 border-yellow-600'

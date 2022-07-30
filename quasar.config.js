@@ -19,8 +19,8 @@ module.exports = configure(function (/* ctx */) {
       // include = [],
       // exclude = [],
       // rawOptions = {},
-      warnings: true,
-      errors: true
+      warnings: false,
+      errors: false
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
@@ -72,7 +72,7 @@ module.exports = configure(function (/* ctx */) {
       // distDir
 
       extendViteConf(viteConf) {
-        extend(viteConf, {
+        extend(true, viteConf, {
           define: {
             process: {
               env: {
@@ -89,6 +89,21 @@ module.exports = configure(function (/* ctx */) {
             }
           }
         })
+        viteConf.server = {
+          ...viteConf.server,
+          // configure vite for HMR with Gitpod
+          hmr: process.env.GITPOD_WORKSPACE_URL
+            ? {
+                // removes the protocol and replaces it with the port we're connecting to
+                host: process.env.GITPOD_WORKSPACE_URL.replace(
+                  "https://",
+                  "9000-"
+                ),
+                protocol: "wss",
+                clientPort: 443
+              }
+            : true
+        }
       },
       // viteVuePluginOptions: {},
 

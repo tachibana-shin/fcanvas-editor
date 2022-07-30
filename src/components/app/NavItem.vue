@@ -3,7 +3,7 @@
     class="flex items-center px-[10px] py-[12px] text-sm text-gray-300 hover:text-gray-100"
   >
     <slot />
-    <QIcon v-if="chevron !== false" icon="transform rotate-90" size="sm" />
+    <q-icon v-if="chevron !== false" icon="transform rotate-90" size="sm" />
 
     <Menu v-if="menu" :menu="menu" />
   </button>

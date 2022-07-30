@@ -1,11 +1,11 @@
 <template>
   <div
-    className="w-full h-full text-center flex items-center justify-center"
+    class="w-full h-full text-center flex items-center justify-center"
     v-if="editorStore.currentFile"
   >
     <Icon
       icon="fluent:code-text-edit-20-filled"
-      className="w-120px h-120px text-gray-400"
+      class="w-120px h-120px text-gray-400"
     />
   </div>
   <div ref="editorEl" />

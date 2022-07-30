@@ -1,5 +1,5 @@
 <template>
-  <header className="h-[42px] w-full top-0 left-0 flex items-center px-3">
+  <header class="h-[42px] w-full top-0 left-0 flex items-center px-3">
     <NavItem
       chevron
       :menu="[
@@ -86,7 +86,7 @@
       Help
     </NavItem>
 
-    <div className="flex-1"></div>
+    <div class="flex-1"></div>
 
     <NavItem label="English" />
 
@@ -115,18 +115,18 @@
         }
       ]"
     >
-      <div className="flex items-center">
+      <div class="flex items-center">
         <q-avatar size="24px">
-          <img :src="user.photoURL" />
+          <img :src="user.photoURL!" />
         </q-avatar>
       </div>
       <template v-slot:menu-before>
-        <div className="text-center mb-3 min-w-[250px]">
+        <div class="text-center mb-3 min-w-[250px]">
           <q-avatar size="80px">
-            <img :src="user.photoURL" />
+            <img :src="user.photoURL!" />
           </q-avatar>
 
-          <h3 className="text-[14px] mt-2">{user.displayName}</h3>
+          <h3 class="text-[14px] mt-2">{user.displayName}</h3>
         </div>
       </template>
     </NavItem>
@@ -138,5 +138,9 @@
 </template>
 
 <script lang="ts" setup>
+import { storeToRefs } from "pinia"
+import { useAuthStore } from "src/stores/auth"
 import NavItem from "./NavItem.vue"
+
+const { user } = storeToRefs(useAuthStore())
 </script>

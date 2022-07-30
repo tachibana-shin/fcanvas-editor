@@ -1,5 +1,5 @@
 <template>
-  <div className="py-[3px] pl-[10px] cursor-pointer">
+  <div class="py-[3px] pl-[10px] cursor-pointer">
     <div
       :class="[
         `flex items-center pl-20px ${CLASS_PATH_ACTIVE}`,
@@ -14,10 +14,10 @@
       <Icon
         v-if="loading"
         icon="eos-icons:loading"
-        className="w-[1.25rem] h-[1.25rem] ml-[-1.25rem]"
+        class="w-[1.25rem] h-[1.25rem] ml-[-1.25rem]"
       />
       <img
-        className="w-[1.2rem] h-[1.2rem]"
+        class="w-[1.2rem] h-[1.2rem]"
         :src="
           getIcon({
             light: false,
@@ -27,7 +27,7 @@
           })
         "
       />
-      <span className="text-[14px] pl-2">{{ filename }}</span>
+      <span class="text-[14px] pl-2">{{ filename }}</span>
     </div>
 
     <RenameFileOrDir

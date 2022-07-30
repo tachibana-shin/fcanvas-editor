@@ -1,7 +1,5 @@
 <template>
-  <div
-    className="flex flex-col items-center flex-nowrap border-r border-gray-700"
-  >
+  <div class="flex flex-col items-center flex-nowrap border-r border-gray-700">
     <button
       v-for="{ icon, value } in tabs"
       :key="value"
@@ -16,7 +14,7 @@
         }
       "
     >
-      <Icon :icon="icon" className="w-[24px] h-[24px]" />
+      <Icon :icon="icon" class="w-[24px] h-[24px]" />
     </button>
   </div>
 
@@ -26,7 +24,7 @@
       hidden: tabSelection === null
     }"
   >
-    <div className="pt-1 h-full border-r border-gray-700 overflow-x-hidden">
+    <div class="pt-1 h-full border-r border-gray-700 overflow-x-hidden">
       <Files v-if="tabSelection === 'file'" />
       <Diff v-if="tabSelection === 'change'" />
       <Search />

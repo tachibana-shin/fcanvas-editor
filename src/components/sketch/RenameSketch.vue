@@ -1,6 +1,6 @@
 <template>
   <InputAutoFocus
-    className="text-[14px] bg-gray-800 rounded py-1 px-2 mx-[-8px] hover:text-[#d9d9d9] focus-visible:outline-none"
+    class="text-[14px] bg-gray-800 rounded py-1 px-2 mx-[-8px] hover:text-[#d9d9d9] focus-visible:outline-none"
     v-model="inputName"
     @blur="onBlur"
     @keydown="onKeydown"

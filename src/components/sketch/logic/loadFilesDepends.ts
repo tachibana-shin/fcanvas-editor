@@ -1,4 +1,5 @@
-import type { Monaco } from "@monaco-editor/react"
+import monaco from "monaco-editor"
+
 import { Uri } from "monaco-editor"
 import { dirname } from "path-browserify"
 
@@ -15,11 +16,7 @@ function getAllImport(code: string) {
     .filter((path) => path.startsWith("."))
 }
 
-export function loadFilesDepends(
-  monaco: Monaco,
-  currentFile: string,
-  content: string
-) {
+export function loadFilesDepends(currentFile: string, content: string) {
   // content
   getAllImport(content).forEach(async (cpath) => {
     const path = `${dirname(currentFile)}/${cpath}.ts`

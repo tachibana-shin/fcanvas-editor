@@ -25,7 +25,7 @@ function Input({
   onEnter?: KeyboardEventHandler<HTMLInputElement>
 }) {
   return (
-    <div className="flex items-center bg-dark-100 min-w-0">
+    <div class="flex items-center bg-dark-100 min-w-0">
       <input
         onChange={onChange}
         placeholder={placeholder}
@@ -36,7 +36,7 @@ function Input({
               }
             : undefined
         }
-        className="block min-w-0 h-[24px] flex-1 bg-transparent text-[14px] py-[4px] pl-1 focus-visible:outline-none border border-gray-700 focus:border-blue-300"
+        class="block min-w-0 h-[24px] flex-1 bg-transparent text-[14px] py-[4px] pl-1 focus-visible:outline-none border border-gray-700 focus:border-blue-300"
       />
 
       {actions.map((action) => {
@@ -44,7 +44,7 @@ function Input({
           <Icon
             key={action.icon}
             icon={action.icon}
-            className={
+            class={
               "cursor-pointer px-[1px] mx-[1px] w-[20px] h-full" +
               (action.active ? " text-blue-400" : "")
             }
@@ -93,21 +93,21 @@ export function Search() {
   )
   console.log({ search })
   return (
-    <div className="w-full text-gray-200">
-      <div className="flex relative mr-2">
+    <div class="w-full text-gray-200">
+      <div class="flex relative mr-2">
         <div
           style={{
             all: "inherit"
           }}
-          className="!cursor-pointer hover:!bg-dark-400 !mx-0"
+          class="!cursor-pointer hover:!bg-dark-400 !mx-0"
           onClick={() => setOpenReplacer(!openReplacer)}
         >
           <ChevronRight
             fontSize="small"
-            className={"my-auto" + (openReplacer ? " transform rotate-90" : "")}
+            class={"my-auto" + (openReplacer ? " transform rotate-90" : "")}
           />
         </div>
-        <div className="w-full min-w-0">
+        <div class="w-full min-w-0">
           <Input
             onChange={debounce((event) => setSearch(event.target.value), 1000)}
             actions={[
@@ -130,7 +130,7 @@ export function Search() {
             placeholder="Search"
           />
           {openReplacer && (
-            <div className="flex items-center mt-1">
+            <div class="flex items-center mt-1">
               <Input
                 actions={[
                   {
@@ -143,24 +143,24 @@ export function Search() {
               />
               <Icon
                 icon="codicon:replace-all"
-                className="cursor-pointer px-[2px] w-[20px] h-full"
+                class="cursor-pointer px-[2px] w-[20px] h-full"
               />
             </div>
           )}
         </div>
       </div>
 
-      <div className="text-right mx-2 mb-[-20px]">
+      <div class="text-right mx-2 mb-[-20px]">
         <Icon
           icon="ph:dots-three-bold"
-          className="w-[24px] h-[24px] cursor-pointer"
+          class="w-[24px] h-[24px] cursor-pointer"
           onClick={() => setOpenAdvanced(!openAdvanced)}
         />
       </div>
 
       {openAdvanced && (
-        <div className="mx-2">
-          <small className="text-muted leading-0">files to include</small>
+        <div class="mx-2">
+          <small class="text-muted leading-0">files to include</small>
           <Input
             actions={[
               {
@@ -173,7 +173,7 @@ export function Search() {
             placeholder="e.g. *.ts, src/**/include"
           />
 
-          <small className="text-muted">files to exclude</small>
+          <small class="text-muted">files to exclude</small>
           <Input
             actions={[
               {
@@ -248,7 +248,7 @@ class SearchResult extends Component<SearchResultProps, SearchResultState> {
     return (
       <div>
         {this.state.isLoading && (
-          <div className="w-100 absolute top-0 left-0">
+          <div class="w-100 absolute top-0 left-0">
             <LinearProgress
               color="inherit"
               sx={{

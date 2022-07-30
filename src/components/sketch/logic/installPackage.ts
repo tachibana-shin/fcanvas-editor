@@ -1,4 +1,4 @@
-import type { Monaco } from "@monaco-editor/react"
+import monaco from "monaco-editor"
 import type { editor, languages as Languages } from "monaco-editor"
 import { v4 } from "uuid"
 
@@ -42,8 +42,8 @@ function typings(depends: Record<string, string>) {
 }
 
 const URI_PKG = "/package.json"
-// eslint-disable-next-line functional/no-let
-let monacoSelf: Monaco
+
+let monacoSelf: typeof monaco
 async function loadPackages(path: string) {
   if (isPathChange(path, URI_PKG)) {
     console.log("Loading packages...")
@@ -76,8 +76,6 @@ async function loadPackages(path: string) {
 }
 
 export async function installPackages(
-  _editor: editor.ICodeEditor | editor.IStandaloneCodeEditor,
-  monaco: Monaco
 ) {
   const compilerOptions = {
     allowJs: true,
