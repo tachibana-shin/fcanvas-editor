@@ -1,4 +1,6 @@
+import { getAuth } from "@firebase/auth"
 import { route } from "quasar/wrappers"
+import { app } from "src/modules/firebase"
 import {
   createMemoryHistory,
   createRouter,
@@ -32,6 +34,20 @@ export default route(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE)
+  })
+
+  Router.beforeEach((to, from) => {
+    if (to.meta.auth === false) {
+      const auth = getAuth(app)
+
+      if (auth.currentUser) {
+        const route = Router.currentRoute.value
+        // exists
+        return typeof route.query.redirect === "string"
+          ? route.query.redirect
+          : "/"
+      }
+    }
   })
 
   return Router

@@ -1,13 +1,17 @@
 <template>
-  <div class="flex items-center mb-1.5 select-none">
-    <q-icon v-if="dir" icon="mdi-chevron-right" />
+  <div class="flex flex-nowrap items-center select-none">
+    <Icon
+      v-if="dir"
+      icon="material-symbols:chevron-right"
+      class="text-[19px]"
+    />
 
     <div class="absolute top-0 left-0 w-full h-full bg-[rgba(0,0,0,.5)]" />
 
     <div
-      class="flex items-center relative z-10"
+      class="flex items-center relative z-10 flex-nowrap"
       :class="{
-        'ml-20px': dir
+        'pl-[20px]': !dir
       }"
     >
       <img
@@ -26,7 +30,7 @@
         v-model="inputName"
         @blur="onBlur"
         @keydown="onKeydown"
-        class="bg-transparent text-[14px] ml-2 truncate w-full border focus-visible:outline-none"
+        class="bg-transparent text-[14px] ml-2 truncate w-full border focus-visible:outline-none min-w-0"
         :class="
           errorFileName
             ? errorFileName.type === 'warn'
@@ -45,7 +49,7 @@
               : ' bg-red-900 border-red-600'
           "
         >
-          {errorFileName.message}
+          {{ errorFileName.message }}
         </span>
       </div>
     </div>
@@ -53,10 +57,12 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from "vue"
-import { checkErrorFileName } from "./checkErrorFileName"
-
+import { Icon } from "@iconify/vue"
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
+import InputAutoFocus from "src/components/ui/InputAutoFocus.vue"
+import { computed, ref, watch } from "vue"
+
+import { checkErrorFileName } from "./checkErrorFileName"
 
 const props = defineProps<{
   dir: boolean
@@ -68,12 +74,13 @@ const emit = defineEmits<{
   (name: "blur"): void
 }>()
 
-const inputName = ref("")
-const skipEmptyFileName = ref(false)
+const inputName = ref(props.defaultValue ?? "")
+const skipEmptyFileName = ref(true)
 
 const watcher = watch(inputName, () => {
   if (inputName.value !== "") {
-    skipEmptyFileName.value = true
+
+    skipEmptyFileName.value = false
     watcher()
   }
 })

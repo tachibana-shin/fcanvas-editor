@@ -33,9 +33,11 @@
 </template>
 
 <script lang="ts" setup>
+import { Icon } from "@iconify/vue"
 import { ref } from "vue"
-import Files from "./sidebar/Files.vue"
+
 import Diff from "./sidebar/Diff.vue"
+import Files from "./sidebar/Files.vue"
 import Search from "./sidebar/Search.vue"
 
 const tabSelection = ref<null | "file" | "search" | "change" | "setting">(

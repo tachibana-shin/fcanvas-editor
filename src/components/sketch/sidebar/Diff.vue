@@ -1,12 +1,12 @@
 <template>
-  <div class="w-full px-3" v-if="!acceptDiff">
+  <div class="w-full px-3" v-if="!editorStore.sketchId">
     <small class="leading-0">
       Diff change not active. Please login and save sketch.
     </small>
 
     <button
       class="block w-full max-w-[250px] mt-1 mb-3 text-sm py-[3px] mx-auto bg-cyan-600"
-      @click="saveSketch"
+      @click="editorStore.saveSketch"
     >
       Save Sketch
     </button>
@@ -27,7 +27,7 @@
         @click="
           ;async () => {
             loading = true
-            await saveSketch()
+            await editorStore.saveSketch(router)
             diff = null
             loading = false
           }
@@ -39,19 +39,25 @@
         Changes
       </small>
       <div class="ml-[-15px] mt-2">
-        <Dir show name="/" :files="diff.diffs" />
+        <FileDiffItemDir show name="/" :files="diff.diffs" />
       </div>
     </template>
   </div>
 </template>
 
 <script lang="ts" setup>
-const FILE_COLOR = {
-  ADDED: " text-green-500",
-  MODIFIED: " text-orange-600",
-  DELETED: " text-red-600"
-}
+import type { DiffReturn } from "@tachibana-shin/diff-object"
+import { fs } from "src/modules/fs"
+import { useEditorStore } from "src/stores/editor"
+import { ref, watch } from "vue"
+import { useRouter } from "vue-router"
 
+import FileDiffItemDir from "./components/FileDiffItemDir.vue"
+
+const editorStore = useEditorStore()
+const router = useRouter()
+
+const loading = ref(false)
 const diff = ref<DiffReturn<false> | null>(null)
 
 watch(
@@ -60,15 +66,18 @@ watch(
     if (!id) return
 
     const handle = async () => {
-      setLoading(true)
+       
+      loading.value = true
 
       try {
-        setDiff(await fs.getdiff())
+         
+        diff.value = await fs.getdiff()
       } catch (err) {
         console.log(err)
       }
 
-      setLoading(false)
+       
+      loading.value = false
     }
 
     fs.events.on("write", handle)

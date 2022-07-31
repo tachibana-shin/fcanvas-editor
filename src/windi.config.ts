@@ -1,6 +1,5 @@
-// eslint-disable-next-line n/no-unpublished-import
+ 
 import { defineConfig } from "windicss/helpers"
-// eslint-disable-next-line n/no-unpublished-import
 import formsPlugin from "windicss/plugin/forms"
 
 export default defineConfig({

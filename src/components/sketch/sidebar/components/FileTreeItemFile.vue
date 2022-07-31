@@ -38,19 +38,22 @@
       @blur="renaming = false"
     />
 
-    <Menu :menu="menu" />
+    <Menu :menu="menu" context-menu />
   </div>
 </template>
 
 <script lang="ts" setup>
-import Menu from "src/components/ui/Menu.vue"
-import { join, dirname, basename } from "path"
-import { computed, ref } from "vue"
-import { useEditorStore } from "src/stores/editor"
+import { basename, dirname, join } from "path"
+
+import { Icon } from "@iconify/vue"
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
+import Menu from "src/components/ui/Menu.vue"
+import type { FS } from "src/modules/fs"
+import { useEditorStore } from "src/stores/editor"
+import { computed, ref } from "vue"
+
+import RenameFileOrDir from "./RenameFileOrDir.vue"
 import { CLASS_PATH_ACTIVE } from "./class-path-active"
-import { FS } from "src/modules/fs"
-import RenameFileOrDir from "./components/RenameFileOrDir.vue"
 
 const props = defineProps<{
   filepath: string
@@ -68,23 +71,25 @@ const renaming = ref(false)
 const loading = ref(false)
 
 function onClick() {
+
   editorStore.currentSelect = props.filepath
+
   editorStore.currentFile = props.filepath
 }
 
 const menu = [
   {
-    icon: "mdi-content-cut",
+    icon: "material-symbols:content-cut-rounded",
     name: "Cut",
     sub: "⌘X"
   },
   {
-    icon: "mdi-content-copy",
+    icon: "material-symbols:content-copy-outline",
     name: "Copy",
     sub: "⌘C"
   },
   {
-    icon: "mdi-content-paste",
+    icon: "material-symbols:content-paste",
     name: "Paste",
     sub: "⌘V"
   },
@@ -92,14 +97,15 @@ const menu = [
     divider: true
   },
   {
-    icon: "mdi-drive-file-rename-outline",
+    icon: "material-symbols:drive-file-rename-outline-outline",
     name: "Rename",
     onClick() {
+
       renaming.value = true
     }
   },
   {
-    icon: "mdi-delete-outline",
+    icon: "material-symbols:delete-outline",
     name: "Delete",
     onClick: () => unlink()
   }
@@ -110,13 +116,16 @@ async function rename(newFileName: string) {
 
   console.log("rename %s => %s", props.filepath, newPath)
 
+
   loading.value = true
   await props.fs.rename(props.filepath, newPath)
+
   loading.value = false
 
   emit("rename", newPath)
 }
 async function unlink() {
+
   loading.value = true
   await props.fs.unlink(props.filepath)
 

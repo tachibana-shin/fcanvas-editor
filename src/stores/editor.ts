@@ -1,11 +1,4 @@
 import { getAuth } from "@firebase/auth"
-import { defineStore } from "pinia"
-import { Notify, useQuasar } from "quasar"
-import { Directory } from "src/libs/InMemoryFS"
-import { app } from "src/modules/firebase"
-import { fs } from "src/modules/fs"
-import { useRouter } from "vue-router"
-
 import {
   addDoc,
   collection,
@@ -13,12 +6,21 @@ import {
   getFirestore,
   updateDoc
 } from "@firebase/firestore"
+import { defineStore } from "pinia"
 import gen from "project-name-generator"
+import { Notify, useQuasar } from "quasar"
+import type { Directory } from "src/libs/InMemoryFS"
+import { app } from "src/modules/firebase"
+import { fs } from "src/modules/fs"
+import type { Router} from "vue-router";
+import { useRouter } from "vue-router"
 
 export const useEditorStore = defineStore("editor", {
   state: () => ({
     currentSelect: <string | null>null,
     currentFile: <string | null>null,
+
+    autoRefresh: false,
 
     sketchId: <string | null>null,
     sketchName: <string | null>null
@@ -34,6 +36,7 @@ export const useEditorStore = defineStore("editor", {
 
       const { sketchName: oldName } = this
 
+       
       this.sketchName = newName
 
       if (!this.sketchId) return
@@ -49,23 +52,21 @@ export const useEditorStore = defineStore("editor", {
         )
         Notify.create("Sketch name updated successfully")
       } catch (err) {
+         
         this.sketchName = oldName
 
         Notify.create("Sketch name update failed")
 
+        // eslint-disable-next-line functional/no-throw-statement
         throw err
       }
     },
-    async saveSketch() {
+    async saveSketch(router: Router) {
       const auth = getAuth(app)
       const db = getFirestore(app)
 
-      const $q = useQuasar()
-
-      const router = useRouter()
-
       if (!auth.currentUser) {
-        $q.notify("You must be logged in to save sketch.")
+        Notify.create("You must be logged in to save sketch.")
 
         return
       }
@@ -76,7 +77,7 @@ export const useEditorStore = defineStore("editor", {
         await fs.commit()
         fs.createbatch(app, this.sketchId)
 
-        $q.notify("Project saved successfully.")
+        Notify.create("Project saved successfully.")
 
         return
       }
@@ -86,10 +87,11 @@ export const useEditorStore = defineStore("editor", {
         name: this.sketchName,
         fs: fs.toFDBObject()
       })
+       
       this.sketchId = id
       fs.createbatch(app, id)
 
-      $q.notify("Project saved successfully.")
+      Notify.create("Project saved successfully.")
 
       router.push(`/${auth.currentUser.uid}/sketch/${id}`)
     },
@@ -98,7 +100,9 @@ export const useEditorStore = defineStore("editor", {
       name?: string
       template: Directory
     }) {
+       
       this.sketchId = payload.id ?? null
+       
       this.sketchName =
         payload.name ??
         gen({

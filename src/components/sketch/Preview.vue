@@ -1,24 +1,30 @@
 <template>
   <div class="w-[50%]">
     <div class="border-l border-gray-700 preview w-full h-full">
-      <iframe ref="iframeRef" class="w-full h-full" :srcdoc="srcDoc" />
+      <iframe ref="iframeRef" class="w-full h-full" :srcdoc="srcDoc"></iframe>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { join, relative, dirname } from "path";
-import { throttle } from "quasar";
-import { readFileConfig } from "src/helpers/readFileConfig";
-import { createBlobURL, fs, getBlobURLOfFile, isPathChange } from "src/modules/fs"
-import { onMounted, onUnmounted, reactive, ref } from "vue"
+/* eslint-disable no-useless-escape */
+import { dirname, join, relative } from "path"
+
+import { debounce } from "quasar"
+import fcanvas from "src/../node_modules/fcanvas/dist/index.browser.mjs?raw"
+import SystemJS from "src/../node_modules/systemjs/dist/system.src.js?raw"
+import { readFileConfig } from "src/helpers/readFileConfig"
+import {
+  createBlobURL,
+  fs,
+  getBlobURLOfFile,
+  isPathChange
+} from "src/modules/fs"
+import { onMounted, onUnmounted, ref } from "vue"
 
 import cacheSystemjsFetch from "./raw/cache-systemjs-fetch.jse?raw"
 import customSystemjsNormalize from "./raw/custom-systemjs-normalize.jse?raw"
 import handleRequestRefrersh from "./raw/handle-request-refresh.jse?raw"
-
-import fcanvas from "src/../node_modules/fcanvas/dist/index.browser.mjs?raw"
-import SystemJS from "src/../node_modules/systemjs/dist/system.src.js?raw"
 
 const dependencies = ref<Record<string, string>>({})
 const srcDoc = ref("")
@@ -32,10 +38,11 @@ const watchPackagejson = async (path: string) => {
       {}
     )
 
-    dependencies.value = ({
+     
+    dependencies.value = {
       ...packageJSON.dependencies,
       ...packageJSON.devDependencies
-    })
+    }
   }
 }
 
@@ -46,7 +53,7 @@ onUnmounted(() => fs.events.off("write", watchPackagejson))
 const watchIndexhtml = async (path: string) => {
   if (isPathChange(path, "/index.html")) {
     console.log("re-render preview")
-    // eslint-disable-next-line promise/catch-or-return
+     
     srcDoc.value = await renderPreview(
       await fs.readFile("/index.html").catch((err) => {
         console.warn("Error loading index.html")
@@ -70,9 +77,8 @@ onUnmounted(() => {
 const iframeRef = ref<HTMLIFrameElement>()
 onMounted(() => {
   const depends: string[] = []
-  const iframePreview = iframeRef.value!
 
-  const handleFileChange = throttle((path: string) => {
+  const handleFileChange = debounce((path: string) => {
     const needRefresh = depends.some((depend) => {
       return isPathChange(path, depend)
     })
@@ -82,12 +88,12 @@ onMounted(() => {
     // file changed //
     console.log("file changed")
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    iframePreview?.contentWindow!.postMessage({
+    iframeRef.value?.contentWindow!.postMessage({
       type: "REFRESH"
     })
     // if change file require reload preview -> reset depends
     depends.splice(0)
-  }, 500)
+  }, 1500)
   const controllerReadFS = async (
     event: MessageEvent<{
       id: string
@@ -95,7 +101,7 @@ onMounted(() => {
       filepath: string
     }>
   ) => {
-    if (event.data.type === "GET_URL" && iframePreview?.contentWindow) {
+    if (event.data.type === "GET_URL" && iframeRef.value?.contentWindow) {
       // scan fs
       try {
         const fsPath = join(
@@ -107,7 +113,7 @@ onMounted(() => {
 
         const filepathResolved = await getBlobURLOfFile(fsPath)
 
-        iframePreview.contentWindow.postMessage({
+        iframeRef.value.contentWindow.postMessage({
           id: event.data.id,
           type: "GET_URL",
           filepath: filepathResolved
@@ -115,7 +121,7 @@ onMounted(() => {
       } catch (err) {
         // not exists
         // reject
-        iframePreview.contentWindow.postMessage({
+        iframeRef.value.contentWindow.postMessage({
           id: event.data.id,
           type: "GET_URL",
           error: (err as Error).message
@@ -135,7 +141,6 @@ onMounted(() => {
   })
 })
 
-
 // ~~~~~~~ end helper ~~~~~~~
 
 async function renderPreview(
@@ -146,17 +151,18 @@ async function renderPreview(
   // load index.html
   // now get src file main.js
   code = code.replace(
-    /<script(?:\s+)src=(?:'|")([^'"]+)(?:'|")(?:[^>]*)??>(?:\s*)/gi,
-    // eslint-disable-next-line quotes
-    '<script>System.import("./$1")'
+    /\<script(?:\s+)src=(?:'|")([^'"]+)(?:'|")(?:[^>]*)??>(?:\s*)/gi,
+
+    '\<script\>System.import("./$1")'
   )
 
-  return "<!--- load systemjs -->" +
-    ` <script src="${createBlobURL(SystemJS)}"></script>` +
-    `<script>{{customSystemjsNormalize}}` +
+  return (
+    "<!--- load systemjs -->" +
+    ` \<script src="${createBlobURL(SystemJS)}"\>\<\/script\>` +
+    `\<script\>{${customSystemjsNormalize}}` +
     `{${cacheSystemjsFetch}}` +
-    `{${handleRequestRefrersh}}</script>` +
-    `<script>
+    `{${handleRequestRefrersh}}\<\/script\>` +
+    `\<script\>
   System.config({
     baseURL: "https://unpkg.com/",
     defaultExtension: true,
@@ -186,9 +192,8 @@ async function renderPreview(
     },
     transpiler: "plugin-babel"
   })
-</script>` +
+<\/script>` +
     code
-
+  )
 }
-
 </script>

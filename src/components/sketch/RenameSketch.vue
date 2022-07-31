@@ -10,6 +10,8 @@
 <script lang="ts" setup>
 import { ref } from "vue"
 
+import InputAutoFocus from "../ui/InputAutoFocus.vue"
+
 const props = defineProps<{
   defaultValue: string
 }>()
@@ -18,7 +20,7 @@ const emit = defineEmits<{
   (name: "blur"): void
 }>()
 
-const inputName = ref("")
+const inputName = ref(props.defaultValue)
 
 const onBlur = () => {
   if (inputName.value !== "" && inputName.value !== props.defaultValue)

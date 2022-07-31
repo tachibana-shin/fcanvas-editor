@@ -5,25 +5,36 @@
       <div
         class="text-[1.1rem] flex items-center children:mr-1 children:cursor-pointer"
       >
-        <NoteAddOutlined
+        <Icon
+          icon="material-symbols:note-add-outline"
           fontSize="inherit"
           @click="fileTreeRef?.createFile()"
         />
-        <CreateNewFolderOutlined
+        <Icon
+          icon="material-symbols:create-new-folder-outline"
           fontSize="inherit"
           @click="fileTreeRef?.createDir()"
         />
-        <ReplayOutlinedIcon
+        <Icon
+          icon="material-symbols:replay"
           fontSize="inherit"
           @click="fileTreeRef?.reloadDir()"
         />
       </div>
     </div>
 
-    <FileTreeNoRoot ref="fileTreeRef" filepath="/" :fs="fs" />
+    <FileTree ref="fileTreeRef" filepath="/" :fs="fs" show />
   </div>
 </template>
 
 <script lang="ts" setup>
+import { Icon } from "@iconify/vue"
+import { fs } from "src/modules/fs"
+import { ref } from "vue"
+
+import FileTree from "./components/FileTree.vue"
+
 const fileTreeRef = ref()
+
+console.log(fileTreeRef)
 </script>

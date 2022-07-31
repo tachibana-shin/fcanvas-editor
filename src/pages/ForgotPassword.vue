@@ -1,15 +1,15 @@
 <template>
-  <q-container>
+  <div class="max-w-[440px] px-6 mx-auto">
     <div class="mt-8 flex flex-col items-center">
       <template v-if="!reseted">
         <q-avatar class="ma-1" color="secondary">
-          <LockOutlinedIcon />
+          <Icon icon="material-symbols:lock-outline" />
         </q-avatar>
         <h1 class="text-h5">Reset your Password</h1>
       </template>
       <div v-else class="mt-1 flex flex-col items-center text-center">
         <q-avatar class="ma-1" color="secondary">
-          <LockOutlinedIcon />
+          <Icon icon="material-symbols:lock-outline" />
         </q-avatar>
 
         <h3 class="text-subtitle1">
@@ -18,72 +18,68 @@
         </h3>
       </div>
 
-      <q-form class="mt-1" @submit="resetPassword" noValidate>
+      <q-form @submit.prevent="resetPassword()" class="mt-3 w-full">
         <template v-if="!reseted">
           <q-input
-            margin="normal"
             required
-            fullWidth
+            outlined
             id="email"
             label="Email Address"
             name="email"
             autoComplete="email"
             autoFocus
+            class="mui-input"
             v-model="email"
             :rules="[createRuleEmail()]"
           />
-          <q-btn type="submit" fullWidth variant="contained" class="mt-3">
+          <q-btn type="submit" color="blue" class="mt-3 w-full">
             Reset Password
           </q-btn>
 
           <LoginWithSocial />
         </template>
 
-        <q-container class="mt-5">
-          <Grid item xs>
-            <Link href="/sign-in" variant="body2">
+        <div class="mt-5 flex justify-between">
+          <div class="link-xs">
+            <router-link to="/sign-in" class="text-body2">
               Already have login and password? Sign In
-            </Link>
-          </Grid>
-          <Grid item>
-            <Link href="/sign-up" variant="body2">
-              {"Don't have an account? Sign Up"}
-            </Link>
-          </Grid>
-        </q-container>
+            </router-link>
+          </div>
+          <div class="link-xs">
+            <router-link to="/sign-up" class="text-body2">
+              Don't have an account? Sign Up
+            </router-link>
+          </div>
+        </div>
       </q-form>
     </div>
     <Copyright class="mt-8 mb-4" />
-  </q-container>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { getAuth, sendPasswordResetEmail, AuthError } from "@firebase/auth"
+import type { AuthError } from "@firebase/auth"
+import { getAuth, sendPasswordResetEmail } from "@firebase/auth"
+import { Icon } from "@iconify/vue"
 import { useQuasar } from "quasar"
+import Copyright from "src/components/sign/Copyright.vue"
+import LoginWithSocial from "src/components/sign/LoginWithSocial.vue"
+import { createRuleEmail } from "src/helpers/createRules"
 import { app } from "src/modules/firebase"
 import { ref } from "vue"
-
-import { createRuleEmail } from "src/components/sign/validator"
 
 const $q = useQuasar()
 const reseted = ref(false)
 
 const email = ref("")
 
-const resetPassword = async (event: FormDataEvent) => {
-  const auth = getAuth(app)
+const auth = getAuth(app)
 
-  event.preventDefault()
-
-  const data = new FormData(event.currentTarget)
-
-  console.log({
-    email: data.get("email")
-  })
-
+async function resetPassword() {
   try {
-    await sendPasswordResetEmail(auth, data.get("email") as string)
+    await sendPasswordResetEmail(auth, email.value)
 
+     
     reseted.value = true
   } catch (err) {
     console.log(err)
@@ -92,3 +88,7 @@ const resetPassword = async (event: FormDataEvent) => {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+@import "./link-xs.scss";
+</style>

@@ -1,4 +1,4 @@
-import { RouteRecordRaw } from "vue-router"
+import type { RouteRecordRaw } from "vue-router"
 
 const routes: RouteRecordRaw[] = [
   {
@@ -15,11 +15,17 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: "sign-in",
-        component: () => import("pages/SignIn.vue")
+        component: () => import("pages/SignIn.vue"),
+        meta: {
+          auth: false
+        }
       },
       {
         path: "sign-up",
-        component: () => import("pages/SignUp.vue")
+        component: () => import("pages/SignUp.vue"),
+        meta: {
+          auth: false
+        }
       },
       {
         path: "forgot-password",

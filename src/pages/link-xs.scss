@@ -1,0 +1,17 @@
+.link-xs {
+  @media (max-width: $breakpoint-xs-max) {
+    width: 100%;
+  }
+  .text-body2 {
+    margin: 0;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    font-size: 0.875rem;
+    line-height: 1.43;
+    letter-spacing: 0.01071em;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+

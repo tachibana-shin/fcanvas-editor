@@ -1,1 +1,24 @@
 // app global css in SCSS form
+
+.border-top-none {
+  border-top: none;
+}
+
+.before\:z-\[-1\] {
+  &:before {
+    z-index: -1;
+  }
+}
+
+// mui
+.mui-input {
+  .q-field__bottom {
+    @apply pt-1;
+    font-weight: 700;
+  }
+  .q-field__label {
+    font-weight: 500;
+  }
+
+  @apply mb-2;
+}

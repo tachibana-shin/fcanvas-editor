@@ -1,8 +1,6 @@
-import monaco from "monaco-editor"
-
+import * as monaco from "monaco-editor"
 import { Uri } from "monaco-editor"
 import { dirname } from "path-browserify"
-
 import { fs } from "src/modules/fs"
 
 function getAllImport(code: string) {

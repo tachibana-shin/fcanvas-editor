@@ -25,7 +25,7 @@ function Input({
   onEnter?: KeyboardEventHandler<HTMLInputElement>
 }) {
   return (
-    <div class="flex items-center bg-dark-100 min-w-0">
+    <q-page class="flex items-center bg-dark-100 min-w-0">
       <input
         onChange={onChange}
         placeholder={placeholder}
@@ -52,7 +52,7 @@ function Input({
           />
         )
       })}
-    </div>
+    </q-page>
   )
 }
 
@@ -93,9 +93,9 @@ export function Search() {
   )
   console.log({ search })
   return (
-    <div class="w-full text-gray-200">
-      <div class="flex relative mr-2">
-        <div
+    <q-page class="w-full text-gray-200">
+      <q-page class="flex relative mr-2">
+        <q-page
           style={{
             all: "inherit"
           }}
@@ -106,8 +106,8 @@ export function Search() {
             fontSize="small"
             class={"my-auto" + (openReplacer ? " transform rotate-90" : "")}
           />
-        </div>
-        <div class="w-full min-w-0">
+        </q-page>
+        <q-page class="w-full min-w-0">
           <Input
             onChange={debounce((event) => setSearch(event.target.value), 1000)}
             actions={[
@@ -130,7 +130,7 @@ export function Search() {
             placeholder="Search"
           />
           {openReplacer && (
-            <div class="flex items-center mt-1">
+            <q-page class="flex items-center mt-1">
               <Input
                 actions={[
                   {
@@ -145,21 +145,21 @@ export function Search() {
                 icon="codicon:replace-all"
                 class="cursor-pointer px-[2px] w-[20px] h-full"
               />
-            </div>
+            </q-page>
           )}
-        </div>
-      </div>
+        </q-page>
+      </q-page>
 
-      <div class="text-right mx-2 mb-[-20px]">
+      <q-page class="text-right mx-2 mb-[-20px]">
         <Icon
           icon="ph:dots-three-bold"
           class="w-[24px] h-[24px] cursor-pointer"
           onClick={() => setOpenAdvanced(!openAdvanced)}
         />
-      </div>
+      </q-page>
 
       {openAdvanced && (
-        <div class="mx-2">
+        <q-page class="mx-2">
           <small class="text-muted leading-0">files to include</small>
           <Input
             actions={[
@@ -185,11 +185,11 @@ export function Search() {
             onChange={(event) => setExclude(event.target.value)}
             placeholder="e.g. *.ts, src/**/exclude"
           />
-        </div>
+        </q-page>
       )}
 
       {searchResult && <SearchResult asyncGenerator={searchResult} />}
-    </div>
+    </q-page>
   )
 }
 
@@ -246,21 +246,21 @@ class SearchResult extends Component<SearchResultProps, SearchResultState> {
 
   public render() {
     return (
-      <div>
+      <q-page>
         {this.state.isLoading && (
-          <div class="w-100 absolute top-0 left-0">
+          <q-page class="w-100 absolute top-0 left-0">
             <LinearProgress
               color="inherit"
               sx={{
                 height: 2
               }}
             />
-          </div>
+          </q-page>
         )}
         {Object.entries(this.state.searched).map(([filepath, matches]) => {
-          return <div key={filepath}>{filepath}</div>
+          return <q-page key={filepath}>{filepath}</q-page>
         })}
-      </div>
+      </q-page>
     )
   }
 }

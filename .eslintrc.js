@@ -21,6 +21,7 @@ module.exports = {
 
   // Rules order is important, please avoid shuffling them
   extends: [
+    "@tachibana-shin/eslint-config",
     // Base ESLint recommended rules
     // 'eslint:recommended',
 
@@ -84,6 +85,8 @@ module.exports = {
 
     // allow debugger during development only
     "no-debugger": process.env.NODE_ENV === "production" ? "error" : "off",
-    "vue/multi-word-component-names": "off"
+    "vue/multi-word-component-names": "off",
+    "n/no-unpublished-import": "off",
+    "functional/immutable-data": "off"
   }
 }

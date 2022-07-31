@@ -9,7 +9,7 @@ describe("search-text", () => {
       search: "Hello",
       caseSensitive: false,
       wholeWord: false,
-      regex: false
+      regexp: false
     }
     const result = Array.from(Array.from(searchText(text, options)))
 
@@ -28,7 +28,7 @@ describe("search-text", () => {
       search: "hello",
       caseSensitive: true,
       wholeWord: false,
-      regex: false
+      regexp: false
     }
     const result = Array.from(searchText(text, options))
     expect(result).toEqual([])
@@ -39,7 +39,7 @@ describe("search-text", () => {
       search: "Hello",
       caseSensitive: false,
       wholeWord: true,
-      regex: false
+      regexp: false
     }
     const result = Array.from(searchText(text, options))
     expect(result).toEqual([
@@ -57,7 +57,7 @@ describe("search-text", () => {
       search: "Hello",
       caseSensitive: false,
       wholeWord: false,
-      regex: true
+      regexp: true
     }
     const result = Array.from(searchText(text, options))
     expect(result).toEqual([
@@ -75,7 +75,7 @@ describe("search-text", () => {
       search: "Hello",
       caseSensitive: true,
       wholeWord: false,
-      regex: true
+      regexp: true
     }
     const result = Array.from(searchText(text, options))
     expect(result).toEqual([
@@ -93,7 +93,7 @@ describe("search-text", () => {
       search: "Hello",
       caseSensitive: false,
       wholeWord: true,
-      regex: true
+      regexp: true
     }
     const result = Array.from(searchText(text, options))
     expect(result).toEqual([
@@ -111,7 +111,7 @@ describe("search-text", () => {
       search: "Hello",
       caseSensitive: true,
       wholeWord: true,
-      regex: true
+      regexp: true
     }
     const result = Array.from(searchText(text, options))
     expect(result).toEqual([
@@ -129,7 +129,7 @@ describe("search-text", () => {
       search: "Hello",
       caseSensitive: false,
       wholeWord: true,
-      regex: true
+      regexp: true
     }
     const result = Array.from(searchText(text, options))
     expect(result).toEqual([
@@ -147,7 +147,7 @@ describe("search-text", () => {
       search: "Hello",
       caseSensitive: false,
       wholeWord: true,
-      regex: true
+      regexp: true
     }
     const result = Array.from(searchText(text, options))
     expect(result).toEqual([

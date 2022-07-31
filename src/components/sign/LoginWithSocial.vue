@@ -6,9 +6,9 @@
   </div>
 
   <div class="text-center">
-    <Button
-      color="inherit"
-      class="w-full max-w-[350px] !normal-case !bg-dark-500"
+    <q-btn
+      dense
+      class="w-full flex items-center justify-center py-1 !normal-case !bg-dark-500 flex font-weight-normal"
       @click="loginWith(googleProvider)"
     >
       <Icon
@@ -18,15 +18,15 @@
         class="mr-1"
       />
       Sign in with Google
-    </Button>
-    <Button
-      color="inherit"
-      class="!mt-2 w-full max-w-[350px] !normal-case !bg-dark-500"
-      @onClick="loginWith(githubProvider)"
+    </q-btn>
+    <q-btn
+      dense
+      class="!mt-2 w-full flex items-center justify-center py-1 !normal-case !bg-dark-500 font-weight-normal"
+      @click="loginWith(githubProvider)"
     >
       <Icon icon="uiw:github" width="1.5rem" height="1.5rem" class="mr-1" />
       Sign in with GitHub
-    </Button>
+    </q-btn>
   </div>
 </template>
 
@@ -38,13 +38,19 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from "@firebase/auth"
+import { Icon } from "@iconify/vue"
+import { useQuasar } from "quasar"
+import { app } from "src/modules/firebase"
+
+const $q = useQuasar()
+
+const auth = getAuth(app)
 
 const googleProvider = new GoogleAuthProvider()
 const githubProvider = new GithubAuthProvider()
 
 async function loginWith(provider: AuthProvider) {
-  const auth = getAuth(app)
-
+  console.log("login with")
   try {
     const { user } = await signInWithPopup(auth, provider)
 

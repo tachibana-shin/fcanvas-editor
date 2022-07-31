@@ -1,12 +1,11 @@
-import monaco from "monaco-editor"
-import type { editor, languages as Languages } from "monaco-editor"
-import { v4 } from "uuid"
-
+import * as monaco from "monaco-editor"
+import type { languages as Languages } from "monaco-editor"
 import { readFileConfig } from "src/helpers/readFileConfig"
 import { fs, isPathChange } from "src/modules/fs"
-import TypingsWorker from "src/workers/typings?worker"
+import LoadTypesWorker from "src/workers/loadTypes?worker"
+import { v4 } from "uuid"
 
-const typing = new TypingsWorker()
+const typing = new LoadTypesWorker()
 function typings(depends: Record<string, string>) {
   return new Promise<
     {
@@ -43,6 +42,7 @@ function typings(depends: Record<string, string>) {
 
 const URI_PKG = "/package.json"
 
+// eslint-disable-next-line functional/no-let
 let monacoSelf: typeof monaco
 async function loadPackages(path: string) {
   if (isPathChange(path, URI_PKG)) {
@@ -75,8 +75,7 @@ async function loadPackages(path: string) {
   }
 }
 
-export async function installPackages(
-) {
+export async function installPackages() {
   const compilerOptions = {
     allowJs: true,
     allowSyntheticDefaultImports: true,

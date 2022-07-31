@@ -17,8 +17,8 @@
           getIcon({
             light: false,
             isFolder: true,
-            isOpen,
-            filepath: props.name
+            isOpen: opened,
+            filepath: name
           })
         "
       />
@@ -31,17 +31,35 @@
       }"
     >
       <template v-for="(diff, name) in files" :key="name">
-        <File
+        <FileDiffItemFile
           v-if="isDiffObject(diff, false)"
           :name="name"
-          :type="diff[KEY_ACTION]"
+          :type="(diff as unknown as Diff<false>)[KEY_ACTION]"
         />
-        <Dir v-else :name="name" :type="diff[KEY_ACTION]" :files="diff" />
+        <FileDiffItemDir
+          v-else
+          :name="name"
+          :type="diff[KEY_ACTION]"
+          :files="diff"
+        />
       </template>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { Diff, isDiffObject, KEY_ACTION } from "@tachibana-shin/diff-object"
+import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
+import { ref } from "vue"
+
+import FileDiffItemFile from "./FileDiffItemFile.vue"
+import { CLASS_PATH_ACTIVE } from "./class-path-active"
+
+defineProps<{
+  show?: true
+  name: string
+  files: Diff<false>
+}>()
+
 const opened = ref(false)
 </script>

@@ -1,3 +1,5 @@
+/* eslint-disable eslint-comments/no-unlimited-disable */
+
 /* eslint-disable */
 // https://github.com/michael-ciniawsky/postcss-load-config
 

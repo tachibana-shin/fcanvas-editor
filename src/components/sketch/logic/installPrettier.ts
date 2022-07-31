@@ -1,8 +1,8 @@
-import monaco from "monaco-editor"
+import * as monaco from "monaco-editor"
 import type { Options } from "prettier"
+import PrettierWorker from "src/workers/prettier?worker"
 import { v4 } from "uuid"
 
-import PrettierWorker from "src/workers/prettier?worker"
 
 const languages = [
   {

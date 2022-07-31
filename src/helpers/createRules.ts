@@ -1,28 +1,5 @@
 import isEmail from "validator/lib/isEmail"
 
-export function validator<T extends string>(
-  data: Record<T, string>,
-  rules: Record<T, (v: string) => void | string>
-) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const errors = {} as any
-
-  // eslint-disable-next-line functional/no-let
-  let passed = true
-  for (const key in rules) {
-    const rule = rules[key]
-    // eslint-disable-next-line functional/immutable-data
-    errors[key] = rule(data[key]) ?? null
-
-    if (errors[key]) passed = false
-  }
-
-  return {
-    passed,
-    errors: errors as Record<T, string | null>
-  }
-}
-
 export function createRuleEmail() {
   return (v: string) => {
     v = v.trim()

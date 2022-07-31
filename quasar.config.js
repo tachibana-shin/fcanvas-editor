@@ -8,10 +8,12 @@
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
-const { configure } = require("quasar/wrappers")
 const path = require("path")
-const { extend } = require("quasar")
 
+const { extend } = require("quasar")
+const { configure } = require("quasar/wrappers")
+
+ 
 module.exports = configure(function (/* ctx */) {
   return {
     eslint: {
@@ -29,7 +31,7 @@ module.exports = configure(function (/* ctx */) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
-    boot: ["i18n"],
+    boot: ["i18n", "windicss"],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
     css: ["app.scss"],
@@ -60,7 +62,7 @@ module.exports = configure(function (/* ctx */) {
       // vueDevtools,
       // vueOptionsAPI: false,
 
-      // rebuildCache: true, // rebuilds Vite/linter/etc cache on startup
+      rebuildCache: false, // rebuilds Vite/linter/etc cache on startup
 
       // publicPath: '/',
       // analyze: true,
@@ -87,23 +89,22 @@ module.exports = configure(function (/* ctx */) {
             alias: {
               path: "path-browserify"
             }
+          },
+          server: {
+            // configure vite for HMR with Gitpod
+            hmr: process.env.GITPOD_WORKSPACE_URL
+              ? {
+                  // removes the protocol and replaces it with the port we're connecting to
+                  host: process.env.GITPOD_WORKSPACE_URL.replace(
+                    "https://",
+                    "9000-"
+                  ),
+                  protocol: "wss",
+                  clientPort: 443
+                }
+              : true
           }
         })
-        viteConf.server = {
-          ...viteConf.server,
-          // configure vite for HMR with Gitpod
-          hmr: process.env.GITPOD_WORKSPACE_URL
-            ? {
-                // removes the protocol and replaces it with the port we're connecting to
-                host: process.env.GITPOD_WORKSPACE_URL.replace(
-                  "https://",
-                  "9000-"
-                ),
-                protocol: "wss",
-                clientPort: 443
-              }
-            : true
-        }
       },
       // viteVuePluginOptions: {},
 
@@ -118,7 +119,8 @@ module.exports = configure(function (/* ctx */) {
             include: path.resolve(__dirname, "./src/i18n/**")
           }
         ],
-        ["vite-plugin-windicss"]
+        ["vite-plugin-windicss"],
+        ["vite-plugin-monaco-editor", {}]
       ]
     },
 
@@ -130,7 +132,12 @@ module.exports = configure(function (/* ctx */) {
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#framework
     framework: {
-      config: {},
+      config: {
+        dark: "auto",
+        notify: {
+          position: "bottom-left"
+        }
+      },
 
       // iconSet: 'material-icons', // Quasar icon set
       // lang: 'en-US', // Quasar language pack
@@ -143,7 +150,7 @@ module.exports = configure(function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: []
+      plugins: ["Notify"]
     },
 
     // animations: 'all', // --- includes all animations

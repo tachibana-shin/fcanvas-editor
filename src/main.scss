@@ -2,13 +2,3 @@ body {
   // background-color: rgb(31, 31, 31);
   // @apply text-[#d9d9d9];
 }
-
-.border-top-none {
-  border-top: none;
-}
-
-.before\:z-\[-1\] {
-  &:before {
-    z-index: -1;
-  }
-}

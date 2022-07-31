@@ -1,9 +1,7 @@
 <template>
   <div class="py-[3px] pl-[10px] cursor-pointer">
     <div
-      :class="`flex items-center pl-20px ${CLASS_PATH_ACTIVE} ${
-        FILE_COLOR[props.type]
-      }`"
+      :class="`flex items-center pl-20px ${CLASS_PATH_ACTIVE} ${FILE_COLOR[type]}`"
     >
       <img
         class="w-[1.2rem] h-[1.2rem]"
@@ -12,7 +10,7 @@
             light: false,
             isFolder: false,
             isOpen: false,
-            filepath: props.name
+            filepath: name
           })
         "
       />
@@ -23,8 +21,18 @@
 </template>
 
 <script lang="ts" setup>
+import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
+
+import { CLASS_PATH_ACTIVE } from "./class-path-active"
+
 defineProps<{
   name: string
   type: "ADDED" | "MODIFIED" | "DELETED"
 }>()
+
+const FILE_COLOR = {
+  ADDED: " text-green-500",
+  MODIFIED: " text-orange-600",
+  DELETED: " text-red-600"
+}
 </script>
