@@ -1,5 +1,0 @@
-// Vitest Snapshot v1
-
-exports[`InMemoryFS > readFile > _EXISTS 1`] = `"FILE_NOT_EXISTS: /test.txt"`;
-
-exports[`InMemoryFS > readFile > NOT_EXISTS 1`] = `"FILE_NOT_EXISTS: /test.txt"`;

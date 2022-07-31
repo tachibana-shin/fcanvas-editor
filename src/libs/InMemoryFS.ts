@@ -1,5 +1,3 @@
-/* eslint-disable no-redeclare */
-
 import type { FirebaseApp } from "@firebase/app"
 import { getAuth } from "@firebase/auth"
 import type {
@@ -8,80 +6,28 @@ import type {
   WriteBatch
 } from "@firebase/firestore"
 import { deleteField, doc, getFirestore, writeBatch } from "@firebase/firestore"
+import { KEY_ACTION, KEY_VALUEA, KEY_VALUEB } from "@tachibana-shin/diff-object"
 import mitt from "mitt"
 import sort from "sort-array"
 
-type File = string
-
-export const CHAR_KEEP = "@#"
-export interface Directory {
-  [name: string]: File | Directory
-}
-
-function isDirectory(dir: Directory | File): dir is Directory {
-  return typeof dir === "object"
-}
-
-function queryObject(
-  memory: Directory,
-  pathsSplited: string[],
-  message: string,
-  queryFile: true
-): File
-
-function queryObject(
-  memory: Directory,
-  pathsSplited: string[],
-  message: string,
-  queryFile: false
-): Directory
-
-function queryObject(
-  memory: Directory,
-  pathsSplited: string[],
-  message: string
-): File | Directory
-function queryObject(
-  memory: Directory,
-  pathsSplited: string[],
-  message: string,
-  queryFile?: boolean
-): string | Directory {
-  const paths = pathsSplited.slice(0, -1)
-  const filename = pathsSplited[pathsSplited.length - 1]
-  // eslint-disable-next-line functional/no-let
-  for (let i = 0; i < paths.length; i++) {
-    const name = paths[i]
-
-    if (name === "") continue
-
-    const tmemory = memory[name]
-
-    if (!isDirectory(tmemory))
-      // eslint-disable-next-line functional/no-throw-statement
-      throw new Error(message + pathsSplited.join("/"))
-
-    memory = tmemory
-  }
-
-  const obj = !filename ? memory : memory[filename]
-
-  // eslint-disable-next-line functional/no-throw-statement
-  if (obj === undefined) throw new Error(message + pathsSplited.join("/"))
-
-  if (queryFile === undefined) return obj
-
-  if (isDirectory(obj) ? queryFile : !queryFile)
-    // eslint-disable-next-line functional/no-throw-statement
-    throw new Error(message + pathsSplited.join("/"))
-
-  return obj
-}
+import { CHAR_KEEP } from "./utils/CHAR_KEEP"
+import { addDiff, DIFF_DIFF_MIXED, DIFF_OBJECT_MIXED } from "./utils/addDiff"
+import { decodeObject, encodeObject, encodePath } from "./utils/coder"
+import { isDiffMixed } from "./utils/isDiffMixed"
+import { isDiffObject } from "./utils/isDiffObject"
+import { isDirectory } from "./utils/isDirectory"
+import { markDiff } from "./utils/markDiff"
+import { queryObject } from "./utils/queryObject"
+import { readFiles } from "./utils/readFiles"
+import type { Diff, Directory, File } from "./utils/types"
 
 export class InMemoryFS {
   protected readonly memory: Directory = {
     [CHAR_KEEP]: ""
   }
+
+  public readonly changelog: Diff = {}
+  public changelogLength = 0
 
   public readonly events = mitt<{
     write: string
@@ -97,18 +43,54 @@ export class InMemoryFS {
     return pathsSplited[pathsSplited.length - 1]
   }
 
+  private splitPaths(path: string): [string[], string] {
+    const paths = path.split("/").filter(Boolean)
+
+    return [paths.slice(0, -1), paths[paths.length - 1]]
+  }
+
   private normalize(path: string) {
     return path.replace(/\/+$/g, "")
   }
 
+  private getChangeTree(path: string): [Diff, string] {
+    const [paths, name] = this.splitPaths(path)
+
+    // eslint-disable-next-line functional/no-let
+    let prev: Diff | null = this.changelog
+    paths.forEach((cur) => {
+      if (cur === "") return
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, functional/no-let
+      let curObj = prev![cur]
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      if (isDiffObject(prev![cur])) {
+        const diffChild = {}
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        prev![cur] = curObj = {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          [DIFF_OBJECT_MIXED]: prev![cur],
+          [DIFF_DIFF_MIXED]: diffChild
+        }
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        prev![cur] = curObj = {}
+      }
+
+      if (isDiffMixed(curObj)) prev = curObj[DIFF_DIFF_MIXED]
+      else prev = curObj
+    }, this.changelog)
+
+    return [prev, name]
+  }
+
   clean() {
     for (const name in this.memory)
-      // eslint-disable-next-line functional/immutable-data
       if (name !== CHAR_KEEP) delete this.memory[name]
 
-    // eslint-disable-next-line functional/immutable-data
     delete this.batch
-    // eslint-disable-next-line functional/immutable-data
+
     delete this.backupMemory
   }
 
@@ -136,7 +118,20 @@ export class InMemoryFS {
       // eslint-disable-next-line functional/no-throw-statement
       throw new Error("IS_DIR: " + path)
 
-    // eslint-disable-next-line functional/immutable-data
+    // save to change
+    {
+      const [parent, name] = this.getChangeTree(path)
+
+      if (
+        addDiff(parent, name, {
+          [KEY_ACTION]: dir[name] !== undefined ? "MODIFIED" : "ADDED",
+          [KEY_VALUEA]: dir[name] as File,
+          [KEY_VALUEB]: content
+        })
+      )
+        this.changelogLength++
+    }
+
     dir[name] = content
 
     this.events.emit("write", path)
@@ -158,8 +153,17 @@ export class InMemoryFS {
     if (has !== undefined)
       // eslint-disable-next-line functional/no-throw-statement
       throw new Error((isDirectory(has) ? "IS_DIR: " : "IS_FILE: ") + path)
+    // {
+    //   const [parent, name] = this.getChangeTree(path)
 
-    // eslint-disable-next-line functional/immutable-data
+    //   // eslint-disable-next-line functional/immutable-data
+    //   parent[name] = {
+    //     [KEY_ACTION]: "ADDED",
+    //     [KEY_VALUEA]: undefined,
+    //     [KEY_VALUEB]: has
+    //   }
+    // }
+
     parent[name] = {
       [CHAR_KEEP]: ""
     }
@@ -178,13 +182,6 @@ export class InMemoryFS {
     )
 
     const obj = parentFrom[nameFrom]
-    if (obj === undefined)
-      // eslint-disable-next-line functional/no-throw-statement
-      throw new Error("PATH_NOT_EXISTS: " + from)
-
-    // eslint-disable-next-line functional/immutable-data
-    delete parentFrom[nameFrom]
-    this.events.emit("unlink", from)
 
     const pathsSplitedTo = this.normalize(to).split("/")
     const nameTo = this.getFilename(pathsSplitedTo)
@@ -195,9 +192,61 @@ export class InMemoryFS {
       false
     )
 
-    // eslint-disable-next-line functional/immutable-data
+    if (obj === undefined)
+      // eslint-disable-next-line functional/no-throw-statement
+      throw new Error("PATH_NOT_EXISTS: " + from)
+    if (parentTo[nameTo])
+      // eslint-disable-next-line functional/no-throw-statement
+      throw new Error(
+        `TO_IS_${isDirectory(parentTo[nameTo]) ? "DIR" : "FILE"}_EXISTS: ` + to
+      )
+
+    const isFile = !isDirectory(obj)
+    // save to changelog
+    {
+      const [parent, name] = this.getChangeTree(from)
+
+      if (isFile) {
+        if (
+          addDiff(parent, name, {
+            [KEY_ACTION]: "DELETED",
+            [KEY_VALUEA]: obj,
+            [KEY_VALUEB]: undefined
+          })
+        )
+          this.changelogLength++
+      } else {
+        const { diffs, count } = markDiff(obj, true)
+
+        if (addDiff(parent, name, diffs)) this.changelogLength += count
+      }
+    }
+
+    delete parentFrom[nameFrom]
+    this.events.emit("unlink", from)
+
+    // save to changelog
+    {
+      const [parent, name] = this.getChangeTree(to)
+
+      if (isFile) {
+        if (
+          addDiff(parent, name, {
+            [KEY_ACTION]: "ADDED",
+            [KEY_VALUEA]: undefined,
+            [KEY_VALUEB]: obj
+          })
+        )
+          this.changelogLength++
+      } else {
+        const { diffs, count } = markDiff(obj)
+
+        if (addDiff(parent, name, diffs)) this.changelogLength += count
+      }
+    }
+
     parentTo[nameTo] = obj
-    this.events.emit("unlink", to)
+    this.events.emit("write", to)
   }
 
   async unlink(path: string) {
@@ -215,7 +264,26 @@ export class InMemoryFS {
     // eslint-disable-next-line functional/no-throw-statement
     if (obj === undefined) throw new Error("PATH_NOT_EXISTS: " + path)
 
-    // eslint-disable-next-line functional/immutable-data
+    // save to changelog
+    {
+      const [parent, name] = this.getChangeTree(path)
+
+      if (isDirectory(obj)) {
+        const { diffs, count } = markDiff(obj, true)
+
+        if (addDiff(parent, name, diffs)) this.changelogLength += count
+      } else {
+        if (
+          addDiff(parent, name, {
+            [KEY_ACTION]: "DELETED",
+            [KEY_VALUEA]: obj,
+            [KEY_VALUEB]: undefined
+          })
+        )
+          this.changelogLength++
+      }
+    }
+
     delete parent[name]
     this.events.emit("unlink", path)
   }
@@ -256,6 +324,10 @@ export class InMemoryFS {
     } catch {
       return false
     }
+  }
+
+  async readFiles() {
+    return readFiles("", this.memory)
   }
 
   get root() {
@@ -329,38 +401,4 @@ export class InMemoryFS {
   backup() {
     this.backupMemory = JSON.stringify(this.memory)
   }
-}
-
-function encodePath(path: string) {
-  return path.replaceAll(".", "#dot")
-}
-function decodePath(path: string) {
-  return path.replaceAll("#dot", ".")
-}
-
-function coding<T extends Directory | File>(
-  obj: T,
-  coder: (v: string) => string
-): T {
-  if (!isDirectory(obj)) return obj
-
-  const newObj: Directory = {}
-
-  for (const name in obj) {
-    const dir = obj[name]
-    if (isDirectory(dir))
-      // eslint-disable-next-line functional/immutable-data
-      newObj[coder(name)] = encodeObject(dir)
-    // eslint-disable-next-line functional/immutable-data
-    else newObj[coder(name)] = dir
-  }
-
-  return newObj as T
-}
-
-function encodeObject<T extends Directory | File>(obj: T): T {
-  return coding(obj, encodePath)
-}
-function decodeObject<T extends Directory | File>(obj: T): T {
-  return coding(obj, decodePath)
 }
