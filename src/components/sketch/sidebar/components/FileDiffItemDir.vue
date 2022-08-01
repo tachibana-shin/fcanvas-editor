@@ -32,14 +32,15 @@
     >
       <template v-for="(diff, name) in files" :key="name">
         <FileDiffItemFile
-          v-if="isDiffObject(diff, false)"
-          :name="name"
-          :type="(diff as unknown as Diff<false>)[KEY_ACTION]"
+          v-if="isDiffObject(diff)"
+          :name="name as string"
+          :type="(diff as unknown as Diff)[KEY_ACTION] as any"
         />
+        <div v-else-if="isDiffMixed(diff)">{{ diff }}</div>
         <FileDiffItemDir
           v-else
-          :name="name"
-          :type="diff[KEY_ACTION]"
+          :name="name as string"
+          :type="(diff as unknown as Diff)[KEY_ACTION] as any"
           :files="diff"
         />
       </template>
@@ -48,8 +49,11 @@
 </template>
 
 <script lang="ts" setup>
-import { Diff, isDiffObject, KEY_ACTION } from "@tachibana-shin/diff-object"
+import { KEY_ACTION } from "@tachibana-shin/diff-object"
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
+import { isDiffMixed } from "src/libs/utils/isDiffMixed"
+import { isDiffObject } from "src/libs/utils/isDiffObject"
+import { Diff } from "src/libs/utils/types"
 import { ref } from "vue"
 
 import FileDiffItemFile from "./FileDiffItemFile.vue"
@@ -58,7 +62,7 @@ import { CLASS_PATH_ACTIVE } from "./class-path-active"
 defineProps<{
   show?: true
   name: string
-  files: Diff<false>
+  files: Diff
 }>()
 
 const opened = ref(false)

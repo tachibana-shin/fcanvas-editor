@@ -74,6 +74,7 @@ export const useEditorStore = defineStore("editor", {
       // update sketch
       if (this.sketchId) {
         await fs.commit()
+        fs.resetChangelog()
         fs.createbatch(app, this.sketchId)
 
         Notify.create("Project saved successfully.")
@@ -88,6 +89,7 @@ export const useEditorStore = defineStore("editor", {
       })
 
       this.sketchId = id
+      fs.resetChangelog()
       fs.createbatch(app, id)
 
       Notify.create("Project saved successfully.")

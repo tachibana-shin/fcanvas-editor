@@ -93,6 +93,12 @@ export class InMemoryFS {
     delete this.batch
   }
 
+  resetChangelog() {
+    for (const name in this.changelog) {
+      delete this.changelog[name]
+    }
+  }
+
   async readFile(path: string) {
     return queryObject(
       this.memory,
