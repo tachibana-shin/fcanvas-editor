@@ -1,7 +1,7 @@
 <template>
   <div class="py-[3px] pl-[10px] cursor-pointer">
     <div
-      :class="`flex items-center pl-20px ${CLASS_PATH_ACTIVE} ${FILE_COLOR[type]}`"
+      :class="`flex flex-nowrap items-center pl-20px ${CLASS_PATH_ACTIVE} ${FILE_COLOR[type]}`"
     >
       <img
         class="w-[1.2rem] h-[1.2rem]"

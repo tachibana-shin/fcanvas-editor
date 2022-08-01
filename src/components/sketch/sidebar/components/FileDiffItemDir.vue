@@ -5,8 +5,9 @@
       :class="`flex items-center mb-1.5 ${CLASS_PATH_ACTIVE}`"
       @click.stop="opened = !opened"
     >
-      <ChevronRight
-        fontSize="small"
+      <Icon
+        icon="material-symbols:chevron-right"
+        class="my-auto text-[1.2rem]"
         :class="{
           'transform rotate-90': opened
         }"
@@ -27,7 +28,7 @@
 
     <div
       :class="{
-        hidden: !opened
+        hidden: !opened && !show
       }"
     >
       <template v-for="(diff, name) in files" :key="name">
@@ -49,6 +50,7 @@
 </template>
 
 <script lang="ts" setup>
+import { Icon } from "@iconify/vue"
 import { KEY_ACTION } from "@tachibana-shin/diff-object"
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
 import { isDiffMixed } from "src/libs/utils/isDiffMixed"
