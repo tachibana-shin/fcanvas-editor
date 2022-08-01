@@ -2,7 +2,7 @@
   <div class="select-none cursor-pointer pl-[10px]">
     <div
       v-if="!show"
-      :class="`flex items-center mb-1.5 ${CLASS_PATH_ACTIVE}`"
+      :class="`flex items-center ${CLASS_PATH_ACTIVE}`"
       @click.stop="opened = !opened"
     >
       <Icon
@@ -42,25 +42,25 @@
           <FileDiffItemFile
             v-if="isDiffObject((diff as unknown as any)[DIFF_OBJECT_MIXED])"
             :name="name as string"
-            :type="(diff as unknown as Diff)[KEY_ACTION] as any"
+            :type="(diff as unknown as any)[DIFF_OBJECT_MIXED][KEY_ACTION] as any"
           />
           <FileDiffItemDir
             v-else
             :name="name as string"
-            :type="(diff as unknown as Diff)[KEY_ACTION] as any"
-            :files="(diff as unknown as any)[DIFF_OBJECT_MIXED]"
+            :type="((diff as unknown as any)[DIFF_DIFF_MIXED])[KEY_ACTION] as any"
+            :files="((diff as unknown as any))[DIFF_OBJECT_MIXED]"
           />
           <!-- // /DIFF_OBJECT_MIXED -->
           <!-- //DIFF_DIFF_MIXED -->
           <FileDiffItemFile
             v-if="isDiffObject((diff as unknown as any)[DIFF_DIFF_MIXED])"
             :name="name as string"
-            :type="(diff as unknown as Diff)[KEY_ACTION] as any"
+            :type="((diff as unknown as any)[DIFF_DIFF_MIXED])[KEY_ACTION] as any"
           />
           <FileDiffItemDir
             v-else
             :name="name as string"
-            :type="(diff as unknown as Diff)[KEY_ACTION] as any"
+            :type="((diff as unknown as any)[DIFF_DIFF_MIXED])[KEY_ACTION] as any"
             :files="(diff as unknown as any)[DIFF_DIFF_MIXED]"
           />
           <!-- // /DIFF_DIFF_MIXED -->
