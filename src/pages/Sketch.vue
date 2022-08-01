@@ -11,16 +11,14 @@
   </q-page>
 
   <q-page v-else class="flex column">
-    <ToolBar  />
+    <ToolBar />
 
     <div class="flex h-full flex-1">
       <SideBar />
 
-      <div class="flex relative w-full flex-1">
-        <div class="w-full h-full flex">
-          <EditorFile />
-          <Preview />
-        </div>
+      <div class="flex flex-nowrap relative w-full flex-1">
+        <EditorFile />
+        <Preview />
       </div>
     </div>
   </q-page>
@@ -53,7 +51,6 @@ watch(() => route.params.sketchId, loadSketch)
 loadSketch()
 
 async function loadSketch() {
-   
   loading.value = true
 
   if (route.params.userId && route.params.sketchId) {
@@ -85,7 +82,6 @@ async function loadSketch() {
     })
   }
 
-   
   loading.value = false
 }
 </script>

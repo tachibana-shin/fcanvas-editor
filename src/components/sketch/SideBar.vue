@@ -21,7 +21,7 @@
   <Resizable
     :default-size="{
       width: '220px',
-      height: '100%'
+      height: 'auto'
     }"
     max-width="60%"
     min-width="1"
