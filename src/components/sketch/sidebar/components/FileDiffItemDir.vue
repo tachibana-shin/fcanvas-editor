@@ -37,7 +37,34 @@
           :name="name as string"
           :type="(diff as unknown as Diff)[KEY_ACTION] as any"
         />
-        <div v-else-if="isDiffMixed(diff)">{{ diff }}</div>
+        <template v-else-if="isDiffMixed(diff)">
+          <!-- //DIFF_OBJECT_MIXED -->
+          <FileDiffItemFile
+            v-if="isDiffObject((diff as unknown as any)[DIFF_OBJECT_MIXED])"
+            :name="name as string"
+            :type="(diff as unknown as Diff)[KEY_ACTION] as any"
+          />
+          <FileDiffItemDir
+            v-else
+            :name="name as string"
+            :type="(diff as unknown as Diff)[KEY_ACTION] as any"
+            :files="(diff as unknown as any)[DIFF_OBJECT_MIXED]"
+          />
+          <!-- // /DIFF_OBJECT_MIXED -->
+          <!-- //DIFF_DIFF_MIXED -->
+          <FileDiffItemFile
+            v-if="isDiffObject((diff as unknown as any)[DIFF_DIFF_MIXED])"
+            :name="name as string"
+            :type="(diff as unknown as Diff)[KEY_ACTION] as any"
+          />
+          <FileDiffItemDir
+            v-else
+            :name="name as string"
+            :type="(diff as unknown as Diff)[KEY_ACTION] as any"
+            :files="(diff as unknown as any)[DIFF_DIFF_MIXED]"
+          />
+          <!-- // /DIFF_DIFF_MIXED -->
+        </template>
         <FileDiffItemDir
           v-else
           :name="name as string"
@@ -53,6 +80,7 @@
 import { Icon } from "@iconify/vue"
 import { KEY_ACTION } from "@tachibana-shin/diff-object"
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
+import { DIFF_DIFF_MIXED, DIFF_OBJECT_MIXED } from "src/libs/utils/addDiff"
 import { isDiffMixed } from "src/libs/utils/isDiffMixed"
 import { isDiffObject } from "src/libs/utils/isDiffObject"
 import { Diff } from "src/libs/utils/types"
