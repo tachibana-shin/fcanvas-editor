@@ -91,8 +91,6 @@ export class InMemoryFS {
       if (name !== CHAR_KEEP) delete this.memory[name]
 
     delete this.batch
-
-    delete this.backupMemory
   }
 
   async readFile(path: string) {
@@ -371,7 +369,6 @@ export class InMemoryFS {
 
     this.sketch = doc(db, "users", auth.currentUser.uid, "sketches", id)
 
-    this.backup()
     this.batch = writeBatch(db)
 
     this.events.off("write", this.onWrite)
@@ -395,11 +392,5 @@ export class InMemoryFS {
     this.clean()
     Object.assign(this.memory, decodeObject(object))
     this.events.emit("write", "/")
-  }
-
-  protected backupMemory?: string
-
-  backup() {
-    this.backupMemory = JSON.stringify(this.memory)
   }
 }
