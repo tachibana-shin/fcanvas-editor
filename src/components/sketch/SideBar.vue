@@ -18,8 +18,23 @@
     </button>
   </div>
 
-  <div
-    class="w-[220px]"
+  <Resizable
+    :default-size="{
+      width: '220px',
+      height: '100%'
+    }"
+    max-width="60%"
+    min-width="1"
+    :enable="{
+      top: false,
+      right: true,
+      bottom: false,
+      left: false,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false
+    }"
     :class="{
       hidden: tabSelection === null
     }"
@@ -29,12 +44,14 @@
       <Diff v-if="tabSelection === 'change'" />
       <Search />
     </div>
-  </div>
+  </Resizable>
 </template>
 
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue"
 import { ref } from "vue"
+
+import Resizable from "../ui/Resizable.vue"
 
 import Diff from "./sidebar/Diff.vue"
 import Files from "./sidebar/Files.vue"

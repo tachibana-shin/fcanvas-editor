@@ -1,5 +1,3 @@
-
-
 import { fs } from "src/modules/fs"
 import type { SearchOptions } from "src/workers/helpers/search-text"
 import type { Result } from "src/workers/search-in-file"
@@ -8,6 +6,10 @@ import { v4 } from "uuid"
 
 import { fastGlob } from "./fast-glob"
 
+export interface SearchResult {
+  filepath: string
+  matches: Result["matches"]
+}
 // eslint-disable-next-line functional/no-let
 let searchInFileWorker: Worker | null = null
 
@@ -27,11 +29,8 @@ export async function* search(
   console.log("[search]: in files", files)
 
   for (const filepath of files) {
-    yield await new Promise<{
-      filepath: string
-      matches: Result["matches"]
-      // eslint-disable-next-line no-async-promise-executor
-    }>(async (resolve) => {
+    // eslint-disable-next-line no-async-promise-executor
+    yield await new Promise<SearchResult>(async (resolve) => {
       const id = v4()
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

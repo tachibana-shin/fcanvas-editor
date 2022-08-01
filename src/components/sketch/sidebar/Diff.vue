@@ -6,7 +6,7 @@
 
     <button
       class="block w-full max-w-[250px] mt-1 mb-3 text-sm py-[3px] mx-auto bg-cyan-600"
-      @click="editorStore.saveSketch"
+      @click="editorStore.saveSketch(router)"
     >
       Save Sketch
     </button>
@@ -14,7 +14,7 @@
 
   <div class="w-full" v-else>
     <div class="w-100 absolute top-0 left-0" v-if="loading">
-      <q-linear-progress height="2px" />>
+      <q-linear-progress height="2px" />
     </div>
 
     <div class="text-center text-sm mt-3" v-if="!diff || diff.count === 0">
@@ -66,17 +66,14 @@ watch(
     if (!id) return
 
     const handle = async () => {
-       
       loading.value = true
 
       try {
-         
         diff.value = await fs.getdiff()
       } catch (err) {
         console.log(err)
       }
 
-       
       loading.value = false
     }
 

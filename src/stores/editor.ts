@@ -8,12 +8,11 @@ import {
 } from "@firebase/firestore"
 import { defineStore } from "pinia"
 import gen from "project-name-generator"
-import { Notify, useQuasar } from "quasar"
-import type { Directory } from "src/libs/InMemoryFS"
+import { Notify } from "quasar"
+import type { Directory } from "src/libs/utils/types"
 import { app } from "src/modules/firebase"
 import { fs } from "src/modules/fs"
-import type { Router} from "vue-router";
-import { useRouter } from "vue-router"
+import type { Router} from "vue-router"
 
 export const useEditorStore = defineStore("editor", {
   state: () => ({
@@ -36,7 +35,7 @@ export const useEditorStore = defineStore("editor", {
 
       const { sketchName: oldName } = this
 
-       
+
       this.sketchName = newName
 
       if (!this.sketchId) return
@@ -52,7 +51,7 @@ export const useEditorStore = defineStore("editor", {
         )
         Notify.create("Sketch name updated successfully")
       } catch (err) {
-         
+
         this.sketchName = oldName
 
         Notify.create("Sketch name update failed")
@@ -87,7 +86,7 @@ export const useEditorStore = defineStore("editor", {
         name: this.sketchName,
         fs: fs.toFDBObject()
       })
-       
+
       this.sketchId = id
       fs.createbatch(app, id)
 
@@ -100,9 +99,9 @@ export const useEditorStore = defineStore("editor", {
       name?: string
       template: Directory
     }) {
-       
+
       this.sketchId = payload.id ?? null
-       
+
       this.sketchName =
         payload.name ??
         gen({

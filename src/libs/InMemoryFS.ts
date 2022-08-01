@@ -9,6 +9,7 @@ import { deleteField, doc, getFirestore, writeBatch } from "@firebase/firestore"
 import { KEY_ACTION, KEY_VALUEA, KEY_VALUEB } from "@tachibana-shin/diff-object"
 import mitt from "mitt"
 import sort from "sort-array"
+import { reactive, ref } from "vue"
 
 import { CHAR_KEEP } from "./utils/CHAR_KEEP"
 import { addDiff, DIFF_DIFF_MIXED, DIFF_OBJECT_MIXED } from "./utils/addDiff"
@@ -26,8 +27,8 @@ export class InMemoryFS {
     [CHAR_KEEP]: ""
   }
 
-  public readonly changelog: Diff = {}
-  public changelogLength = 0
+  public readonly changelog: Diff = reactive({})
+  public changelogLength = ref(0)
 
   public readonly events = mitt<{
     write: string
@@ -129,7 +130,7 @@ export class InMemoryFS {
           [KEY_VALUEB]: content
         })
       )
-        this.changelogLength++
+        this.changelogLength.value++
     }
 
     dir[name] = content
@@ -214,11 +215,11 @@ export class InMemoryFS {
             [KEY_VALUEB]: undefined
           })
         )
-          this.changelogLength++
+          this.changelogLength.value++
       } else {
         const { diffs, count } = markDiff(obj, true)
 
-        if (addDiff(parent, name, diffs)) this.changelogLength += count
+        if (addDiff(parent, name, diffs)) this.changelogLength.value += count
       }
     }
 
@@ -237,11 +238,11 @@ export class InMemoryFS {
             [KEY_VALUEB]: obj
           })
         )
-          this.changelogLength++
+          this.changelogLength.value++
       } else {
         const { diffs, count } = markDiff(obj)
 
-        if (addDiff(parent, name, diffs)) this.changelogLength += count
+        if (addDiff(parent, name, diffs)) this.changelogLength.value += count
       }
     }
 
@@ -271,7 +272,7 @@ export class InMemoryFS {
       if (isDirectory(obj)) {
         const { diffs, count } = markDiff(obj, true)
 
-        if (addDiff(parent, name, diffs)) this.changelogLength += count
+        if (addDiff(parent, name, diffs)) this.changelogLength.value += count
       } else {
         if (
           addDiff(parent, name, {
@@ -280,7 +281,7 @@ export class InMemoryFS {
             [KEY_VALUEB]: undefined
           })
         )
-          this.changelogLength++
+          this.changelogLength.value++
       }
     }
 

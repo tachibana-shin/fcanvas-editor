@@ -191,14 +191,14 @@ describe("changelog", () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
     fs.changelog = {}
-    fs.changelogLength = 0
+    fs.changelogLength.value = 0
   }
 
   test("add file", async () => {
     resetChangelog()
 
     expect(fs.changelog).toEqual({})
-    expect(fs.changelogLength).toEqual(0)
+    expect(fs.changelogLength.value).toEqual(0)
 
     await fs.writeFile("/test.txt", "hello world")
 
@@ -209,14 +209,14 @@ describe("changelog", () => {
         [KEY_VALUEB]: "hello world"
       }
     })
-    expect(fs.changelogLength).toEqual(1)
+    expect(fs.changelogLength.value).toEqual(1)
   })
   test("add file deep", async () => {
     fs.clean()
     resetChangelog()
 
     expect(fs.changelog).toEqual({})
-    expect(fs.changelogLength).toEqual(0)
+    expect(fs.changelogLength.value).toEqual(0)
 
     await fs.writeFile("/test.txt", "hello world")
     await fs.writeFile("/test.txt", "hello world 2")
@@ -228,7 +228,7 @@ describe("changelog", () => {
         [KEY_VALUEB]: "hello world"
       }
     })
-    expect(fs.changelogLength).toEqual(1)
+    expect(fs.changelogLength.value).toEqual(1)
   })
   test("modified file", async () => {
     fs.clean()
@@ -244,7 +244,7 @@ describe("changelog", () => {
         [KEY_VALUEB]: "hello world 2"
       }
     })
-    expect(fs.changelogLength).toEqual(1)
+    expect(fs.changelogLength.value).toEqual(1)
   })
   test("delete file", async () => {
     resetChangelog()
@@ -258,7 +258,7 @@ describe("changelog", () => {
         [KEY_VALUEB]: undefined
       }
     })
-    expect(fs.changelogLength).toEqual(1)
+    expect(fs.changelogLength.value).toEqual(1)
   })
   test("rename file", async () => {
     fs.clean()
@@ -279,7 +279,7 @@ describe("changelog", () => {
         [KEY_VALUEB]: "hello world"
       }
     })
-    expect(fs.changelogLength).toEqual(2)
+    expect(fs.changelogLength.value).toEqual(2)
   })
 
   test("create dir", async () => {
@@ -288,7 +288,7 @@ describe("changelog", () => {
     await fs.mkdir("/examples")
 
     expect(fs.changelog).toEqual({})
-    expect(fs.changelogLength).toEqual(0)
+    expect(fs.changelogLength.value).toEqual(0)
   })
   test("rename dir", async () => {
     await fs.mkdir("/folder-test")
@@ -297,7 +297,7 @@ describe("changelog", () => {
     resetChangelog()
 
     expect(fs.changelog).toEqual({})
-    expect(fs.changelogLength).toEqual(0)
+    expect(fs.changelogLength.value).toEqual(0)
 
     await fs.rename("/folder-test", "/folder-test2")
 
@@ -317,7 +317,7 @@ describe("changelog", () => {
         }
       }
     })
-    expect(fs.changelogLength).toEqual(2)
+    expect(fs.changelogLength.value).toEqual(2)
   })
   test("delete dir", async () => {
     await fs.mkdir("/folder-test")
@@ -326,7 +326,7 @@ describe("changelog", () => {
     resetChangelog()
 
     expect(fs.changelog).toEqual({})
-    expect(fs.changelogLength).toEqual(0)
+    expect(fs.changelogLength.value).toEqual(0)
 
     await fs.unlink("/folder-test")
 
@@ -339,7 +339,7 @@ describe("changelog", () => {
         }
       }
     })
-    expect(fs.changelogLength).toEqual(1)
+    expect(fs.changelogLength.value).toEqual(1)
   })
 
   test("mixed: delete file & create dir", async () => {
@@ -348,7 +348,7 @@ describe("changelog", () => {
     resetChangelog()
 
     expect(fs.changelog).toEqual({})
-    expect(fs.changelogLength).toEqual(0)
+    expect(fs.changelogLength.value).toEqual(0)
 
     await fs.unlink("/test.txt")
 
@@ -371,7 +371,7 @@ describe("changelog", () => {
         }
       }
     })
-    expect(fs.changelogLength).toEqual(2)
+    expect(fs.changelogLength.value).toEqual(2)
   })
   test("mixed: delete dir & create file", async () => {
     fs.clean()
@@ -382,7 +382,7 @@ describe("changelog", () => {
     resetChangelog()
 
     expect(fs.changelog).toEqual({})
-    expect(fs.changelogLength).toEqual(0)
+    expect(fs.changelogLength.value).toEqual(0)
 
     await fs.unlink("/test")
     await fs.rename("/test2", "/test")

@@ -1,9 +1,26 @@
 <template>
-  <div class="w-[50%]">
+  <Resizable
+    :default-size="{
+      width: '50%',
+      height: '100%'
+    }"
+    max-width="60%"
+    min-width="1"
+    :enable="{
+      top: false,
+      right: false,
+      bottom: false,
+      left: true,
+      topRight: false,
+      bottomRight: false,
+      bottomLeft: false,
+      topLeft: false
+    }"
+  >
     <div class="border-l border-gray-700 preview w-full h-full">
       <iframe ref="iframeRef" class="w-full h-full" :srcdoc="srcDoc"></iframe>
     </div>
-  </div>
+  </Resizable>
 </template>
 
 <script lang="ts" setup>
@@ -22,6 +39,8 @@ import {
 } from "src/modules/fs"
 import { onMounted, onUnmounted, ref } from "vue"
 
+import Resizable from "../ui/Resizable.vue"
+
 import cacheSystemjsFetch from "./raw/cache-systemjs-fetch.jse?raw"
 import customSystemjsNormalize from "./raw/custom-systemjs-normalize.jse?raw"
 import handleRequestRefrersh from "./raw/handle-request-refresh.jse?raw"
@@ -38,7 +57,6 @@ const watchPackagejson = async (path: string) => {
       {}
     )
 
-     
     dependencies.value = {
       ...packageJSON.dependencies,
       ...packageJSON.devDependencies
@@ -53,7 +71,7 @@ onUnmounted(() => fs.events.off("write", watchPackagejson))
 const watchIndexhtml = async (path: string) => {
   if (isPathChange(path, "/index.html")) {
     console.log("re-render preview")
-     
+
     srcDoc.value = await renderPreview(
       await fs.readFile("/index.html").catch((err) => {
         console.warn("Error loading index.html")
