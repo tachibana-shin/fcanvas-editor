@@ -1,5 +1,5 @@
 <template>
-  <div class="py-[3px] pl-[10px] cursor-pointer">
+  <div class="py-[3px] cursor-pointer">
     <div
       :class="[
         `flex items-center pl-20px ${CLASS_PATH_ACTIVE}`,

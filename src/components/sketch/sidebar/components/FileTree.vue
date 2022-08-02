@@ -1,5 +1,5 @@
 <template>
-  <div class="select-none pl-[10px] py-[3px] cursor-pointer">
+  <div class="select-none py-[3px] cursor-pointer">
     <template v-if="!show">
       <div
         :class="[
@@ -57,7 +57,9 @@
       >
         <RenameFileOrDir
           v-if="item.filepath === ''"
-          class="pl-[10px]"
+          :class="{
+            'pl-2': !show
+          }"
           :dir="item.isDir"
           :siblings="siblings"
           @save="createNewFile($event, item.isDir)"
@@ -65,6 +67,9 @@
         />
         <FileTreeMixture
           v-else
+          :class="{
+            'pl-2': !show
+          }"
           :dir="item.isDir"
           :filepath="item.filepath"
           :fs="fs"

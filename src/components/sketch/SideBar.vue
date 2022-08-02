@@ -39,7 +39,7 @@
       hidden: tabSelection === null
     }"
   >
-    <div class="pt-1 h-full border-r border-gray-700 overflow-x-hidden">
+    <div class="h-full border-r border-gray-700 overflow-x-hidden relative">
       <Files v-if="tabSelection === 'file'" />
       <Diff v-if="tabSelection === 'change'" />
       <Search />

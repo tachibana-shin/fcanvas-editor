@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-nowrap items-center select-none">
+  <div class="flex flex-nowrap items-center select-none py-[3px]">
     <Icon
       v-if="dir"
       icon="material-symbols:chevron-right"

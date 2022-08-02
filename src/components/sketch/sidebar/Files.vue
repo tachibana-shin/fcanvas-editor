@@ -1,5 +1,5 @@
 <template>
-  <div class="ml-[-15px]">
+  <div>
     <div class="flex items-center justify-between ml-[22px] mr-[7px] py-1">
       <h1 class="text-[12px] uppercase font-bold">FCanvas</h1>
       <div
