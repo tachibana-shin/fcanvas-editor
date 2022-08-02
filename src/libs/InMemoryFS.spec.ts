@@ -1,8 +1,33 @@
+// eslint-disable-next-line n/no-unsupported-features/node-builtins
+import { Blob } from "buffer"
+import { URL } from "url"
+
 import { KEY_ACTION, KEY_VALUEA, KEY_VALUEB } from "@tachibana-shin/diff-object"
+import { v4 } from "uuid"
 import { describe, expect, test } from "vitest"
 
 import { InMemoryFS } from "./InMemoryFS"
 import { DIFF_DIFF_MIXED, DIFF_OBJECT_MIXED } from "./utils/addDiff"
+
+Object.assign(window, {
+  URL,
+  Blob
+})
+const blobMap = new Map<string, Blob>()
+Object.assign(URL, {
+  createObjectURL(blob: Blob) {
+    const url = `blob:${v4()}`
+    blobMap.set(url, blob)
+
+    return url
+  },
+  revokeObjectURL(url: string) {
+    const blob = blobMap.get(url)
+    if (blob) {
+      blobMap.delete(url)
+    }
+  }
+})
 
 describe("InMemoryFS", () => {
   const fs = new InMemoryFS()
@@ -408,5 +433,145 @@ describe("changelog", () => {
         [KEY_VALUEB]: undefined
       }
     })
+  })
+})
+describe("object url", () => {
+  const fs = new InMemoryFS()
+
+  function isBlob(url?: string): boolean {
+    return url?.startsWith("blob:") ?? false
+  }
+  function validBlob(url?: string): boolean {
+    return url !== undefined && blobMap.has(url)
+  }
+
+  test("clean", async () => {
+    await fs.writeFile("/test.txt", "hello world")
+
+    expect(isBlob(fs.objectURLMap.get("/test.txt"))).toBe(true)
+    fs.clean()
+
+    expect(fs.objectURLMap.size).toBe(0)
+  })
+  test("add file", async () => {
+    fs.clean()
+
+    await fs.writeFile("/test.txt", "hello world")
+
+    const url = fs.objectURLMap.get("/test.txt")
+
+    expect(isBlob(url)).toBe(true)
+    expect(validBlob(url)).toBe(true)
+    expect(fs.objectURLMap.size).toBe(1)
+  })
+  test("modified file", async () => {
+    fs.clean()
+
+    await fs.writeFile("/test.txt", "hello world")
+
+    const url = fs.objectURLMap.get("/test.txt")
+
+    expect(isBlob(url)).toBe(true)
+    expect(validBlob(url)).toBe(true)
+    expect(fs.objectURLMap.size).toBe(1)
+
+    await fs.writeFile("/test.txt", "hello world 2")
+
+    const url2 = fs.objectURLMap.get("/test.txt")
+
+    expect(isBlob(url2)).toBe(true)
+    expect(validBlob(url2)).toBe(true)
+    expect(url2).not.toBe(url)
+    expect(isBlob(url)).toBe(true)
+    expect(validBlob(url)).toEqual(false)
+    expect(fs.objectURLMap.size).toBe(1)
+  })
+  test("delete file", async () => {
+    fs.clean()
+
+    await fs.writeFile("/test.txt", "hello world")
+
+    const url = fs.objectURLMap.get("/test.txt")
+
+    expect(isBlob(url)).toBe(true)
+    expect(validBlob(url)).toBe(true)
+    expect(fs.objectURLMap.size).toBe(1)
+
+    await fs.unlink("/test.txt")
+
+    const url2 = fs.objectURLMap.get("/test.txt")
+
+    expect(isBlob(url2)).toBe(false)
+    expect(validBlob(url2)).toBe(false)
+    expect(url2).not.toBe(url)
+    expect(isBlob(url)).toBe(true)
+    expect(validBlob(url)).toEqual(false)
+    expect(fs.objectURLMap.size).toBe(0)
+  })
+  test("rename file", async () => {
+    fs.clean()
+
+    await fs.writeFile("/test.txt", "hello world")
+
+    const url = fs.objectURLMap.get("/test.txt")
+
+    expect(isBlob(url)).toBe(true)
+    expect(validBlob(url)).toBe(true)
+    expect(fs.objectURLMap.size).toBe(1)
+
+    await fs.rename("/test.txt", "/test2.txt")
+
+    const url2 = fs.objectURLMap.get("/test2.txt")
+
+    expect(isBlob(url2)).toBe(true)
+    expect(validBlob(url2)).toBe(true)
+    expect(url2).toBe(url)
+    expect(fs.objectURLMap.size).toBe(1)
+  })
+  test("rename dir", async () => {
+    fs.clean()
+    fs.resetChangelog()
+
+    await fs.mkdir("/test")
+    await fs.writeFile("/test/index", "test")
+
+    const url = fs.objectURLMap.get("/test/index")
+
+    expect(isBlob(url)).toBe(true)
+    expect(validBlob(url)).toBe(true)
+    expect(fs.objectURLMap.size).toBe(1)
+
+    await fs.rename("/test", "/test2")
+
+    const url2 = fs.objectURLMap.get("/test2/index")
+
+    expect(isBlob(url2)).toBe(true)
+    expect(validBlob(url2)).toBe(true)
+    expect(url2).toBe(url)
+    expect(fs.objectURLMap.size).toBe(1)
+  })
+  test("delete dir", async () => {
+    fs.clean()
+    fs.resetChangelog()
+
+    await fs.mkdir("/test")
+    await fs.writeFile("/test/index", "test")
+
+    const url = fs.objectURLMap.get("/test/index")
+
+    expect(isBlob(url)).toBe(true)
+    expect(validBlob(url)).toBe(true)
+    expect(fs.objectURLMap.size).toBe(1)
+
+    await fs.unlink("/test")
+
+    const url2 = fs.objectURLMap.get("/test/index")
+
+    expect(isBlob(url2)).toBe(false)
+    expect(validBlob(url2)).toBe(false)
+    expect(url2).not.toBe(url)
+    expect(isBlob(url)).toBe(true)
+    expect(validBlob(url)).toEqual(false)
+    expect(fs.objectURLMap.size).toBe(0)
   })
 })

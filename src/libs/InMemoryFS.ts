@@ -8,6 +8,7 @@ import type {
 import { deleteField, doc, getFirestore, writeBatch } from "@firebase/firestore"
 import { KEY_ACTION, KEY_VALUEA, KEY_VALUEB } from "@tachibana-shin/diff-object"
 import mitt from "mitt"
+import { join, relative } from "path-browserify"
 import sort from "sort-array"
 import { reactive, ref } from "vue"
 
@@ -26,6 +27,8 @@ export class InMemoryFS {
   protected readonly memory: Directory = {
     [CHAR_KEEP]: ""
   }
+
+  public readonly objectURLMap = new Map<string, string>()
 
   public readonly changelog: Diff = reactive({})
   public changelogLength = ref(0)
@@ -79,6 +82,7 @@ export class InMemoryFS {
   }
 
   clean() {
+    this.refreshObjectURLFromDir("", this.memory, true)
     for (const name in this.memory)
       if (name !== CHAR_KEEP) delete this.memory[name]
 
@@ -88,6 +92,38 @@ export class InMemoryFS {
   resetChangelog() {
     for (const name in this.changelog) {
       delete this.changelog[name]
+    }
+  }
+
+  private refreshObjectURLFromFile(
+    path: string,
+    content: string,
+    isRevoke: boolean
+  ) {
+    const inMemory = this.objectURLMap.get(path)
+    if (inMemory) {
+      URL.revokeObjectURL(inMemory)
+      if (isRevoke) this.objectURLMap.delete(path)
+    }
+
+    if (!isRevoke)
+      this.objectURLMap.set(path, URL.createObjectURL(new Blob([content])))
+  }
+
+  private refreshObjectURLFromDir(
+    path: string,
+    dir: Directory,
+    isRevoke: boolean
+  ) {
+    for (const name in dir) {
+      if (name === CHAR_KEEP) continue
+
+      const obj = dir[name]
+      if (isDirectory(obj)) {
+        this.refreshObjectURLFromDir(path + "/" + name, obj, isRevoke)
+      } else {
+        this.refreshObjectURLFromFile(path + "/" + name, obj, isRevoke)
+      }
     }
   }
 
@@ -114,7 +150,7 @@ export class InMemoryFS {
       // eslint-disable-next-line functional/no-throw-statement
       throw new Error("IS_DIR: " + path)
 
-    // save to change
+    // NOTE: save to change
     {
       const [parent, name] = this.getChangeTree(path)
 
@@ -127,6 +163,8 @@ export class InMemoryFS {
       )
         this.changelogLength.value++
     }
+    // NOTE: refresh or create object url
+    this.refreshObjectURLFromFile(path, content, false)
 
     dir[name] = content
 
@@ -194,7 +232,7 @@ export class InMemoryFS {
       )
 
     const isFile = !isDirectory(objFrom)
-    // save to changelog
+    // NOTE: save to changelog
     {
       const [parent, name] = this.getChangeTree(from)
 
@@ -217,7 +255,7 @@ export class InMemoryFS {
     delete parentFrom[nameFrom]
     this.events.emit("unlink", from)
 
-    // save to changelog
+    // NOTE: save to changelog
     {
       const [parent, name] = this.getChangeTree(to)
 
@@ -234,6 +272,27 @@ export class InMemoryFS {
         const { diffs, count } = markDiff(objFrom)
 
         if (addDiff(parent, name, diffs)) this.changelogLength.value += count
+      }
+    }
+    // NOTE: move object url
+    // eslint-disable-next-line no-lone-blocks
+    {
+      // move object url
+      if (isFile) {
+        const inMemory = this.objectURLMap.get(from)
+
+        this.objectURLMap.delete(from)
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.objectURLMap.set(to, inMemory!)
+      } else {
+        readFiles(from, objFrom).forEach((path) => {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const inMemory = this.objectURLMap.get(path)!
+          this.objectURLMap.delete(path)
+
+          const newPath = join(to, relative(from, path))
+          this.objectURLMap.set(newPath, inMemory)
+        })
       }
     }
 
@@ -255,7 +314,7 @@ export class InMemoryFS {
     // eslint-disable-next-line functional/no-throw-statement
     if (obj === undefined) throw new Error("PATH_NOT_EXISTS: " + path)
 
-    // save to changelog
+    // NOTE: save to changelog
     {
       const [parent, name] = this.getChangeTree(path)
 
@@ -273,6 +332,12 @@ export class InMemoryFS {
         )
           this.changelogLength.value++
       }
+    }
+    // NOTE: refresh or create object url
+    if (isDirectory(obj)) {
+      this.refreshObjectURLFromDir(path, obj, true)
+    } else {
+      this.refreshObjectURLFromFile(path, obj, true)
     }
 
     delete parent[name]
@@ -380,5 +445,7 @@ export class InMemoryFS {
     this.clean()
     Object.assign(this.memory, decodeObject(object))
     this.events.emit("write", "/")
+
+    this.refreshObjectURLFromDir("", this.memory, false)
   }
 }
