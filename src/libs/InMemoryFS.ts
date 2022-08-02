@@ -53,29 +53,48 @@ export class InMemoryFS {
     const [paths, name] = this.splitPaths(path)
 
     // eslint-disable-next-line functional/no-let
-    let prev: Diff | null = this.changelog
+    let prev: Diff = this.changelog
     paths.forEach((cur) => {
       if (cur === "") return
 
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, functional/no-let
-      let curObj = prev![cur]
+      // eslint-disable-next-line functional/no-let
+      let curObj = prev[cur]
 
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      if (isDiffObject(prev![cur])) {
-        const diffChild = {}
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        prev![cur] = curObj = {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          [DIFF_OBJECT_MIXED]: prev![cur],
-          [DIFF_DIFF_MIXED]: diffChild
-        }
-      } else {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        prev![cur] = curObj = {}
+      if (curObj === undefined) {
+        // eslint-disable-next-line no-return-assign
+        return (prev = prev[cur] = {})
       }
 
-      if (isDiffMixed(curObj)) prev = curObj[DIFF_DIFF_MIXED]
-      else prev = curObj
+      if (isDiffObject(curObj)) {
+        if (curObj[KEY_ACTION] === "DELETED") {
+          prev[cur] = {
+            [DIFF_OBJECT_MIXED]: prev[cur],
+            [DIFF_DIFF_MIXED]: (curObj = {})
+          }
+
+          prev = curObj
+          return
+        }
+        if (import.meta.env.NODE_ENV !== "production") {
+          if (curObj[KEY_ACTION] === "MODIFIED") {
+            // eslint-disable-next-line functional/no-throw-statement
+            throw new Error("This curObj never state is MODIFIED")
+          }
+        }
+        // eslint-disable-next-line no-return-assign
+        return (prev = prev[name] = {})
+      }
+
+      if (isDiffMixed(curObj)) {
+        const inDiff = curObj[DIFF_DIFF_MIXED]
+        if (isDiffObject(inDiff)) {
+          prev[name] = curObj = curObj[DIFF_OBJECT_MIXED] as Diff
+        } else {
+          curObj = inDiff
+        }
+      }
+
+      return (prev = curObj)
     }, this.changelog)
 
     return [prev, name]
@@ -154,14 +173,13 @@ export class InMemoryFS {
     {
       const [parent, name] = this.getChangeTree(path)
 
-      if (
+      this.changelogLength.value +=
+        1 *
         addDiff(parent, name, {
           [KEY_ACTION]: dir[name] !== undefined ? "MODIFIED" : "ADDED",
           [KEY_VALUEA]: dir[name] as File,
           [KEY_VALUEB]: content
         })
-      )
-        this.changelogLength.value++
     }
     // NOTE: refresh or create object url
     this.refreshObjectURLFromFile(path, content, false)
@@ -237,18 +255,17 @@ export class InMemoryFS {
       const [parent, name] = this.getChangeTree(from)
 
       if (isFile) {
-        if (
+        this.changelogLength.value +=
+          1 *
           addDiff(parent, name, {
             [KEY_ACTION]: "DELETED",
             [KEY_VALUEA]: objFrom,
             [KEY_VALUEB]: undefined
           })
-        )
-          this.changelogLength.value++
       } else {
         const { diffs, count } = markDiff(objFrom, true)
 
-        if (addDiff(parent, name, diffs)) this.changelogLength.value += count
+        this.changelogLength.value += count * addDiff(parent, name, diffs)
       }
     }
 
@@ -260,18 +277,15 @@ export class InMemoryFS {
       const [parent, name] = this.getChangeTree(to)
 
       if (isFile) {
-        if (
-          addDiff(parent, name, {
-            [KEY_ACTION]: "ADDED",
-            [KEY_VALUEA]: undefined,
-            [KEY_VALUEB]: objFrom
-          })
-        )
-          this.changelogLength.value++
+        this.changelogLength.value += addDiff(parent, name, {
+          [KEY_ACTION]: "ADDED",
+          [KEY_VALUEA]: undefined,
+          [KEY_VALUEB]: objFrom
+        })
       } else {
         const { diffs, count } = markDiff(objFrom)
 
-        if (addDiff(parent, name, diffs)) this.changelogLength.value += count
+        this.changelogLength.value += count * addDiff(parent, name, diffs)
       }
     }
     // NOTE: move object url
@@ -310,7 +324,6 @@ export class InMemoryFS {
     )
 
     const obj = parent[name]
-
     // eslint-disable-next-line functional/no-throw-statement
     if (obj === undefined) throw new Error("PATH_NOT_EXISTS: " + path)
 
@@ -321,16 +334,13 @@ export class InMemoryFS {
       if (isDirectory(obj)) {
         const { diffs, count } = markDiff(obj, true)
 
-        if (addDiff(parent, name, diffs)) this.changelogLength.value += count
+        this.changelogLength.value += count * addDiff(parent, name, diffs)
       } else {
-        if (
-          addDiff(parent, name, {
-            [KEY_ACTION]: "DELETED",
-            [KEY_VALUEA]: obj,
-            [KEY_VALUEB]: undefined
-          })
-        )
-          this.changelogLength.value++
+        this.changelogLength.value += addDiff(parent, name, {
+          [KEY_ACTION]: "DELETED",
+          [KEY_VALUEA]: obj,
+          [KEY_VALUEB]: undefined
+        })
       }
     }
     // NOTE: refresh or create object url
@@ -449,3 +459,21 @@ export class InMemoryFS {
     this.refreshObjectURLFromDir("", this.memory, false)
   }
 }
+// import { Blob } from "buffer"
+// const fs = new InMemoryFS()
+
+// main()
+// async function main() {
+//   await fs.mkdir("/test")
+//   await fs.writeFile("/test/index", "test")
+//   await fs.writeFile("/test2", "")
+//   fs.changelog = {}
+
+//   await fs.unlink("/test")
+//   await fs.rename("/test2", "/test")
+//   console.clear()
+//     await fs.writeFile("/test", "hello world")
+//     await fs.unlink("/test")
+
+//   console.log(fs.changelog)
+// }

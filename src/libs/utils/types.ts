@@ -18,9 +18,10 @@ export interface DiffObject {
   [KEY_VALUEB]: undefined | File
 }
 export interface DiffMixed {
-  [DIFF_OBJECT_MIXED]: DiffObject
   // eslint-disable-next-line no-use-before-define
-  [DIFF_DIFF_MIXED]: Diff
+  [DIFF_OBJECT_MIXED]: Diff | DiffObject
+  // eslint-disable-next-line no-use-before-define
+  [DIFF_DIFF_MIXED]: DiffObject | Diff
 }
 export interface Diff {
   [name: string]: DiffObject | Diff | DiffMixed

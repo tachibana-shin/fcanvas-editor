@@ -3,5 +3,5 @@ import type { DiffMixed } from "./types"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isDiffMixed(obj: any): obj is DiffMixed {
-  return DIFF_OBJECT_MIXED in obj
+  return obj && DIFF_OBJECT_MIXED in obj
 }
