@@ -1,8 +1,5 @@
 <template>
-  <div class="w-full text-gray-200">
-    <div class="w-100 absolute top-0 lft-0" v-if="loading">
-      <q-linear-progress indeterminate color="blue" size="2px" />
-    </div>
+  <div class="w-full text-gray-200 pt-2">
     <div class="w-100 absolute top-0 left-0" v-if="loading">
       <q-linear-progress indeterminate color="blue" size="2px" />
     </div>
@@ -62,15 +59,28 @@
         placeholder="e.g. *.ts, src/**/exclude"
       />
     </div>
+
+    <!-- result -->
+    <div class="text-gray-400 px-3">8 results in 5 files</div>
+    <div class="search-results pl-2">
+      <SearchResultItem
+        v-for="result in results"
+        :key="result.filepath"
+        :filepath="result.filepath"
+        :matches="result.matches"
+        :replace="replace"
+      />
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue"
 import { debounce } from "quasar"
-import { ref, watchEffect } from "vue"
+import { onBeforeMount, reactive, ref, watch } from "vue"
 
 import Input from "./components/Input.vue"
+import SearchResultItem from "./components/SearchResultItem.vue"
 import type { SearchResult } from "./logic/search"
 import { search } from "./logic/search"
 
@@ -86,9 +96,9 @@ const replace = ref("")
 const preserveCase = ref(false)
 
 const include = ref("")
-const useExclude = ref(false)
 
 const exclude = ref("")
+const useExclude = ref(false)
 
 const keywordActions = [
   {
@@ -124,28 +134,50 @@ const excludeActions = [
 ]
 
 const loading = ref(false)
-const results = ref<AsyncGenerator<SearchResult, void, unknown>>()
+const results = reactive<SearchResult[]>([])
 
+watch(
+  [keyword, caseSensitive, wholeWord, regexp, include, exclude, useExclude],
+  () => {
+    updateSearch()
+  }
+)
+
+// eslint-disable-next-line functional/no-let
+let searchController: AbortController | null = null
+onBeforeMount(() => searchController?.abort())
 const updateSearch = debounce(async () => {
   if (!keyword.value) return
 
-  results.value = await search({
-    search: keyword.value,
-    caseSensitive: caseSensitive.value,
-    wholeWord: wholeWord.value,
-    regexp: regexp.value,
-    include: include.value
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean),
-    exclude: exclude.value
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean)
-  })
-}, 1000)
+  results.splice(0)
 
-watchEffect(() => {
-  updateSearch()
-})
+  loading.value = true
+
+  searchController?.abort()
+  searchController = new AbortController()
+
+  const asyncResult = await search(
+    {
+      search: keyword.value,
+      caseSensitive: caseSensitive.value,
+      wholeWord: wholeWord.value,
+      regexp: regexp.value,
+      include: include.value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+      exclude: exclude.value
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean)
+    },
+    searchController
+  )
+
+  for await (const result of asyncResult) results.push(result)
+
+  searchController = null
+
+  loading.value = false
+}, 1000)
 </script>

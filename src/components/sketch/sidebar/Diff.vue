@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full px-3" v-if="!editorStore.sketchId">
+  <div class="w-full px-2 pt-2" v-if="!editorStore.sketchId">
     <small class="leading-0">
       Diff change not active. Please login and save sketch.
     </small>
@@ -12,7 +12,7 @@
     </button>
   </div>
 
-  <div class="w-full" v-else>
+  <div class="w-full px-2 pt-2" v-else>
     <div class="w-100 absolute top-0 left-0" v-if="loading">
       <q-linear-progress indeterminate color="blue" size="2px" />
     </div>

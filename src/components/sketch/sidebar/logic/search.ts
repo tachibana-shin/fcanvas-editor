@@ -1,4 +1,4 @@
-import { basename } from 'path-browserify';
+import { basename } from "path-browserify"
 import { fs } from "src/modules/fs"
 import type { SearchOptions } from "src/workers/helpers/search-text"
 import type { Result } from "src/workers/search-in-file"
@@ -8,7 +8,7 @@ import { v4 } from "uuid"
 import { fastGlob } from "./fast-glob"
 
 export interface SearchResult {
-  basename: string
+  filepath: string
   matches: Result["matches"]
 }
 // eslint-disable-next-line functional/no-let
@@ -56,7 +56,7 @@ export async function* search(
           searchInFileWorker!.onmessage = null
 
           resolve({
-            basename: basename(filepath),
+            filepath,
             matches: event.data.matches
           })
         }

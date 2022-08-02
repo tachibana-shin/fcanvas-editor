@@ -20,7 +20,7 @@
         <Icon
           v-else
           icon="material-symbols:chevron-right"
-          class="text-[19px]"
+          class="text-[1.2rem]"
           :class="{
             'transform rotate-90': opened
           }"

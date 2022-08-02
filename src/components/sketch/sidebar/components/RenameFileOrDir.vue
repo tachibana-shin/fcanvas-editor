@@ -3,7 +3,7 @@
     <Icon
       v-if="dir"
       icon="material-symbols:chevron-right"
-      class="text-[19px]"
+      class="text-[1.2rem]"
     />
 
     <div class="absolute top-0 left-0 w-full h-full bg-[rgba(0,0,0,.5)]" />

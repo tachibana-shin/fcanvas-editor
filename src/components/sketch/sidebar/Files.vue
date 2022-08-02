@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="flex items-center justify-between ml-[22px] mr-[7px] py-1">
+  <div class="pt-2">
+    <div class="flex items-center px-2 justify-between pb-1">
       <h1 class="text-[12px] uppercase font-bold">FCanvas</h1>
       <div
         class="text-[1.1rem] flex items-center children:mr-1 children:cursor-pointer"

@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center bg-dark-100 min-w-0">
     <input
-      v-bind="attrs"
+      v-model="value"
       class="block min-w-0 h-[30px] flex-1 bg-transparent text-[14px] py-[4px] pl-1 focus-visible:outline-none border border-gray-700 focus:border-blue-300"
     />
 
@@ -20,14 +20,25 @@
 
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue"
-import type { Ref} from "vue";
-import { useAttrs } from "vue"
+import { ref, watch } from "vue"
+import type { Ref } from "vue"
 
-const attrs = useAttrs()
-defineProps<{
+const props = defineProps<{
   actions: {
     icon: string
     model: Ref<boolean>
   }[]
+
+  modelValue: string
 }>()
+const emit = defineEmits<{
+  (name: "update:model-value", value: string): void
+}>()
+
+const value = ref(props.modelValue)
+watch(
+  () => props.modelValue,
+  (val) => (value.value = val)
+)
+watch(value, (val) => emit("update:model-value", val))
 </script>

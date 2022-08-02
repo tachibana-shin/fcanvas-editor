@@ -42,7 +42,7 @@
     <div class="h-full border-r border-gray-700 overflow-x-hidden relative">
       <Files v-if="tabSelection === 'file'" />
       <Diff v-if="tabSelection === 'change'" />
-      <Search />
+      <Search v-if="tabSelection === 'search'" />
     </div>
   </Resizable>
 </template>
@@ -58,7 +58,7 @@ import Files from "./sidebar/Files.vue"
 import Search from "./sidebar/Search.vue"
 
 const tabSelection = ref<null | "file" | "search" | "change" | "setting">(
-  "change"
+  "search"
 )
 const tabs: {
   icon: string
