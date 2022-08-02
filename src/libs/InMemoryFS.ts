@@ -36,14 +36,6 @@ export class InMemoryFS {
     mkdir: string
   }>()
 
-  private getParentPaths(paths: string[]) {
-    return paths.slice(0, -1)
-  }
-
-  private getFilename(pathsSplited: string[]) {
-    return pathsSplited[pathsSplited.length - 1]
-  }
-
   private splitPaths(path: string): [string[], string] {
     const paths = path.split("/").filter(Boolean)
 
@@ -109,12 +101,11 @@ export class InMemoryFS {
   }
 
   async writeFile(path: string, content: string) {
-    const pathsSplited = this.normalize(path).split("/")
-    const name = this.getFilename(pathsSplited)
+    const [pathsSplitted, name] = this.splitPaths(path)
 
     const dir = queryObject(
       this.memory,
-      this.getParentPaths(pathsSplited),
+      pathsSplitted,
       "DIR_NOT_EXISTS: ",
       false
     )
@@ -143,12 +134,11 @@ export class InMemoryFS {
   }
 
   async mkdir(path: string) {
-    const pathsSplited = this.normalize(path).split("/")
-    const name = this.getFilename(pathsSplited)
+    const [pathsSplitted, name] = this.splitPaths(path)
 
     const parent = queryObject(
       this.memory,
-      this.getParentPaths(pathsSplited),
+      pathsSplitted,
       "DIR_NOT_EXISTS: ",
       false
     )
@@ -177,36 +167,33 @@ export class InMemoryFS {
   }
 
   async rename(from: string, to: string) {
-    const pathsSplitedFrom = this.normalize(from).split("/")
-    const nameFrom = this.getFilename(pathsSplitedFrom)
+    const [pathsSplittedFrom, nameFrom] = this.splitPaths(from)
     const parentFrom = queryObject(
       this.memory,
-      this.getParentPaths(pathsSplitedFrom),
+      pathsSplittedFrom,
       "DIR_NOT_EXISTS: ",
       false
     )
 
-    const obj = parentFrom[nameFrom]
-
-    const pathsSplitedTo = this.normalize(to).split("/")
-    const nameTo = this.getFilename(pathsSplitedTo)
-    const parentTo = queryObject(
-      this.memory,
-      this.getParentPaths(pathsSplitedFrom),
-      "DIR_NOT_EXISTS: ",
-      false
-    )
-
-    if (obj === undefined)
+    const objFrom = parentFrom[nameFrom]
+    if (objFrom === undefined)
       // eslint-disable-next-line functional/no-throw-statement
       throw new Error("PATH_NOT_EXISTS: " + from)
+
+    const [pathsSplittedTo, nameTo] = this.splitPaths(to)
+    const parentTo = queryObject(
+      this.memory,
+      pathsSplittedTo,
+      "DIR_NOT_EXISTS: ",
+      false
+    )
     if (parentTo[nameTo])
       // eslint-disable-next-line functional/no-throw-statement
       throw new Error(
         `TO_IS_${isDirectory(parentTo[nameTo]) ? "DIR" : "FILE"}_EXISTS: ` + to
       )
 
-    const isFile = !isDirectory(obj)
+    const isFile = !isDirectory(objFrom)
     // save to changelog
     {
       const [parent, name] = this.getChangeTree(from)
@@ -215,13 +202,13 @@ export class InMemoryFS {
         if (
           addDiff(parent, name, {
             [KEY_ACTION]: "DELETED",
-            [KEY_VALUEA]: obj,
+            [KEY_VALUEA]: objFrom,
             [KEY_VALUEB]: undefined
           })
         )
           this.changelogLength.value++
       } else {
-        const { diffs, count } = markDiff(obj, true)
+        const { diffs, count } = markDiff(objFrom, true)
 
         if (addDiff(parent, name, diffs)) this.changelogLength.value += count
       }
@@ -239,27 +226,26 @@ export class InMemoryFS {
           addDiff(parent, name, {
             [KEY_ACTION]: "ADDED",
             [KEY_VALUEA]: undefined,
-            [KEY_VALUEB]: obj
+            [KEY_VALUEB]: objFrom
           })
         )
           this.changelogLength.value++
       } else {
-        const { diffs, count } = markDiff(obj)
+        const { diffs, count } = markDiff(objFrom)
 
         if (addDiff(parent, name, diffs)) this.changelogLength.value += count
       }
     }
 
-    parentTo[nameTo] = obj
+    parentTo[nameTo] = objFrom
     this.events.emit("write", to)
   }
 
   async unlink(path: string) {
-    const pathsSplited = this.normalize(path).split("/")
-    const name = this.getFilename(pathsSplited)
+    const [pathsSplitted, name] = this.splitPaths(path)
     const parent = queryObject(
       this.memory,
-      this.getParentPaths(pathsSplited),
+      pathsSplitted,
       "DIR_NOT_EXISTS: ",
       false
     )
