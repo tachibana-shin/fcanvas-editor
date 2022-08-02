@@ -15,7 +15,7 @@ export function addDiff(
   // console.log({ diff, name })
 
   // eslint-disable-next-line functional/no-let
-  let diffMixed: Diff | DiffMixed = diff
+  let diffMixed: any = diff
   if (isDiffMixed(diffMixed[name])) {
     diffMixed = diffMixed[name] as DiffMixed
     name = DIFF_DIFF_MIXED
