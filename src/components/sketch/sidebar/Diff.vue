@@ -14,7 +14,7 @@
 
   <div class="w-full" v-else>
     <div class="w-100 absolute top-0 left-0" v-if="loading">
-      <q-linear-progress height="2px" />
+      <q-linear-progress indeterminate color="blue" size="2px" />
     </div>
 
     <div class="text-center text-sm mt-3" v-if="fs.changelogLength.value === 0">
@@ -24,20 +24,14 @@
     <template v-else>
       <div
         class="block max-w-[250px] mt-1 mb-3 text-sm py-[3px] text-center bg-cyan-600 cursor-pointer"
-        @click="
-          ;async () => {
-            loading = true
-            await editorStore.saveSketch(router)
-            loading = false
-          }
-        "
+        @click="saveSketch"
       >
         Save Sketch
       </div>
       <small class="text-[14px] block border-y border-gray-600 py-1 px-3">
         Changes
       </small>
-      <div class="ml-[-15px] mt-2">
+      <div class="mt-2">
         <FileDiffItemDir show name="/" :files="fs.changelog" />
       </div>
     </template>
@@ -56,4 +50,10 @@ const editorStore = useEditorStore()
 const router = useRouter()
 
 const loading = ref(false)
+
+async function saveSketch() {
+  loading.value = true
+  await editorStore.saveSketch(router)
+  loading.value = false
+}
 </script>

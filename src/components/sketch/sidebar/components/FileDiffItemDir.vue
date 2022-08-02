@@ -1,5 +1,5 @@
 <template>
-  <div class="select-none cursor-pointer pl-[10px]">
+  <div class="select-none cursor-pointer">
     <div
       v-if="!show"
       :class="`flex items-center ${CLASS_PATH_ACTIVE}`"
@@ -28,6 +28,7 @@
 
     <div
       :class="{
+        'pl-2': !show,
         hidden: !opened && !show
       }"
     >
@@ -37,7 +38,7 @@
           :name="name as string"
           :type="(diff as unknown as Diff)[KEY_ACTION] as any"
         />
-        <template v-else-if="isDiffMixed(diff)">
+        <div v-else-if="isDiffMixed(diff)" class="border-r border-dotted border-yellow-500">
           <!-- //DIFF_OBJECT_MIXED -->
           <FileDiffItemFile
             v-if="isDiffObject((diff as unknown as any)[DIFF_OBJECT_MIXED])"
@@ -64,7 +65,7 @@
             :files="(diff as unknown as any)[DIFF_DIFF_MIXED]"
           />
           <!-- // /DIFF_DIFF_MIXED -->
-        </template>
+        </div>
         <FileDiffItemDir
           v-else
           :name="name as string"
