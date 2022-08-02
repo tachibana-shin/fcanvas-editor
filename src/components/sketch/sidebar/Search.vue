@@ -1,7 +1,11 @@
 <template>
   <div class="w-full text-gray-200">
-    <q-linear-progress height="2px" v-if="loading" />
-
+    <div class="w-100 absolute top-0 lft-0" v-if="loading">
+      <q-linear-progress indeterminate color="blue" size="2px" />
+    </div>
+    <div class="w-100 absolute top-0 left-0" v-if="loading">
+      <q-linear-progress indeterminate color="blue" size="2px" />
+    </div>
     <div class="flex flex-nowrap relative mr-2">
       <div
         class="cursor-pointer hover:bg-dark-400 flex items-center"
