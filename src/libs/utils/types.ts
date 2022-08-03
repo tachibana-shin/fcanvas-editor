@@ -1,10 +1,9 @@
 import type {
   KEY_ACTION,
-  KEY_VALUEA,
-  KEY_VALUEB
-} from "@tachibana-shin/diff-object"
-
-import type { DIFF_DIFF_MIXED, DIFF_OBJECT_MIXED } from "./addDiff"
+  KEY_DIFF_DIFF_MIXED,
+  KEY_DIFF_OBJECT_MIXED,
+  KEY_OLD_VALUE
+} from "./const"
 
 export type File = string
 
@@ -14,14 +13,13 @@ export interface Directory {
 
 export interface DiffObject {
   [KEY_ACTION]: "ADDED" | "MODIFIED" | "DELETED"
-  [KEY_VALUEA]: undefined | File
-  [KEY_VALUEB]: undefined | File
+  [KEY_OLD_VALUE]?: File
 }
 export interface DiffMixed {
   // eslint-disable-next-line no-use-before-define
-  [DIFF_OBJECT_MIXED]: Diff | DiffObject
+  [KEY_DIFF_OBJECT_MIXED]: Diff | DiffObject
   // eslint-disable-next-line no-use-before-define
-  [DIFF_DIFF_MIXED]: DiffObject | Diff
+  [KEY_DIFF_DIFF_MIXED]: DiffObject | Diff
 }
 export interface Diff {
   [name: string]: DiffObject | Diff | DiffMixed

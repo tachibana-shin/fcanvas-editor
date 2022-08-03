@@ -6,19 +6,22 @@ import type {
   WriteBatch
 } from "@firebase/firestore"
 import { deleteField, doc, getFirestore, writeBatch } from "@firebase/firestore"
-import { KEY_ACTION, KEY_VALUEA, KEY_VALUEB } from "@tachibana-shin/diff-object"
 import mitt from "mitt"
 import { join, relative } from "path-browserify"
 import sort from "sort-array"
 import { reactive, ref } from "vue"
 
 import { CHAR_KEEP } from "./utils/CHAR_KEEP"
-import { addDiff, DIFF_DIFF_MIXED, DIFF_OBJECT_MIXED } from "./utils/addDiff"
+import { addDiff } from "./utils/addDiff"
 import { decodeObject, encodeObject, encodePath } from "./utils/coder"
+import {
+  KEY_ACTION,
+  KEY_DIFF_DIFF_MIXED,
+  KEY_DIFF_OBJECT_MIXED
+} from "./utils/const"
 import { isDiffMixed } from "./utils/isDiffMixed"
 import { isDiffObject } from "./utils/isDiffObject"
 import { isDirectory } from "./utils/isDirectory"
-import { markDiff } from "./utils/markDiff"
 import { queryObject } from "./utils/queryObject"
 import { readFiles } from "./utils/readFiles"
 import type { Diff, Directory, File } from "./utils/types"
@@ -68,8 +71,8 @@ export class InMemoryFS {
       if (isDiffObject(curObj)) {
         if (curObj[KEY_ACTION] === "DELETED") {
           prev[cur] = {
-            [DIFF_OBJECT_MIXED]: prev[cur],
-            [DIFF_DIFF_MIXED]: (curObj = {})
+            [KEY_DIFF_OBJECT_MIXED]: prev[cur],
+            [KEY_DIFF_DIFF_MIXED]: (curObj = {})
           }
 
           prev = curObj
@@ -86,9 +89,9 @@ export class InMemoryFS {
       }
 
       if (isDiffMixed(curObj)) {
-        const inDiff = curObj[DIFF_DIFF_MIXED]
+        const inDiff = curObj[KEY_DIFF_DIFF_MIXED]
         if (isDiffObject(inDiff)) {
-          prev[name] = curObj = curObj[DIFF_OBJECT_MIXED] as Diff
+          prev[name] = curObj = curObj[KEY_DIFF_OBJECT_MIXED] as Diff
         } else {
           curObj = inDiff
         }
@@ -173,13 +176,13 @@ export class InMemoryFS {
     {
       const [parent, name] = this.getChangeTree(path)
 
-      this.changelogLength.value +=
-        1 *
-        addDiff(parent, name, {
-          [KEY_ACTION]: dir[name] !== undefined ? "MODIFIED" : "ADDED",
-          [KEY_VALUEA]: dir[name] as File,
-          [KEY_VALUEB]: content
-        })
+      this.changelogLength.value += addDiff(
+        parent,
+        name,
+        typeof dir[name] === "string" ? "MODIFIED" : "ADDED",
+        dir[name] as File,
+        content
+      )
     }
     // NOTE: refresh or create object url
     this.refreshObjectURLFromFile(path, content, false)
@@ -255,17 +258,9 @@ export class InMemoryFS {
       const [parent, name] = this.getChangeTree(from)
 
       if (isFile) {
-        this.changelogLength.value +=
-          1 *
-          addDiff(parent, name, {
-            [KEY_ACTION]: "DELETED",
-            [KEY_VALUEA]: objFrom,
-            [KEY_VALUEB]: undefined
-          })
+        this.changelogLength.value += addDiff(parent, name, "DELETED", objFrom)
       } else {
-        const { diffs, count } = markDiff(objFrom, true)
-
-        this.changelogLength.value += count * addDiff(parent, name, diffs)
+        this.changelogLength.value += addDiff(parent, name, "DELETED", objFrom)
       }
     }
 
@@ -277,15 +272,15 @@ export class InMemoryFS {
       const [parent, name] = this.getChangeTree(to)
 
       if (isFile) {
-        this.changelogLength.value += addDiff(parent, name, {
-          [KEY_ACTION]: "ADDED",
-          [KEY_VALUEA]: undefined,
-          [KEY_VALUEB]: objFrom
-        })
+        this.changelogLength.value += addDiff(
+          parent,
+          name,
+          "ADDED",
+          undefined,
+          objFrom
+        )
       } else {
-        const { diffs, count } = markDiff(objFrom)
-
-        this.changelogLength.value += count * addDiff(parent, name, diffs)
+        this.changelogLength.value += addDiff(parent, name, "ADDED", objFrom)
       }
     }
     // NOTE: move object url
@@ -332,15 +327,9 @@ export class InMemoryFS {
       const [parent, name] = this.getChangeTree(path)
 
       if (isDirectory(obj)) {
-        const { diffs, count } = markDiff(obj, true)
-
-        this.changelogLength.value += count * addDiff(parent, name, diffs)
+        this.changelogLength.value += addDiff(parent, name, "DELETED", obj)
       } else {
-        this.changelogLength.value += addDiff(parent, name, {
-          [KEY_ACTION]: "DELETED",
-          [KEY_VALUEA]: obj,
-          [KEY_VALUEB]: undefined
-        })
+        this.changelogLength.value += addDiff(parent, name, "DELETED", obj)
       }
     }
     // NOTE: refresh or create object url
@@ -464,16 +453,22 @@ export class InMemoryFS {
 
 // main()
 // async function main() {
-//   await fs.mkdir("/test")
-//   await fs.writeFile("/test/index", "test")
-//   await fs.writeFile("/test2", "")
+//   fs.clean()
+
+//   await fs.writeFile("/test.txt", "hello world")
+
 //   fs.changelog = {}
+//   fs.changelogLength.value = 0
 
-//   await fs.unlink("/test")
-//   await fs.rename("/test2", "/test")
-//   console.clear()
-//     await fs.writeFile("/test", "hello world")
-//     await fs.unlink("/test")
+//   await fs.unlink("/test.txt")
 
-//   console.log(fs.changelog)
+//   await fs.mkdir("/test.txt")
+//   await fs.writeFile("/test.txt/test.bat", "echo hello world")
+//   await fs.writeFile("/test.txt/test.bat2", "echo hello world")
+// console.clear()
+//   await fs.unlink("/test.txt")
+//   await fs.writeFile("/test.txt", "hello world")
+
+//   return console.log(fs.changelogLength.value)
+//   return console.log(fs.changelogLength.value)
 // }

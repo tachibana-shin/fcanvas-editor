@@ -2,12 +2,16 @@
 import { Blob } from "buffer"
 import { URL } from "url"
 
-import { KEY_ACTION, KEY_VALUEA, KEY_VALUEB } from "@tachibana-shin/diff-object"
 import { v4 } from "uuid"
 import { describe, expect, test } from "vitest"
 
 import { InMemoryFS } from "./InMemoryFS"
-import { DIFF_DIFF_MIXED, DIFF_OBJECT_MIXED } from "./utils/addDiff"
+import {
+  KEY_ACTION,
+  KEY_DIFF_DIFF_MIXED,
+  KEY_DIFF_OBJECT_MIXED,
+  KEY_OLD_VALUE
+} from "./utils/const"
 
 Object.assign(window, {
   URL,
@@ -231,8 +235,7 @@ describe("changelog", () => {
     expect(fs.changelog).toEqual({
       "test.txt": {
         [KEY_ACTION]: "ADDED",
-        [KEY_VALUEA]: undefined,
-        [KEY_VALUEB]: "hello world"
+        [KEY_OLD_VALUE]: undefined
       }
     })
     expect(fs.changelogLength.value).toEqual(1)
@@ -250,8 +253,7 @@ describe("changelog", () => {
     expect(fs.changelog).toEqual({
       "test.txt": {
         [KEY_ACTION]: "ADDED",
-        [KEY_VALUEA]: undefined,
-        [KEY_VALUEB]: "hello world"
+        [KEY_OLD_VALUE]: undefined
       }
     })
     expect(fs.changelogLength.value).toEqual(1)
@@ -266,8 +268,7 @@ describe("changelog", () => {
     expect(fs.changelog).toEqual({
       "test.txt": {
         [KEY_ACTION]: "MODIFIED",
-        [KEY_VALUEA]: "hello world",
-        [KEY_VALUEB]: "hello world 2"
+        [KEY_OLD_VALUE]: "hello world"
       }
     })
     expect(fs.changelogLength.value).toEqual(1)
@@ -283,8 +284,7 @@ describe("changelog", () => {
     expect(fs.changelog).toEqual({
       "test.txt": {
         [KEY_ACTION]: "DELETED",
-        [KEY_VALUEA]: "hello",
-        [KEY_VALUEB]: undefined
+        [KEY_OLD_VALUE]: "hello"
       }
     })
     expect(fs.changelogLength.value).toEqual(1)
@@ -299,13 +299,11 @@ describe("changelog", () => {
     expect(fs.changelog).toEqual({
       "test.txt": {
         [KEY_ACTION]: "DELETED",
-        [KEY_VALUEA]: "hello world",
-        [KEY_VALUEB]: undefined
+        [KEY_OLD_VALUE]: "hello world"
       },
       "test2.txt": {
         [KEY_ACTION]: "ADDED",
-        [KEY_VALUEA]: undefined,
-        [KEY_VALUEB]: "hello world"
+        [KEY_OLD_VALUE]: undefined
       }
     })
     expect(fs.changelogLength.value).toEqual(2)
@@ -336,15 +334,12 @@ describe("changelog", () => {
       "folder-test": {
         "test.txt": {
           [KEY_ACTION]: "DELETED",
-          [KEY_VALUEA]: "hello world",
-          [KEY_VALUEB]: undefined
+          [KEY_OLD_VALUE]: "hello world"
         }
       },
       "folder-test2": {
         "test.txt": {
-          [KEY_ACTION]: "ADDED",
-          [KEY_VALUEA]: undefined,
-          [KEY_VALUEB]: "hello world"
+          [KEY_ACTION]: "ADDED"
         }
       }
     })
@@ -366,8 +361,7 @@ describe("changelog", () => {
       "folder-test": {
         "test.txt": {
           [KEY_ACTION]: "DELETED",
-          [KEY_VALUEA]: "hello world",
-          [KEY_VALUEB]: undefined
+          [KEY_OLD_VALUE]: "hello world"
         }
       }
     })
@@ -390,16 +384,14 @@ describe("changelog", () => {
 
     expect(fs.changelog).toEqual({
       "test.txt": {
-        [DIFF_OBJECT_MIXED]: {
+        [KEY_DIFF_OBJECT_MIXED]: {
           [KEY_ACTION]: "DELETED",
-          [KEY_VALUEA]: "hello world",
-          [KEY_VALUEB]: undefined
+          [KEY_OLD_VALUE]: "hello world"
         },
-        [DIFF_DIFF_MIXED]: {
+        [KEY_DIFF_DIFF_MIXED]: {
           "test.bat": {
             [KEY_ACTION]: "ADDED",
-            [KEY_VALUEB]: "echo hello world",
-            [KEY_VALUEA]: undefined
+            [KEY_OLD_VALUE]: undefined
           }
         }
       }
@@ -424,21 +416,18 @@ describe("changelog", () => {
 
     expect(fs.changelog).toEqual({
       "test.txt": {
-        [DIFF_OBJECT_MIXED]: {
+        [KEY_DIFF_OBJECT_MIXED]: {
           [KEY_ACTION]: "DELETED",
-          [KEY_VALUEA]: "hello world",
-          [KEY_VALUEB]: undefined
+          [KEY_OLD_VALUE]: "hello world"
         },
-        [DIFF_DIFF_MIXED]: {
+        [KEY_DIFF_DIFF_MIXED]: {
           "test.bat": {
             [KEY_ACTION]: "ADDED",
-            [KEY_VALUEB]: "echo hello world",
-            [KEY_VALUEA]: undefined
+            [KEY_OLD_VALUE]: undefined
           },
           "test.bat2": {
             [KEY_ACTION]: "ADDED",
-            [KEY_VALUEB]: "echo hello world",
-            [KEY_VALUEA]: undefined
+            [KEY_OLD_VALUE]: undefined
           }
         }
       }
@@ -461,23 +450,20 @@ describe("changelog", () => {
 
     expect(fs.changelog).toEqual({
       test: {
-        [DIFF_OBJECT_MIXED]: {
+        [KEY_DIFF_OBJECT_MIXED]: {
           index: {
             [KEY_ACTION]: "DELETED",
-            [KEY_VALUEA]: "test",
-            [KEY_VALUEB]: undefined
+            [KEY_OLD_VALUE]: "test"
           }
         },
-        [DIFF_DIFF_MIXED]: {
+        [KEY_DIFF_DIFF_MIXED]: {
           [KEY_ACTION]: "ADDED",
-          [KEY_VALUEA]: undefined,
-          [KEY_VALUEB]: ""
+          [KEY_OLD_VALUE]: undefined
         }
       },
       test2: {
         [KEY_ACTION]: "DELETED",
-        [KEY_VALUEA]: "",
-        [KEY_VALUEB]: undefined
+        [KEY_OLD_VALUE]: ""
       }
     })
   })
@@ -495,27 +481,307 @@ describe("changelog", () => {
     await fs.unlink("/test")
     await fs.rename("/test2", "/test")
     await fs.writeFile("/test", "hello world")
-    
+
     expect(fs.changelog).toEqual({
       test: {
-        [DIFF_OBJECT_MIXED]: {
+        [KEY_DIFF_OBJECT_MIXED]: {
           index: {
             [KEY_ACTION]: "DELETED",
-            [KEY_VALUEA]: "test",
-            [KEY_VALUEB]: undefined
+            [KEY_OLD_VALUE]: "test"
           }
         },
-        [DIFF_DIFF_MIXED]: {
+        [KEY_DIFF_DIFF_MIXED]: {
           [KEY_ACTION]: "ADDED",
-          [KEY_VALUEA]: undefined,
-          [KEY_VALUEB]: ""
+          [KEY_OLD_VALUE]: undefined
         }
       },
       test2: {
         [KEY_ACTION]: "DELETED",
-        [KEY_VALUEA]: "",
-        [KEY_VALUEB]: undefined
+        [KEY_OLD_VALUE]: ""
       }
+    })
+  })
+
+  describe("restore", () => {
+    test("add file", async () => {
+      fs.clean()
+      resetChangelog()
+
+      expect(fs.changelog).toEqual({})
+      expect(fs.changelogLength.value).toEqual(0)
+
+      await fs.writeFile("/test.txt", "hello world")
+      await fs.unlink("/test.txt")
+
+      expect(fs.changelog).toEqual({})
+      expect(fs.changelogLength.value).toEqual(0)
+    })
+    test("add file deep", async () => {
+      fs.clean()
+      resetChangelog()
+
+      expect(fs.changelog).toEqual({})
+      expect(fs.changelogLength.value).toEqual(0)
+
+      await fs.writeFile("/test.txt", "hello world")
+      await fs.writeFile("/test.txt", "hello world 2")
+      await fs.unlink("/test.txt")
+
+      expect(fs.changelog).toEqual({})
+      expect(fs.changelogLength.value).toEqual(0)
+    })
+    test("modified file", async () => {
+      fs.clean()
+      await fs.writeFile("/test.txt", "hello world")
+      resetChangelog()
+
+      await fs.writeFile("/test.txt", "hello world 2")
+      await fs.writeFile("/test.txt", "hello world")
+
+      expect(fs.changelog).toEqual({})
+      expect(fs.changelogLength.value).toEqual(0)
+    })
+    test("delete file", async () => {
+      fs.clean()
+
+      await fs.writeFile("/test.txt", "hello")
+      resetChangelog()
+
+      await fs.unlink("/test.txt")
+      await fs.writeFile("/test.txt", "hello")
+
+      expect(fs.changelog).toEqual({})
+      expect(fs.changelogLength.value).toEqual(0)
+    })
+    test("rename file", async () => {
+      fs.clean()
+
+      await fs.writeFile("/test.txt", "hello world")
+      resetChangelog()
+      await fs.rename("/test.txt", "/test2.txt")
+      await fs.rename("/test2.txt", "/test.txt")
+      
+      expect(fs.changelog).toEqual({})
+      expect(fs.changelogLength.value).toEqual(0)
+    })
+    test("rename dir", async () => {
+      fs.clean()
+      await fs.mkdir("/folder-test")
+      await fs.writeFile("/folder-test/test.txt", "hello world")
+
+      resetChangelog()
+
+      expect(fs.changelog).toEqual({})
+      expect(fs.changelogLength.value).toEqual(0)
+
+      await fs.rename("/folder-test", "/folder-test2")
+      await fs.rename("/folder-test2", "/folder-test")
+      
+      expect(fs.changelog).toEqual({})
+      expect(fs.changelogLength.value).toEqual(0)
+    })
+    test("delete dir", async () => {
+      fs.clean()
+      await fs.mkdir("/folder-test")
+      await fs.writeFile("/folder-test/test.txt", "hello world")
+
+      resetChangelog()
+
+      expect(fs.changelog).toEqual({})
+      expect(fs.changelogLength.value).toEqual(0)
+
+      await fs.unlink("/folder-test")
+      await fs.mkdir("/folder-test")
+      await fs.writeFile("/folder-test/test.txt", "hello world")
+
+      expect(fs.changelog).toEqual({
+        "folder-test": {}
+      })
+      expect(fs.changelogLength.value).toEqual(0)
+    })
+
+    test("mixed: rm & mv & restore", async () => {
+      fs.clean()
+
+      await fs.mkdir("/test")
+      await fs.writeFile("/test/index", "test")
+      await fs.writeFile("/test2", "")
+      resetChangelog()
+
+      await fs.unlink("/test")
+      await fs.rename("/test2", "/test")
+      await fs.writeFile("/test", "hello world")
+      await fs.writeFile("/test", "")
+      expect(fs.changelog).toEqual({
+        test: {
+          [KEY_DIFF_OBJECT_MIXED]: {
+            index: {
+              [KEY_ACTION]: "DELETED",
+              [KEY_OLD_VALUE]: "test"
+            }
+          },
+          [KEY_DIFF_DIFF_MIXED]: {
+            [KEY_ACTION]: "ADDED"
+          }
+        },
+        test2: {
+          [KEY_ACTION]: "DELETED",
+          [KEY_OLD_VALUE]: ""
+        }
+      })
+      await fs.rename("/test", "/test2")
+      expect(fs.changelog).toEqual(
+        {"test":{"index":{[KEY_ACTION]:"DELETED",[KEY_OLD_VALUE]:"test"}}}
+      )
+      await fs.mkdir("/test")
+      await fs.writeFile("/test/index", "test")
+      expect(fs.changelog).toEqual({
+        test: {}
+      })
+      expect(fs.changelogLength.value).toEqual(0)
+    })
+    test("mixed: delete file & create dir", async () => {
+      fs.clean()
+      await fs.writeFile("/test.txt", "hello world")
+
+      resetChangelog()
+
+      expect(fs.changelog).toEqual({})
+      expect(fs.changelogLength.value).toEqual(0)
+
+      await fs.unlink("/test.txt")
+
+      await fs.mkdir("/test.txt")
+      await fs.writeFile("/test.txt/test.bat", "echo hello world")
+      await fs.unlink("/test.txt")
+      await fs.writeFile("/test.txt", "hello world")
+
+      expect(fs.changelog).toEqual({
+      })
+      expect(fs.changelogLength.value).toEqual(0)
+    })
+    test("mixed: delete file & create dir deep", async () => {
+      fs.clean()
+      resetChangelog()
+      await fs.writeFile("/test.txt", "hello world")
+
+      resetChangelog()
+
+      expect(fs.changelog).toEqual({})
+      expect(fs.changelogLength.value).toEqual(0)
+
+      await fs.unlink("/test.txt")
+
+      await fs.mkdir("/test.txt")
+      await fs.writeFile("/test.txt/test.bat", "echo hello world")
+      await fs.writeFile("/test.txt/test.bat2", "echo hello world")
+
+      expect(fs.changelog).toEqual({
+        "test.txt": {
+          [KEY_DIFF_OBJECT_MIXED]: {
+            [KEY_ACTION]: "DELETED",
+            [KEY_OLD_VALUE]: "hello world"
+          },
+          [KEY_DIFF_DIFF_MIXED]: {
+            "test.bat": {
+              [KEY_ACTION]: "ADDED",
+              [KEY_OLD_VALUE]: undefined
+            },
+            "test.bat2": {
+              [KEY_ACTION]: "ADDED",
+              [KEY_OLD_VALUE]: undefined
+            }
+          }
+        }
+      })
+      expect(fs.changelogLength.value).toEqual(3)
+
+      await fs.unlink("/test.txt")
+      await fs.writeFile("/test.txt", "hello world")
+      
+      expect(fs.changelog).toEqual({})
+      expect(fs.changelogLength.value).toEqual(0)
+    })
+    test("mixed: delete dir & create file", async () => {
+      fs.clean()
+
+      await fs.mkdir("/test")
+      await fs.writeFile("/test/index", "test")
+      await fs.writeFile("/test2", "")
+      resetChangelog()
+
+      expect(fs.changelog).toEqual({})
+      expect(fs.changelogLength.value).toEqual(0)
+
+      await fs.unlink("/test")
+      await fs.rename("/test2", "/test")
+
+      expect(fs.changelog).toEqual({
+        test: {
+          [KEY_DIFF_OBJECT_MIXED]: {
+            index: {
+              [KEY_ACTION]: "DELETED",
+              [KEY_OLD_VALUE]: "test"
+            }
+          },
+          [KEY_DIFF_DIFF_MIXED]: {
+            [KEY_ACTION]: "ADDED",
+            [KEY_OLD_VALUE]: undefined
+          }
+        },
+        test2: {
+          [KEY_ACTION]: "DELETED",
+          [KEY_OLD_VALUE]: ""
+        }
+      })
+
+      await fs.rename("/test", "/test2")
+      await fs.mkdir("/test")
+      await fs.writeFile("/test/index", "test")
+
+      expect(fs.changelog).toEqual({test: {}})
+      expect(fs.changelogLength.value).toEqual(0)
+    })
+    test("mixed: delete dir & create file deep", async () => {
+      fs.clean()
+
+      await fs.mkdir("/test")
+      await fs.writeFile("/test/index", "test")
+      await fs.writeFile("/test2", "")
+      resetChangelog()
+
+      expect(fs.changelog).toEqual({})
+      expect(fs.changelogLength.value).toEqual(0)
+
+      await fs.unlink("/test")
+      await fs.rename("/test2", "/test")
+      await fs.writeFile("/test", "hello world")
+
+      expect(fs.changelog).toEqual({
+        test: {
+          [KEY_DIFF_OBJECT_MIXED]: {
+            index: {
+              [KEY_ACTION]: "DELETED",
+              [KEY_OLD_VALUE]: "test"
+            }
+          },
+          [KEY_DIFF_DIFF_MIXED]: {
+            [KEY_ACTION]: "ADDED",
+            [KEY_OLD_VALUE]: undefined
+          }
+        },
+        test2: {
+          [KEY_ACTION]: "DELETED",
+          [KEY_OLD_VALUE]: ""
+        }
+      })
+
+      await fs.writeFile("/test", "")
+      await fs.rename("/test", "/test2")
+      await fs.mkdir("/test")
+      await fs.writeFile("/test/index", "test")
+      expect(fs.changelog).toEqual({ test: {}})
+      expect(fs.changelogLength.value).toEqual(0)
     })
   })
 })

@@ -1,12 +1,11 @@
-import { KEY_ACTION, KEY_VALUEA, KEY_VALUEB } from "@tachibana-shin/diff-object"
-
 import { CHAR_KEEP } from "./CHAR_KEEP"
+import { KEY_ACTION, KEY_OLD_VALUE } from "./const"
 import { isDirectory } from "./isDirectory"
 import type { Diff, Directory } from "./types"
 
 export function markDiff(
   dir: Directory,
-  isDeleted?: true
+  isDeleted?: boolean
 ): {
   diffs: Diff
   count: number
@@ -32,14 +31,11 @@ export function markDiff(
     if (isDeleted)
       diffs[name] = {
         [KEY_ACTION]: "DELETED",
-        [KEY_VALUEA]: obj,
-        [KEY_VALUEB]: undefined
+        [KEY_OLD_VALUE]: obj
       }
     else
       diffs[name] = {
-        [KEY_ACTION]: "ADDED",
-        [KEY_VALUEA]: undefined,
-        [KEY_VALUEB]: obj
+        [KEY_ACTION]: "ADDED"
       }
     count++
   }

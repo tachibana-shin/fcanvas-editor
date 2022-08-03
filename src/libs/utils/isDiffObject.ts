@@ -1,5 +1,4 @@
-import { KEY_ACTION } from "@tachibana-shin/diff-object"
-
+import { KEY_ACTION } from "./const"
 import type { DiffObject } from "./types"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
