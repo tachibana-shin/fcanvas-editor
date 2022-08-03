@@ -38,33 +38,36 @@
           :name="name as string"
           :type="(diff as unknown as Diff)[KEY_ACTION] as any"
         />
-        <div v-else-if="isDiffMixed(diff)" class="border-r border-dotted border-yellow-500">
-          <!-- //DIFF_OBJECT_MIXED -->
+        <div
+          v-else-if="isDiffMixed(diff)"
+          class="border-r border-dotted border-yellow-500"
+        >
+          <!-- //KEY_DIFF_OBJECT_MIXED -->
           <FileDiffItemFile
-            v-if="isDiffObject((diff as unknown as any)[DIFF_OBJECT_MIXED])"
+            v-if="isDiffObject((diff as unknown as any)[KEY_DIFF_OBJECT_MIXED])"
             :name="name as string"
-            :type="(diff as unknown as any)[DIFF_OBJECT_MIXED][KEY_ACTION] as any"
+            :type="(diff as unknown as any)[KEY_DIFF_OBJECT_MIXED][KEY_ACTION] as any"
           />
           <FileDiffItemDir
             v-else
             :name="name as string"
-            :type="((diff as unknown as any)[DIFF_DIFF_MIXED])[KEY_ACTION] as any"
-            :files="((diff as unknown as any))[DIFF_OBJECT_MIXED]"
+            :type="((diff as unknown as any)[KEY_DIFF_DIFF_MIXED])[KEY_ACTION] as any"
+            :files="((diff as unknown as any))[KEY_DIFF_OBJECT_MIXED]"
           />
-          <!-- // /DIFF_OBJECT_MIXED -->
-          <!-- //DIFF_DIFF_MIXED -->
+          <!-- // /KEY_DIFF_OBJECT_MIXED -->
+          <!-- //KEY_DIFF_DIFF_MIXED -->
           <FileDiffItemFile
-            v-if="isDiffObject((diff as unknown as any)[DIFF_DIFF_MIXED])"
+            v-if="isDiffObject((diff as unknown as any)[KEY_DIFF_DIFF_MIXED])"
             :name="name as string"
-            :type="((diff as unknown as any)[DIFF_DIFF_MIXED])[KEY_ACTION] as any"
+            :type="((diff as unknown as any)[KEY_DIFF_DIFF_MIXED])[KEY_ACTION] as any"
           />
           <FileDiffItemDir
             v-else
             :name="name as string"
-            :type="((diff as unknown as any)[DIFF_DIFF_MIXED])[KEY_ACTION] as any"
-            :files="(diff as unknown as any)[DIFF_DIFF_MIXED]"
+            :type="((diff as unknown as any)[KEY_DIFF_DIFF_MIXED])[KEY_ACTION] as any"
+            :files="(diff as unknown as any)[KEY_DIFF_DIFF_MIXED]"
           />
-          <!-- // /DIFF_DIFF_MIXED -->
+          <!-- // /KEY_DIFF_DIFF_MIXED -->
         </div>
         <FileDiffItemDir
           v-else
@@ -81,7 +84,10 @@
 import { Icon } from "@iconify/vue"
 import { KEY_ACTION } from "@tachibana-shin/diff-object"
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
-import { DIFF_DIFF_MIXED, DIFF_OBJECT_MIXED } from "src/libs/utils/addDiff"
+import {
+  KEY_DIFF_DIFF_MIXED,
+  KEY_DIFF_OBJECT_MIXED
+} from "src/libs/utils/const"
 import { isDiffMixed } from "src/libs/utils/isDiffMixed"
 import { isDiffObject } from "src/libs/utils/isDiffObject"
 import { Diff } from "src/libs/utils/types"

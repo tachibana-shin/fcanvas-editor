@@ -10,6 +10,7 @@ specifiers:
   '@quasar/extras': ^1.15.0
   '@tachibana-shin/diff-object': ^0.0.6
   '@tachibana-shin/eslint-config': ^1.0.5
+  '@types/lodash.isempty': ^4.4.7
   '@types/micromatch': ^4.0.2
   '@types/node': ^18.6.3
   '@types/path-browserify': ^1.0.0
@@ -28,6 +29,7 @@ specifiers:
   eslint-plugin-vue: ^9.3.0
   fcanvas: ^1.0.6
   jsdom: ^20.0.0
+  lodash.isempty: ^4.4.0
   micromatch: ^4.0.5
   mitt: ^3.0.0
   monaco-editor: ^0.33.0
@@ -66,6 +68,7 @@ dependencies:
   esbuild-wasm: 0.14.51
   escape-string-regexp: 5.0.0
   fcanvas: 1.0.6
+  lodash.isempty: 4.4.0
   micromatch: 4.0.5
   mitt: 3.0.0
   monaco-editor: 0.33.0
@@ -89,6 +92,7 @@ devDependencies:
   '@intlify/vite-plugin-vue-i18n': 5.0.1_vite@3.0.4+vue-i18n@9.1.10
   '@quasar/app-vite': 1.0.5_auo4xjajeambuqh2jppw6k3sce
   '@tachibana-shin/eslint-config': 1.0.5_he2ccbldppg44uulnyq4rwocfa
+  '@types/lodash.isempty': 4.4.7
   '@types/micromatch': 4.0.2
   '@types/node': 18.6.3
   '@types/path-browserify': 1.0.0
@@ -675,6 +679,16 @@ packages:
 
   /@types/json5/0.0.29:
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
+    dev: true
+
+  /@types/lodash.isempty/4.4.7:
+    resolution: {integrity: sha512-YOzlpoIn9jrfHzjIukKnu9Le3tmi+0PhUdOt2rMpJW/4J6jX7s0HeBatXdh9QckLga8qt4EKBxVIEqtEq6pzLg==}
+    dependencies:
+      '@types/lodash': 4.14.182
+    dev: true
+
+  /@types/lodash/4.14.182:
+    resolution: {integrity: sha512-/THyiqyQAP9AfARo4pF+aCGcyiQ94tX/Is2I7HofNRqoYLgN1PBoOWu2/zTA5zMxzP5EFutMtWtGAFRKUe961Q==}
     dev: true
 
   /@types/long/4.0.2:
@@ -3305,6 +3319,10 @@ packages:
   /lodash.flatten/4.4.0:
     resolution: {integrity: sha512-C5N2Z3DgnnKr0LOpv/hKCgKdb7ZZwafIrsesve6lmzvZIRZRGaZ/l6Q8+2W7NaT+ZwO3fFlSCzCzrDCFdJfZ4g==}
     dev: true
+
+  /lodash.isempty/4.4.0:
+    resolution: {integrity: sha512-oKMuF3xEeqDltrGMfDxAPGIVMSSRv8tbRSODbrs4KGsRRLEhrW8N8Rd4DRgB2+621hY8A8XwwrTVhXWpxFvMzg==}
+    dev: false
 
   /lodash.isequal/4.5.0:
     resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
