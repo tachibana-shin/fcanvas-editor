@@ -6,11 +6,17 @@ export interface SearchOptions {
   wholeWord: boolean
   regexp: boolean
 }
+export interface Pos {
+  line: number
+  column: number
+}
 export interface Match {
   index: number
   match: string
   before: string
   after: string
+  posStart: Pos
+  posEnd: Pos
 }
 export type SearchResult = Generator<Match, void, unknown>
 
@@ -56,7 +62,7 @@ function getStringAfterMatches(
   return words
 }
 
-export function * searchText(
+export function* searchText(
   text: string,
   options: SearchOptions
 ): SearchResult {
@@ -69,12 +75,29 @@ export function * searchText(
 
   for (const match of text.matchAll(regex)) {
     const { length: lengthMatch } = match[0]
+    const { index = -1 } = match
+    const allOfBefore = text.slice(0, index + 1)
+
+    const posStart = {
+      line: (allOfBefore.match(/\n/g)?.length ?? 0) + 1,
+      column: index - allOfBefore.lastIndexOf("\n")
+    }
+    const lastIndexNewLine = match[0].lastIndexOf("\n")
+    const posEnd = {
+      line: posStart.line + (match[0].match(/\n/g)?.length ?? 0),
+      column:
+        lastIndexNewLine === -1
+          ? posStart.column + match[0].length
+          : match[0].length - lastIndexNewLine
+    }
 
     yield {
-      index: match.index ?? -1,
+      index,
       match: match[0],
       before: getStringBeforeMatch(text, lengthMatch, match.index ?? -1),
-      after: getStringAfterMatches(text, lengthMatch, match.index ?? -1)
+      after: getStringAfterMatches(text, lengthMatch, match.index ?? -1),
+      posStart,
+      posEnd
     }
   }
 }

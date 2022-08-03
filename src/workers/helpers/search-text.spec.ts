@@ -18,7 +18,15 @@ describe("search-text", () => {
         index: 0,
         match: "Hello",
         after: " World",
-        before: ""
+        before: "",
+        posStart: {
+          line: 1,
+          column: 1
+        },
+        posEnd: {
+          line: 1,
+          column: 6
+        }
       }
     ])
   })
@@ -47,7 +55,15 @@ describe("search-text", () => {
         index: 0,
         match: "Hello",
         after: " World",
-        before: ""
+        before: "",
+        posStart: {
+          line: 1,
+          column: 1
+        },
+        posEnd: {
+          line: 1,
+          column: 6
+        }
       }
     ])
   })
@@ -65,7 +81,15 @@ describe("search-text", () => {
         index: 0,
         match: "Hello",
         after: " World",
-        before: ""
+        before: "",
+        posStart: {
+          line: 1,
+          column: 1
+        },
+        posEnd: {
+          line: 1,
+          column: 6
+        }
       }
     ])
   })
@@ -83,7 +107,15 @@ describe("search-text", () => {
         index: 0,
         match: "Hello",
         after: " World",
-        before: ""
+        before: "",
+        posStart: {
+          line: 1,
+          column: 1
+        },
+        posEnd: {
+          line: 1,
+          column: 6
+        }
       }
     ])
   })
@@ -101,7 +133,15 @@ describe("search-text", () => {
         index: 0,
         match: "Hello",
         after: " World",
-        before: ""
+        before: "",
+        posStart: {
+          line: 1,
+          column: 1
+        },
+        posEnd: {
+          line: 1,
+          column: 6
+        }
       }
     ])
   })
@@ -119,7 +159,15 @@ describe("search-text", () => {
         index: 0,
         match: "Hello",
         after: " World",
-        before: ""
+        before: "",
+        posStart: {
+          line: 1,
+          column: 1
+        },
+        posEnd: {
+          line: 1,
+          column: 6
+        }
       }
     ])
   })
@@ -137,7 +185,15 @@ describe("search-text", () => {
         index: 6,
         match: "Hello",
         after: " World",
-        before: ""
+        before: "",
+        posStart: {
+          line: 1,
+          column: 7
+        },
+        posEnd: {
+          line: 1,
+          column: 12
+        }
       }
     ])
   })
@@ -155,7 +211,43 @@ describe("search-text", () => {
         index: 0,
         match: "Hello",
         after: " World! Ohayo",
-        before: ""
+        before: "",
+        posStart: {
+          line: 1,
+          column: 1
+        },
+        posEnd: {
+          line: 1,
+          column: 6
+        }
+      }
+    ])
+  })
+  test("multi line", () => {
+    const text = `Hello World! Ohayo! Shin
+
+Sayonara!`
+    const options = {
+      search: "Sayonara",
+      caseSensitive: false,
+      wholeWord: true,
+      regexp: true
+    }
+    const result = Array.from(searchText(text, options))
+    expect(result).toEqual([
+      {
+        index: 26,
+        match: "Sayonara",
+        after: "!",
+        before: "",
+        posStart: {
+          line: 3,
+          column: 1
+        },
+        posEnd: {
+          line: 3,
+          column: 9
+        }
       }
     ])
   })
