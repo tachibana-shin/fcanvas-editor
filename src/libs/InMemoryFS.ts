@@ -14,10 +14,10 @@ import { reactive, ref } from "vue"
 import { addDiff } from "./utils/addDiff"
 import { decodeObject, encodeObject, encodePath } from "./utils/coder"
 import {
+  CHAR_KEEP,
   KEY_ACTION,
   KEY_DIFF_DIFF_MIXED,
-  KEY_DIFF_OBJECT_MIXED,
-  CHAR_KEEP
+  KEY_DIFF_OBJECT_MIXED
 } from "./utils/const"
 import { isDiffMixed } from "./utils/isDiffMixed"
 import { isDiffObject } from "./utils/isDiffObject"

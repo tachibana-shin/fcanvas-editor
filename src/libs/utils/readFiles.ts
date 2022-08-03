@@ -1,6 +1,6 @@
 import { join } from "path-browserify"
 
-import { CHAR_KEEP } from "./CHAR_KEEP"
+import { CHAR_KEEP } from "./const"
 import type { Directory } from "./types"
 
 export function readFiles(cwd: string, dir: Directory) {

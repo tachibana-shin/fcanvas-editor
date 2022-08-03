@@ -1,5 +1,4 @@
-import { CHAR_KEEP } from "./CHAR_KEEP"
-import { KEY_ACTION, KEY_OLD_VALUE } from "./const"
+import { CHAR_KEEP , KEY_ACTION, KEY_OLD_VALUE } from "./const"
 import { isDirectory } from "./isDirectory"
 import type { Diff, Directory } from "./types"
 
