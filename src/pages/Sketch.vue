@@ -18,7 +18,7 @@
 
       <div class="flex flex-nowrap relative w-full flex-1">
         <EditorFile />
-        <Preview />
+        <!-- <Preview /> -->
       </div>
     </div>
   </q-page>

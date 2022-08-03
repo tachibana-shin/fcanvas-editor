@@ -61,7 +61,10 @@
     </div>
 
     <!-- result -->
-    <div class="text-gray-400 px-3">8 results in 5 files</div>
+    <div class="text-gray-400 px-3" v-show="results.length > 0">
+      {{ results.reduce((prev, cur) => prev + cur.matches.length, 0) }}
+      results in {{ results.length }} files
+    </div>
     <div class="search-results pl-2">
       <SearchResultItem
         v-for="result in results"
@@ -147,9 +150,9 @@ watch(
 let searchController: AbortController | null = null
 onBeforeMount(() => searchController?.abort())
 const updateSearch = debounce(async () => {
-  if (!keyword.value) return
-
   results.splice(0)
+
+  if (!keyword.value) return
 
   loading.value = true
 
