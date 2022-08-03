@@ -8,7 +8,6 @@ specifiers:
   '@intlify/vite-plugin-vue-i18n': ^5.0.1
   '@quasar/app-vite': ^1.0.5
   '@quasar/extras': ^1.15.0
-  '@tachibana-shin/diff-object': ^0.0.6
   '@tachibana-shin/eslint-config': ^1.0.5
   '@types/lodash.isempty': ^4.4.7
   '@types/micromatch': ^4.0.2
@@ -64,7 +63,6 @@ dependencies:
   '@firebase/firestore': 3.4.13_@firebase+app@0.7.29
   '@iconify/vue': 3.2.1_vue@3.2.37
   '@quasar/extras': 1.15.0
-  '@tachibana-shin/diff-object': 0.0.6
   esbuild-wasm: 0.14.51
   escape-string-regexp: 5.0.0
   fcanvas: 1.0.6
@@ -562,13 +560,6 @@ packages:
       estree-walker: 2.0.2
       picomatch: 2.3.1
     dev: true
-
-  /@tachibana-shin/diff-object/0.0.6:
-    resolution: {integrity: sha512-YFhHzx5f1idCToekKZi2ZuiG3ZMYBi9xtx6bSUFIy98mEM+/mXc6zlt9QkYnIjsg+186jjQdyZ4LI4nrgFYDfw==}
-    engines: {node: '>=10'}
-    dependencies:
-      lodash.isequal: 4.5.0
-    dev: false
 
   /@tachibana-shin/eslint-config/1.0.5_he2ccbldppg44uulnyq4rwocfa:
     resolution: {integrity: sha512-cEmym2ci8Ep9aYGuW0CvEZbdqEbQUzvkfnRIob7+WSk5Hq2RoXcCMIEIzYJYIHHZAO2B1qNT6SroOfCoFwlYzA==}
@@ -3322,10 +3313,6 @@ packages:
 
   /lodash.isempty/4.4.0:
     resolution: {integrity: sha512-oKMuF3xEeqDltrGMfDxAPGIVMSSRv8tbRSODbrs4KGsRRLEhrW8N8Rd4DRgB2+621hY8A8XwwrTVhXWpxFvMzg==}
-    dev: false
-
-  /lodash.isequal/4.5.0:
-    resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
     dev: false
 
   /lodash.isplainobject/4.0.6:

@@ -82,7 +82,6 @@
 
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue"
-import { KEY_ACTION } from "@tachibana-shin/diff-object"
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
 import {
   KEY_DIFF_DIFF_MIXED,
@@ -92,6 +91,7 @@ import { isDiffMixed } from "src/libs/utils/isDiffMixed"
 import { isDiffObject } from "src/libs/utils/isDiffObject"
 import { Diff } from "src/libs/utils/types"
 import { ref } from "vue"
+import { KEY_ACTION } from "src/libs/utils/const"
 
 import FileDiffItemFile from "./FileDiffItemFile.vue"
 import { CLASS_PATH_ACTIVE } from "./class-path-active"

@@ -3,3 +3,5 @@ export const KEY_ACTION = "#@~!action"
 
 export const KEY_DIFF_OBJECT_MIXED = "#@~!diffObjMixed"
 export const KEY_DIFF_DIFF_MIXED = "#@~!diffDiffMixed"
+
+export const CHAR_KEEP = "@#"

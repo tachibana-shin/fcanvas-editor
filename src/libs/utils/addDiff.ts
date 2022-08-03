@@ -1,9 +1,9 @@
-import { CHAR_KEEP } from "./CHAR_KEEP"
 import {
   KEY_ACTION,
   KEY_DIFF_DIFF_MIXED,
   KEY_DIFF_OBJECT_MIXED,
-  KEY_OLD_VALUE
+  KEY_OLD_VALUE,
+  CHAR_KEEP
 } from "./const"
 import { isDiffMixed } from "./isDiffMixed"
 import { isDiffObject } from "./isDiffObject"
@@ -77,9 +77,7 @@ export function addDiff(
       }
       if (isDiffMixed(obj)) {
         diff[name] = obj[KEY_DIFF_OBJECT_MIXED]
-        return -getCountChange(
-          obj[KEY_DIFF_DIFF_MIXED]
-        )
+        return -getCountChange(obj[KEY_DIFF_DIFF_MIXED])
       }
 
       if (isDir) {

@@ -18,7 +18,6 @@
     "@firebase/firestore": "^3.4.13",
     "@iconify/vue": "^3.2.1",
     "@quasar/extras": "^1.15.0",
-    "@tachibana-shin/diff-object": "^0.0.6",
     "esbuild-wasm": "^0.14.51",
     "escape-string-regexp": "^5.0.0",
     "fcanvas": "^1.0.6",
