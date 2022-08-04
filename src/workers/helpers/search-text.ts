@@ -20,7 +20,7 @@ export interface Match {
 }
 export type SearchResult = Generator<Match, void, unknown>
 
-const rNotWord = /[^a-z0-9]/i
+const rNotWord = /[\n]/i
 const maxLengthPesduso = 30
 
 function getStringBeforeMatch(
@@ -54,7 +54,7 @@ function getStringAfterMatches(
     const char = text[index + lengthMatch + i]
 
     if (!char) break
-    if (i > 10 && rNotWord.test(char)) break
+    if (rNotWord.test(char)) break
 
     words += char
   }
