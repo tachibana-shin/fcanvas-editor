@@ -239,9 +239,9 @@ function goto(filepath: string, start: Pos, end: Pos) {
   )
 }
 async function replaceAll() {
-  results.forEach((result, filepath) => {
-    replaceAllResult(filepath, result)
-  })
+  for (const [filepath, result] of results) {
+    await replaceAllResult(filepath, result)
+  }
 }
 function dismissResult(filepath: string, result: SearchResult, index: number) {
   result.matches.splice(index, 1)
