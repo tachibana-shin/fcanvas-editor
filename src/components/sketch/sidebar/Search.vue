@@ -91,17 +91,12 @@ import { fs, watchFile } from "src/modules/fs"
 import type { Pos } from "src/workers/helpers/search-text"
 import { computed, reactive, ref, watch } from "vue"
 
+import { editorFileExpose } from "../editor-file-expose"
+
 import Input from "./components/Input.vue"
 import SearchResultItem from "./components/SearchResultItem.vue"
 import type { SearchResult } from "./logic/search"
 import { search, searchInFile } from "./logic/search"
-
-const props = defineProps<{
-  editorRef?: {
-    editor: monaco.editor.IStandaloneCodeEditor
-    setEditFile: (filepath: string) => void
-  }
-}>()
 
 const openReplacer = ref(false)
 const openAdvanced = ref(false)
@@ -233,8 +228,8 @@ const updateSearch = debounce(async () => {
 }, 1000)
 
 function goto(filepath: string, start: Pos, end: Pos) {
-  props.editorRef?.setEditFile(filepath)
-  props.editorRef?.editor?.setSelection(
+  editorFileExpose.setEditFile?.(filepath)
+  editorFileExpose.editor?.setSelection(
     new monaco.Selection(start.line, start.column, end.line, end.column)
   )
 }

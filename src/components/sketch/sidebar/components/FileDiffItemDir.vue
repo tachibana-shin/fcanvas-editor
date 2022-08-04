@@ -32,11 +32,13 @@
         hidden: !opened && !show
       }"
     >
-      <template v-for="(diff, name) in files" :key="name">
+      <template v-for="(diff, childName) in files" :key="childName">
         <FileDiffItemFile
           v-if="isDiffObject(diff)"
-          :name="name as string"
+          :dirname="(dirname ?? '') + '/' + name"
+          :name="childName as string"
           :type="(diff as unknown as Diff)[KEY_ACTION] as any"
+          :old-value="((diff as unknown as Diff)[KEY_OLD_VALUE]) ?? null"
         />
         <div
           v-else-if="isDiffMixed(diff)"
@@ -45,12 +47,15 @@
           <!-- //KEY_DIFF_OBJECT_MIXED -->
           <FileDiffItemFile
             v-if="isDiffObject((diff as unknown as any)[KEY_DIFF_OBJECT_MIXED])"
-            :name="name as string"
+            :dirname="(dirname ?? '') + '/' + name"
+            :name="childName as string"
             :type="(diff as unknown as any)[KEY_DIFF_OBJECT_MIXED][KEY_ACTION] as any"
+            :old-value="((diff as unknown as Diff)[KEY_OLD_VALUE]) ?? null"
           />
           <FileDiffItemDir
             v-else
-            :name="name as string"
+            :dirname="(dirname ?? '') + '/' + name"
+            :name="childName as string"
             :type="((diff as unknown as any)[KEY_DIFF_DIFF_MIXED])[KEY_ACTION] as any"
             :files="((diff as unknown as any))[KEY_DIFF_OBJECT_MIXED]"
           />
@@ -58,12 +63,15 @@
           <!-- //KEY_DIFF_DIFF_MIXED -->
           <FileDiffItemFile
             v-if="isDiffObject((diff as unknown as any)[KEY_DIFF_DIFF_MIXED])"
-            :name="name as string"
+            :dirname="(dirname ?? '') + '/' + name"
+            :name="childName as string"
             :type="((diff as unknown as any)[KEY_DIFF_DIFF_MIXED])[KEY_ACTION] as any"
+            :old-value="((diff as unknown as Diff)[KEY_OLD_VALUE]) ?? null"
           />
           <FileDiffItemDir
             v-else
-            :name="name as string"
+            :dirname="(dirname ?? '') + '/' + name"
+            :name="childName as string"
             :type="((diff as unknown as any)[KEY_DIFF_DIFF_MIXED])[KEY_ACTION] as any"
             :files="(diff as unknown as any)[KEY_DIFF_DIFF_MIXED]"
           />
@@ -71,7 +79,8 @@
         </div>
         <FileDiffItemDir
           v-else
-          :name="name as string"
+          :dirname="(dirname ?? '') + '/' + name"
+          :name="childName as string"
           :type="(diff as unknown as Diff)[KEY_ACTION] as any"
           :files="diff"
         />
@@ -85,8 +94,10 @@ import { Icon } from "@iconify/vue"
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
 import {
   KEY_ACTION,
-  KEY_DIFF_DIFF_MIXED
-, KEY_DIFF_OBJECT_MIXED } from "src/libs/utils/const"
+  KEY_DIFF_DIFF_MIXED,
+  KEY_DIFF_OBJECT_MIXED,
+  KEY_OLD_VALUE
+} from "src/libs/utils/const"
 import { isDiffMixed } from "src/libs/utils/isDiffMixed"
 import { isDiffObject } from "src/libs/utils/isDiffObject"
 import { Diff } from "src/libs/utils/types"
@@ -99,6 +110,7 @@ defineProps<{
   show?: true
   name: string
   files: Diff
+  dirname: string
 }>()
 
 const opened = ref(false)

@@ -32,7 +32,7 @@
         Changes
       </small>
       <div class="mt-2">
-        <FileDiffItemDir show name="/" :files="fs.changelog" />
+        <FileDiffItemDir show dirname="" name="/" :files="fs.changelog" />
       </div>
     </template>
   </div>

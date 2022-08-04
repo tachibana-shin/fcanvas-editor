@@ -18,8 +18,9 @@ import { Uri } from "monaco-editor"
 import { debounce } from "quasar"
 import { fs, watchFile } from "src/modules/fs"
 import { useEditorStore } from "src/stores/editor"
-import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue"
+import { onBeforeUnmount, onMounted, ref, watch } from "vue"
 
+import { editorFileExpose } from "./editor-file-expose"
 import { installPackages } from "./logic/installPackage"
 import { installFormatter } from "./logic/installPrettier"
 
@@ -42,8 +43,6 @@ const PRETTIER_CONFIG_FILES = [
 const editorStore = useEditorStore()
 
 const editorEl = ref<HTMLDivElement>()
-const editorRef = shallowRef<monaco.editor.IStandaloneCodeEditor>()
-
 // TYPE: setEditFile
 const views = new WeakMap<monaco.editor.ITextModel>()
 // eslint-disable-next-line functional/no-let
@@ -57,7 +56,7 @@ onBeforeUnmount(() => {
 const setEditFile = async (filepath: string) => {
   editorStore.currentFile = filepath
 
-  const editor = editorRef.value
+  const { editor } = editorFileExpose
 
   if (!editor) return
 
@@ -107,10 +106,7 @@ const setEditFile = async (filepath: string) => {
 }
 // =================================================
 
-defineExpose({
-  editor: editorRef,
-  setEditFile
-})
+editorFileExpose.setEditFile = setEditFile
 
 watch(
   () => editorStore.currentFile,
@@ -126,7 +122,7 @@ onMounted(() => {
     automaticLayout: true,
     theme: "vs-dark"
   })
-  editorRef.value = editor
+  editorFileExpose.editor = editor
 
   monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true)
   monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true)

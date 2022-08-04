@@ -47,7 +47,7 @@
         <Diff v-if="tabSelection === 'change'" />
       </KeepAlive>
       <KeepAlive>
-        <Search v-if="tabSelection === 'search'" :editor-ref="editorRef" />
+        <Search v-if="tabSelection === 'search'" />
       </KeepAlive>
     </div>
   </Resizable>
@@ -55,7 +55,6 @@
 
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue"
-import type * as monaco from "monaco-editor"
 import { ref } from "vue"
 
 import Resizable from "../ui/Resizable.vue"
@@ -63,13 +62,6 @@ import Resizable from "../ui/Resizable.vue"
 import Diff from "./sidebar/Diff.vue"
 import Files from "./sidebar/Files.vue"
 import Search from "./sidebar/Search.vue"
-
-defineProps<{
-  editorRef?: {
-    editor: monaco.editor.IStandaloneCodeEditor
-    setEditFile: (filepath: string) => void
-  }
-}>()
 
 const tabSelection = ref<null | "file" | "search" | "change" | "setting">(
   "search"
