@@ -42,7 +42,7 @@
       <div
         v-for="({ before, match, after, posStart, posEnd }, index) in matches"
         :key="index"
-        :class="`${CLASS_PATH_ACTIVE} before:h-[100%] before:top-0`"
+        :class="`${CLASS_PATH_ACTIVE} before:!h-[100%] before:top-0 whitespace-pre`"
         @click="goto(posStart, posEnd)"
       >
         <span>{{ before }}</span>

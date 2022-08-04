@@ -31,6 +31,7 @@
           <Icon
             icon="codicon:replace-all"
             class="cursor-pointer px-[2px] w-[20px] h-full"
+            @click="replaceAll"
           />
         </div>
       </div>
@@ -61,15 +62,15 @@
     </div>
 
     <!-- result -->
-    <div class="text-gray-400 px-3" v-show="results.length > 0">
-      {{ results.reduce((prev, cur) => prev + cur.matches.length, 0) }}
-      results in {{ results.length }} files
+    <div class="text-gray-400 px-3" v-show="results.size > 0 || !loading">
+      {{ sumResults }}
+      results in {{ results.size }} files
     </div>
     <div class="search-results pl-2">
       <SearchResultItem
-        v-for="result in results"
-        :key="result.filepath"
-        :filepath="result.filepath"
+        v-for="[filepath, result] in results"
+        :key="filepath"
+        :filepath="filepath"
         :matches="result.matches"
         :replace="replace"
         @goto="goto(result.filepath, $event.start, $event.end)"
@@ -82,13 +83,14 @@
 import { Icon } from "@iconify/vue"
 import * as monaco from "monaco-editor"
 import { debounce } from "quasar"
+import { watchFile } from "src/modules/fs"
 import type { Pos } from "src/workers/helpers/search-text"
-import { onBeforeMount, ref, shallowReactive, watch } from "vue"
+import { computed, ref, shallowReactive, watch } from "vue"
 
 import Input from "./components/Input.vue"
 import SearchResultItem from "./components/SearchResultItem.vue"
 import type { SearchResult } from "./logic/search"
-import { search } from "./logic/search"
+import { search, searchInFile } from "./logic/search"
 
 const props = defineProps<{
   editorRef?: {
@@ -147,7 +149,15 @@ const excludeActions = [
 ]
 
 const loading = ref(false)
-const results = shallowReactive<SearchResult[]>([])
+const results = shallowReactive<Map<string, SearchResult>>(new Map())
+const sumResults = computed<number>(() => {
+  // eslint-disable-next-line functional/no-let
+  let sum = 0
+  results.forEach(({ matches: { length } }) => {
+    sum += length
+  })
+  return sum
+})
 
 watch(
   [keyword, caseSensitive, wholeWord, regexp, include, exclude, useExclude],
@@ -158,9 +168,11 @@ watch(
 
 // eslint-disable-next-line functional/no-let
 let searchController: AbortController | null = null
-onBeforeMount(() => searchController?.abort())
+const watchesFile = new Set<() => void>()
 const updateSearch = debounce(async () => {
-  results.splice(0)
+  results.clear()
+  watchesFile.forEach((canceler) => canceler())
+  watchesFile.clear()
 
   if (!keyword.value) return
 
@@ -169,25 +181,47 @@ const updateSearch = debounce(async () => {
   searchController?.abort()
   searchController = new AbortController()
 
-  const asyncResult = await search(
-    {
-      search: keyword.value,
-      caseSensitive: caseSensitive.value,
-      wholeWord: wholeWord.value,
-      regexp: regexp.value,
-      include: include.value
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean),
-      exclude: exclude.value
-        .split(",")
-        .map((item) => item.trim())
-        .filter(Boolean)
-    },
-    searchController
-  )
+  const options = {
+    search: keyword.value,
+    caseSensitive: caseSensitive.value,
+    wholeWord: wholeWord.value,
+    regexp: regexp.value,
+    include: include.value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean),
+    exclude: exclude.value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean)
+  }
 
-  for await (const result of asyncResult) results.push(result)
+  const asyncResult = await search(options, searchController)
+
+  for await (const result of asyncResult) {
+    const { filepath } = result
+    results.set(filepath, result)
+    console.log("result %s", filepath)
+    const watcher = watchFile(filepath, async (exists) => {
+      if (exists) {
+        // refresh
+        const newResult = await searchInFile(filepath, options)
+
+        if (newResult.matches.length > 0) {
+          results.set(filepath, newResult)
+
+          return
+        }
+      }
+
+      // if exists is false or newResult.matches.length is 0  これをあすこく。。。
+      // unlink
+      results.delete(filepath)
+      watcher()
+      watchesFile.delete(watcher)
+    })
+    watchesFile.add(watcher)
+  }
 
   searchController = null
 
@@ -199,5 +233,11 @@ function goto(filepath: string, start: Pos, end: Pos) {
   props.editorRef?.editor?.setSelection(
     new monaco.Selection(start.line, start.column, end.line, end.column)
   )
+}
+function replaceAll() {
+  // replace all files
+  loading.value = true
+
+  loading.value = false
 }
 </script>

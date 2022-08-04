@@ -1,6 +1,6 @@
 import esbuildWASM from "esbuild-wasm"
 import esbuildDotWASM from "esbuild-wasm/esbuild.wasm?url"
-import { extname } from "path-browserify"
+import { extname, join } from "path-browserify"
 import { InMemoryFS } from "src/libs/InMemoryFS"
 
 export const fs = new InMemoryFS()
@@ -39,11 +39,11 @@ export async function getBlobURLOfFile(path: string): Promise<string> {
 
   return url
 }
-export function isPathChange(pathChange: string, pathTest: string) {
+export function isPathChange(parent: string, filepath: string) {
+  parent = join("/", parent)
+  filepath = join("/", filepath)
   return (
-    pathTest === pathChange ||
-    pathTest.startsWith(`${pathChange}/`) ||
-    pathChange === "/"
+    filepath === parent || filepath.startsWith(`${parent}/`) || parent === "/"
   )
 }
 
@@ -61,4 +61,22 @@ async function complier(content: string, filename: string): Promise<string> {
   }
 
   return content
+}
+
+export function watchFile(filepath: string, cb: (exists: boolean) => void) {
+  const handlerWrite = (file: string) => {
+    // eslint-disable-next-line n/no-callback-literal
+    if (isPathChange(file, filepath)) cb(true)
+  }
+  const handlerUnlink = (file: string) => {
+    // eslint-disable-next-line n/no-callback-literal
+    if (isPathChange(file, filepath)) cb(false)
+  }
+
+  fs.events.on("write", handlerWrite)
+  fs.events.on("unlink", handlerUnlink)
+  return () => {
+    fs.events.off("write", handlerWrite)
+    fs.events.off("unlink", handlerUnlink)
+  }
 }

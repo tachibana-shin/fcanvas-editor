@@ -50,6 +50,8 @@ const views = new WeakMap<monaco.editor.ITextModel>()
 let didChangeContenter: monaco.IDisposable | null = null
 onBeforeUnmount(() => didChangeContenter?.dispose())
 const setEditFile = async (filepath: string) => {
+  editorStore.currentFile = filepath
+
   const editor = editorRef.value
 
   if (!editor) return
