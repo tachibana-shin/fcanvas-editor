@@ -73,21 +73,6 @@
           :dir="item.isDir"
           :filepath="item.filepath"
           :fs="fs"
-          @rename="
-            (event) => {
-              files.splice(files.indexOf(item) >>> 0, 1, {
-                filepath: join(dirname(filepath), event),
-                isDir: item.isDir
-              })
-              files = sortListFiles(files)
-            }
-          "
-          @unlink="
-            () => {
-              files.splice(files.indexOf(item) >>> 0, 1)
-              files = sortListFiles(files)
-            }
-          "
         />
       </template>
     </div>
@@ -101,14 +86,15 @@ import { Icon } from "@iconify/vue"
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
 import Menu from "src/components/ui/Menu.vue"
 import type { FS } from "src/modules/fs"
-import { fs } from "src/modules/fs"
+import { fs, watchDir } from "src/modules/fs"
 import { useEditorStore } from "src/stores/editor"
-import { computed, ref, watch } from "vue"
+import { computed, onBeforeUnmount, ref, watch } from "vue"
 
 import FileTreeMixture from "./FileTreeMixture.vue"
 import RenameFileOrDir from "./RenameFileOrDir.vue"
 import { CLASS_PATH_ACTIVE } from "./class-path-active"
 import { sortListFiles } from "./sortListFiles"
+import { throttle } from "quasar"
 
 const props = defineProps<{
   filepath: string
@@ -188,17 +174,12 @@ const menu = [
   }
 ]
 
-watch(
-  opened,
-  (state) => {
-    if (state) {
-      reloadDir()
-    }
-  },
-  {
-    immediate: true
+const watcher = watch(opened, (state) => {
+  if (state) {
+    reloadDir()
+    watcher()
   }
-)
+})
 
 // =========== actions =============
 async function rename(newFileName: string) {
@@ -228,7 +209,7 @@ async function createNewFile(newFileName: string, isDir: boolean) {
     }
   ])
 }
-async function reloadDir() {
+const reloadDir = throttle(async function () {
   try {
     const filesName = await fs.readdir(props.filepath)
 
@@ -251,7 +232,7 @@ async function reloadDir() {
   } finally {
     loading.value = false
   }
-}
+}, 1e3)
 async function unlink() {
   loading.value = true
   await props.fs.unlink(props.filepath)
@@ -273,6 +254,14 @@ async function createDir() {
   }
 }
 // =================================
+
+if (opened.value) {
+  reloadDir()
+  watcher()
+}
+
+const dirWatcher = watchDir(props.filepath, reloadDir)
+onBeforeUnmount(() => dirWatcher())
 
 defineExpose({
   createFile,

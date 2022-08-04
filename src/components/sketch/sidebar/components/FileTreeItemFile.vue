@@ -59,10 +59,6 @@ const props = defineProps<{
   filepath: string
   fs: FS
 }>()
-const emit = defineEmits<{
-  (name: "rename", value: string): void
-  (name: "unlink"): void
-}>()
 
 const editorStore = useEditorStore()
 
@@ -121,14 +117,10 @@ async function rename(newFileName: string) {
   await props.fs.rename(props.filepath, newPath)
 
   loading.value = false
-
-  emit("rename", newPath)
 }
 async function unlink() {
 
   loading.value = true
   await props.fs.unlink(props.filepath)
-
-  emit("unlink")
 }
 </script>

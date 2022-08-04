@@ -3,16 +3,12 @@
     v-if="!dir"
     :filepath="filepath"
     :fs="fs"
-    @rename="emit('rename', $event)"
-    @unlink="emit('unlink')"
   />
   <FileTree
     v-else
     :filepath="filepath"
     :fs="fs"
     :show="show"
-    @rename="emit('rename', $event)"
-    @unlink="emit('unlink')"
   />
 </template>
 
@@ -27,10 +23,5 @@ defineProps<{
   filepath: string
   fs: FS
   show?: true
-}>()
-
-const emit = defineEmits<{
-  (name: "rename", value: string): void
-  (name: "unlink"): void
 }>()
 </script>
