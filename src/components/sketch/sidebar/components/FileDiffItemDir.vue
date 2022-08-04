@@ -84,14 +84,13 @@
 import { Icon } from "@iconify/vue"
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
 import {
-  KEY_DIFF_DIFF_MIXED,
-  KEY_DIFF_OBJECT_MIXED
-} from "src/libs/utils/const"
+  KEY_ACTION,
+  KEY_DIFF_DIFF_MIXED
+, KEY_DIFF_OBJECT_MIXED } from "src/libs/utils/const"
 import { isDiffMixed } from "src/libs/utils/isDiffMixed"
 import { isDiffObject } from "src/libs/utils/isDiffObject"
 import { Diff } from "src/libs/utils/types"
 import { ref } from "vue"
-import { KEY_ACTION } from "src/libs/utils/const"
 
 import FileDiffItemFile from "./FileDiffItemFile.vue"
 import { CLASS_PATH_ACTIVE } from "./class-path-active"
