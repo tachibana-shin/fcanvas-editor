@@ -83,6 +83,7 @@
 import { basename, dirname, join } from "path"
 
 import { Icon } from "@iconify/vue"
+import { throttle } from "quasar"
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
 import Menu from "src/components/ui/Menu.vue"
 import type { FS } from "src/modules/fs"
@@ -94,7 +95,6 @@ import FileTreeMixture from "./FileTreeMixture.vue"
 import RenameFileOrDir from "./RenameFileOrDir.vue"
 import { CLASS_PATH_ACTIVE } from "./class-path-active"
 import { sortListFiles } from "./sortListFiles"
-import { throttle } from "quasar"
 
 const props = defineProps<{
   filepath: string
