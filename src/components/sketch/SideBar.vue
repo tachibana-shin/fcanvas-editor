@@ -40,9 +40,15 @@
     }"
   >
     <div class="h-full border-r border-gray-700 overflow-x-hidden relative">
-      <Files v-if="tabSelection === 'file'" />
-      <Diff v-if="tabSelection === 'change'" />
-      <Search v-if="tabSelection === 'search'" :editor-ref="editorRef" />
+      <KeepAlive>
+        <Files v-if="tabSelection === 'file'" />
+      </KeepAlive>
+      <KeepAlive>
+        <Diff v-if="tabSelection === 'change'" />
+      </KeepAlive>
+      <KeepAlive>
+        <Search v-if="tabSelection === 'search'" :editor-ref="editorRef" />
+      </KeepAlive>
     </div>
   </Resizable>
 </template>
