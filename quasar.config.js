@@ -75,16 +75,6 @@ module.exports = configure(function (/* ctx */) {
 
       extendViteConf(viteConf) {
         extend(true, viteConf, {
-          define: {
-            process: {
-              env: {
-                NODE_ENV: process.env.NODE_ENV,
-                GITPOD_WORKSPACE_ID: process.env.GITPOD_WORKSPACE_ID,
-                GITPOD_WORKSPACE_CLUSTER_HOST:
-                  process.env.GITPOD_WORKSPACE_CLUSTER_HOST
-              }
-            }
-          },
           resolve: {
             alias: {
               path: "path-browserify"
