@@ -72,6 +72,7 @@
         :filepath="result.filepath"
         :matches="result.matches"
         :replace="replace"
+        @goto="goto(result.filepath, $event.start, $event.end)"
       />
     </div>
   </div>
@@ -79,13 +80,22 @@
 
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue"
+import * as monaco from "monaco-editor"
 import { debounce } from "quasar"
+import type { Pos } from "src/workers/helpers/search-text"
 import { onBeforeMount, ref, shallowReactive, watch } from "vue"
 
 import Input from "./components/Input.vue"
 import SearchResultItem from "./components/SearchResultItem.vue"
 import type { SearchResult } from "./logic/search"
 import { search } from "./logic/search"
+
+const props = defineProps<{
+  editorRef?: {
+    editor: monaco.editor.IStandaloneCodeEditor
+    setEditFile: (filepath: string) => void
+  }
+}>()
 
 const openReplacer = ref(false)
 const openAdvanced = ref(false)
@@ -183,4 +193,11 @@ const updateSearch = debounce(async () => {
 
   loading.value = false
 }, 1000)
+
+function goto(filepath: string, start: Pos, end: Pos) {
+  props.editorRef?.setEditFile(filepath)
+  props.editorRef?.editor?.setSelection(
+    new monaco.Selection(start.line, start.column, end.line, end.column)
+  )
+}
 </script>

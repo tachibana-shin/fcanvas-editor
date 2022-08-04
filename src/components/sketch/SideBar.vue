@@ -42,13 +42,14 @@
     <div class="h-full border-r border-gray-700 overflow-x-hidden relative">
       <Files v-if="tabSelection === 'file'" />
       <Diff v-if="tabSelection === 'change'" />
-      <Search v-if="tabSelection === 'search'" />
+      <Search v-if="tabSelection === 'search'" :editor-ref="editorRef" />
     </div>
   </Resizable>
 </template>
 
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue"
+import type * as monaco from "monaco-editor"
 import { ref } from "vue"
 
 import Resizable from "../ui/Resizable.vue"
@@ -56,6 +57,13 @@ import Resizable from "../ui/Resizable.vue"
 import Diff from "./sidebar/Diff.vue"
 import Files from "./sidebar/Files.vue"
 import Search from "./sidebar/Search.vue"
+
+defineProps<{
+  editorRef?: {
+    editor: monaco.editor.IStandaloneCodeEditor
+    setEditFile: (filepath: string) => void
+  }
+}>()
 
 const tabSelection = ref<null | "file" | "search" | "change" | "setting">(
   "search"

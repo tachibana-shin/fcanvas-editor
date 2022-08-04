@@ -14,10 +14,10 @@
     <ToolBar />
 
     <div class="flex h-full flex-1">
-      <SideBar />
+      <SideBar :editor-ref="editorFileRef" />
 
       <div class="flex flex-nowrap relative w-full flex-1">
-        <EditorFile />
+        <EditorFile ref="editorFileRef" />
         <!-- <Preview /> -->
       </div>
     </div>
@@ -30,6 +30,7 @@ import EditorFile from "components/sketch/EditorFile.vue"
 import Preview from "components/sketch/Preview.vue"
 import SideBar from "components/sketch/SideBar.vue"
 import ToolBar from "components/sketch/ToolBar.vue"
+import type * as monaco from "monaco-editor"
 import { useQuasar } from "quasar"
 import { app } from "src/modules/firebase"
 import { useEditorStore } from "src/stores/editor"
@@ -45,6 +46,11 @@ const route = useRoute()
 const $q = useQuasar()
 const editorStore = useEditorStore()
 const { createSketch } = editorStore
+
+const editorFileRef = ref<{
+  editor: monaco.editor.IStandaloneCodeEditor
+  setEditFile: (filepath: string) => void
+}>()
 
 watch(() => route.params.userId, loadSketch)
 watch(() => route.params.sketchId, loadSketch)

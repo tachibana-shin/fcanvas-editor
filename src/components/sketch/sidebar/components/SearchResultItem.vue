@@ -75,12 +75,25 @@ const props = defineProps<{
   matches: Result["matches"]
   replace: string
 }>()
+const emit = defineEmits<{
+  (
+    name: "goto",
+    value: {
+      start: Pos
+      end: Pos
+    }
+  ): void
+}>()
 
 const opened = ref(true)
 
 function goto(start: Pos, end: Pos) {
   console.log("goto editor: ", {
     filepath: props.filepath,
+    start,
+    end
+  })
+  emit("goto", {
     start,
     end
   })

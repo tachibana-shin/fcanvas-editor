@@ -16,9 +16,9 @@ import { Icon } from "@iconify/vue"
 import * as monaco from "monaco-editor"
 import { Uri } from "monaco-editor"
 import { debounce } from "quasar"
-import { fs, isPathChange } from "src/modules/fs"
+import { fs } from "src/modules/fs"
 import { useEditorStore } from "src/stores/editor"
-import { onMounted, ref, watch } from "vue"
+import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue"
 
 import { installPackages } from "./logic/installPackage"
 import { installFormatter } from "./logic/installPrettier"
@@ -42,90 +42,82 @@ const PRETTIER_CONFIG_FILES = [
 const editorStore = useEditorStore()
 
 const editorEl = ref<HTMLDivElement>()
+const editorRef = shallowRef<monaco.editor.IStandaloneCodeEditor>()
 
-const autoSave = debounce(async (code: string) => {
-  if (!editorStore.currentFile) return
+// TYPE: setEditFile
+const views = new WeakMap<monaco.editor.ITextModel>()
+// eslint-disable-next-line functional/no-let
+let didChangeContenter: monaco.IDisposable | null = null
+onBeforeUnmount(() => didChangeContenter?.dispose())
+const setEditFile = async (filepath: string) => {
+  const editor = editorRef.value
 
-  if (code === undefined) return
+  if (!editor) return
 
-  console.log("auto saving %s", editorStore.currentFile)
+  const uri = Uri.file(filepath)
 
-  await fs.writeFile(editorStore.currentFile, code)
-}, 1000)
+  const currentModel = editor.getModel()
+  if (currentModel) {
+    // save
+    views.set(currentModel, editor.saveViewState())
+  }
 
+  const nextModel = monaco.editor.getModel(uri)
+  if (nextModel) {
+    editor.setModel(nextModel)
+    // restore state
+    editor.restoreViewState(views.get(nextModel))
+  } else {
+    const model = monaco.editor.createModel(
+      await fs.readFile(filepath),
+      undefined,
+      uri
+    )
+
+    editor.setModel(model)
+  }
+  editor.focus()
+
+  didChangeContenter?.dispose()
+  didChangeContenter =
+    editor.getModel()?.onDidChangeContent(
+      debounce(async () => {
+        const model = editor.getModel()
+
+        if (model) {
+          console.log("auto saving %s", editorStore.currentFile)
+          await fs.writeFile(filepath, model.getValue())
+        }
+      }, 1000)
+    ) ?? null
+}
+// =================================================
+
+defineExpose({
+  editor: editorRef,
+  setEditFile
+})
+
+watch(
+  () => editorStore.currentFile,
+  (file) => {
+    if (!file) return
+
+    setEditFile(file)
+  }
+)
 onMounted(() => {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const editor = monaco.editor.create(editorEl.value!, {
     automaticLayout: true,
     theme: "vs-dark"
   })
+  editorRef.value = editor
 
   monaco.languages.typescript.javascriptDefaults.setEagerModelSync(true)
   monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true)
 
   installFormatter()
   installPackages()
-
-  const models = new Map<string, monaco.editor.ITextModel>()
-  const views = new WeakMap<monaco.editor.ITextModel>()
-
-  // eslint-disable-next-line functional/no-let
-  let didChangeContenter: monaco.IDisposable | null = null
-  watch(
-    () => editorStore.currentFile,
-    async (file) => {
-      if (!file) return
-
-      const currentModel = editor.getModel()
-
-      if (currentModel) views.set(currentModel, editor.saveViewState())
-
-      console.log("reading %s", file)
-
-      // eslint-disable-next-line functional/no-let
-      let model = models.get(file)
-
-      if (!model) {
-        model = monaco.editor.createModel(
-          await fs.readFile(file),
-          undefined,
-          Uri.parse(file)
-        )
-
-        models.set(file, model)
-      }
-
-      editor.setModel(model)
-
-      const viewInCache = views.get(model)
-      if (viewInCache) {
-        editor.restoreViewState(viewInCache)
-      }
-      editor.focus()
-
-      didChangeContenter?.dispose()
-      didChangeContenter =
-        editor.getModel()?.onDidChangeContent(
-          debounce(async () => {
-            const model = editor.getModel()
-
-            if (model) {
-              console.log("save file %s", file)
-              await fs.writeFile(file, model.getValue())
-            }
-          }, 1000)
-        ) ?? null
-    }
-  )
-
-  // watch remove model
-  fs.events.on("unlink", (path) => {
-    models.forEach((model, filepath) => {
-      if (isPathChange(path, filepath)) {
-        model.dispose()
-        models.delete(filepath)
-      }
-    })
-  })
 })
 </script>
