@@ -6,7 +6,8 @@ export async function fastGlob(patterns: string[], ignore: string[]) {
     await fs.readFiles(),
     patterns.length > 0 ? patterns : ["*"],
     {
-      ignore
+      ignore,
+      basename: true
     }
   )
 }

@@ -80,7 +80,7 @@
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue"
 import { debounce } from "quasar"
-import { onBeforeMount, reactive, ref, watch } from "vue"
+import { onBeforeMount, ref, shallowReactive, watch } from "vue"
 
 import Input from "./components/Input.vue"
 import SearchResultItem from "./components/SearchResultItem.vue"
@@ -137,7 +137,7 @@ const excludeActions = [
 ]
 
 const loading = ref(false)
-const results = reactive<SearchResult[]>([])
+const results = shallowReactive<SearchResult[]>([])
 
 watch(
   [keyword, caseSensitive, wholeWord, regexp, include, exclude, useExclude],

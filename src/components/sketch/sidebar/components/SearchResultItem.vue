@@ -40,9 +40,10 @@
     <!-- 1.3rem + 0.6rem = 1.9rem -->
     <div class="results ml-[1.5rem]" v-if="opened">
       <div
-        v-for="({ before, match, after }, index) in matches"
+        v-for="({ before, match, after, posStart, posEnd }, index) in matches"
         :key="index"
-        :class="`${CLASS_PATH_ACTIVE} before:!h-[100%] before:top-0`"
+        :class="`${CLASS_PATH_ACTIVE} before:h-[100%] before:top-0`"
+        @click="goto(posStart, posEnd)"
       >
         <span>{{ before }}</span>
         <span
@@ -63,18 +64,27 @@
 import { Icon } from "@iconify/vue"
 import { basename } from "path-browserify"
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
+import type { Pos } from "src/workers/helpers/search-text"
 import type { Result } from "src/workers/search-in-file"
 import { ref } from "vue"
 
 import { CLASS_PATH_ACTIVE } from "./class-path-active"
 
-defineProps<{
+const props = defineProps<{
   filepath: string
   matches: Result["matches"]
   replace: string
 }>()
 
 const opened = ref(true)
+
+function goto(start: Pos, end: Pos) {
+  console.log("goto editor: ", {
+    filepath: props.filepath,
+    start,
+    end
+  })
+}
 </script>
 
 <style lang="scss" scoped>
