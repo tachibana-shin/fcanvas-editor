@@ -62,7 +62,7 @@
     </div>
 
     <!-- result -->
-    <div class="text-gray-400 px-3" v-show="results.size > 0 || !loading">
+    <div class="text-gray-400 px-3" v-show="results.size > 0 || loading">
       {{ sumResults }}
       results in {{ results.size }} files
     </div>
@@ -74,6 +74,10 @@
         :matches="result.matches"
         :replace="replace"
         @goto="goto(result.filepath, $event.start, $event.end)"
+        @action:dismiss="dismissResult(filepath, result, $event)"
+        @action:replace="replaceResult(filepath, result, $event)"
+        @action:dismiss-all="results.delete(filepath)"
+        @action:replace-all="replaceAllResult(filepath, result)"
       />
     </div>
   </div>
@@ -83,9 +87,9 @@
 import { Icon } from "@iconify/vue"
 import * as monaco from "monaco-editor"
 import { debounce } from "quasar"
-import { watchFile } from "src/modules/fs"
+import { fs, watchFile } from "src/modules/fs"
 import type { Pos } from "src/workers/helpers/search-text"
-import { computed, ref, shallowReactive, watch } from "vue"
+import { computed, reactive, ref, watch } from "vue"
 
 import Input from "./components/Input.vue"
 import SearchResultItem from "./components/SearchResultItem.vue"
@@ -149,7 +153,7 @@ const excludeActions = [
 ]
 
 const loading = ref(false)
-const results = shallowReactive<Map<string, SearchResult>>(new Map())
+const results = reactive<Map<string, SearchResult>>(new Map())
 const sumResults = computed<number>(() => {
   // eslint-disable-next-line functional/no-let
   let sum = 0
@@ -234,9 +238,53 @@ function goto(filepath: string, start: Pos, end: Pos) {
     new monaco.Selection(start.line, start.column, end.line, end.column)
   )
 }
-function replaceAll() {
-  // replace all files
+async function replaceAll() {
+  results.forEach((result, filepath) => {
+    replaceAllResult(filepath, result)
+  })
+}
+function dismissResult(filepath: string, result: SearchResult, index: number) {
+  result.matches.splice(index, 1)
+  if (result.matches.length === 0) {
+    results.delete(filepath)
+  }
+}
+async function replaceResult(
+  filepath: string,
+  result: SearchResult,
+  index: number
+) {
   loading.value = true
+
+  const match = result.matches[index]
+
+  console.log("replace result file %s", filepath)
+  const content = await fs.readFile(filepath)
+  await fs.writeFile(
+    filepath,
+    content.slice(0, match.index) +
+      replace.value +
+      content.slice(match.index + 1)
+  )
+
+  loading.value = false
+}
+async function replaceAllResult(filepath: string, result: SearchResult) {
+  loading.value = true
+
+  console.log("replace result file %s", filepath)
+  const content = await fs.readFile(filepath)
+  // eslint-disable-next-line functional/no-let
+  let newContent = ""
+  // eslint-disable-next-line functional/no-let
+  let lastIndex = 0
+  result.matches.forEach((match) => {
+    newContent += content.slice(lastIndex, match.index) + replace.value
+    lastIndex = match.index + match.match.length
+  })
+  newContent += content.slice(lastIndex)
+
+  await fs.writeFile(filepath, newContent)
 
   loading.value = false
 }

@@ -16,7 +16,7 @@ import { Icon } from "@iconify/vue"
 import * as monaco from "monaco-editor"
 import { Uri } from "monaco-editor"
 import { debounce } from "quasar"
-import { fs } from "src/modules/fs"
+import { fs, watchFile } from "src/modules/fs"
 import { useEditorStore } from "src/stores/editor"
 import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue"
 
@@ -47,8 +47,13 @@ const editorRef = shallowRef<monaco.editor.IStandaloneCodeEditor>()
 // TYPE: setEditFile
 const views = new WeakMap<monaco.editor.ITextModel>()
 // eslint-disable-next-line functional/no-let
-let didChangeContenter: monaco.IDisposable | null = null
-onBeforeUnmount(() => didChangeContenter?.dispose())
+let didChangeContender: monaco.IDisposable | null = null
+// eslint-disable-next-line functional/no-let
+let watcherFileChanged: (() => void) | null = null
+onBeforeUnmount(() => {
+  didChangeContender?.dispose()
+  watcherFileChanged?.()
+})
 const setEditFile = async (filepath: string) => {
   editorStore.currentFile = filepath
 
@@ -80,8 +85,8 @@ const setEditFile = async (filepath: string) => {
   }
   editor.focus()
 
-  didChangeContenter?.dispose()
-  didChangeContenter =
+  didChangeContender?.dispose()
+  didChangeContender =
     editor.getModel()?.onDidChangeContent(
       debounce(async () => {
         const model = editor.getModel()
@@ -92,6 +97,13 @@ const setEditFile = async (filepath: string) => {
         }
       }, 1000)
     ) ?? null
+  watcherFileChanged?.()
+  watcherFileChanged = watchFile(filepath, async (exists) => {
+    if (exists) {
+      const content = await fs.readFile(filepath)
+      if (content !== editor.getValue()) editor.setValue(content)
+    }
+  })
 }
 // =================================================
 

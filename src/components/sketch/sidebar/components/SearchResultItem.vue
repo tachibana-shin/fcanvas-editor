@@ -1,7 +1,8 @@
 <template>
   <div class="py-[3px] cursor-pointer">
     <div
-      :class="`flex flex-nowrap items-center ${CLASS_PATH_ACTIVE}`"
+      class="flex flex-nowrap items-center result"
+      :class="CLASS_PATH_ACTIVE"
       @click="opened = !opened"
     >
       <Icon
@@ -31,9 +32,21 @@
             >{{ filepath }}</span
           >
         </div>
-        <div class="pr-2">
+        <div class="pr-2 hidden-parent-hover">
           <span class="badge bg-blue-600">{{ matches.length }}</span>
         </div>
+      </div>
+      <div class="actions hidden">
+        <Icon
+          icon="codicon:replace-all"
+          class="cursor-pointer pr-[2px] w-[18px] h-full"
+          @click.stop="emit('action:replaceAll')"
+        />
+        <Icon
+          icon="codicon:close"
+          class="cursor-pointer pr-[2px] w-[18px] h-full"
+          @click.stop="emit('action:dismissAll')"
+        />
       </div>
     </div>
 
@@ -42,19 +55,35 @@
       <div
         v-for="({ before, match, after, posStart, posEnd }, index) in matches"
         :key="index"
-        :class="`${CLASS_PATH_ACTIVE} before:!h-[100%] before:top-0 whitespace-pre`"
+        class="result flex flex-nowrap items-start"
+        :class="`${CLASS_PATH_ACTIVE} before:!h-[100%] before:top-0`"
         @click="goto(posStart, posEnd)"
       >
-        <span>{{ before }}</span>
-        <span
-          :class="{
-            'line-through': replace,
-            'bg-[rgba(15,98,90,0.67)]': !replace
-          }"
-          >{{ match }}</span
-        >
-        <span>{{ replace }}</span>
-        <span>{{ after }}</span>
+        <div class="flex-1 whitespace-pre pt-1 truncate">
+          <span>{{ before }}</span>
+          <span
+            :class="{
+              'line-through': replace,
+              'bg-[rgba(15,98,90,0.67)]': !replace
+            }"
+            >{{ match }}</span
+          >
+          <span>{{ replace }}</span>
+          <span>{{ after }}</span>
+        </div>
+
+        <div class="actions hidden">
+          <Icon
+            icon="codicon:replace"
+            class="cursor-pointer pr-[2px] w-[18px] h-full"
+            @click.stop="emit('action:replace', index)"
+          />
+          <Icon
+            icon="codicon:close"
+            class="cursor-pointer pr-[2px] w-[18px] h-full"
+            @click.stop="emit('action:dismiss', index)"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -83,6 +112,10 @@ const emit = defineEmits<{
       end: Pos
     }
   ): void
+  (name: "action:replace", index: number): void
+  (name: "action:dismiss", index: number): void
+  (name: "action:replaceAll"): void
+  (name: "action:dismissAll"): void
 }>()
 
 const opened = ref(true)
@@ -112,5 +145,13 @@ function goto(start: Pos, end: Pos) {
   text-align: center;
   display: inline-block;
   box-sizing: border-box;
+}
+.result:hover {
+  .actions {
+    display: block !important;
+  }
+  .hidden-parent-hover {
+    display: none !important;
+  }
 }
 </style>
