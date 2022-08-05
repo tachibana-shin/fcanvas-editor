@@ -38,7 +38,6 @@
           :dirname="(dirname ?? '') + '/' + name"
           :name="childName as string"
           :type="(diff as unknown as Diff)[KEY_ACTION] as any"
-          :old-value="((diff as unknown as Diff)[KEY_OLD_VALUE]) ?? null"
         />
         <div
           v-else-if="isDiffMixed(diff)"
@@ -50,7 +49,6 @@
             :dirname="(dirname ?? '') + '/' + name"
             :name="childName as string"
             :type="(diff as unknown as any)[KEY_DIFF_OBJECT_MIXED][KEY_ACTION] as any"
-            :old-value="((diff as unknown as Diff)[KEY_OLD_VALUE]) ?? null"
           />
           <FileDiffItemDir
             v-else
@@ -66,7 +64,6 @@
             :dirname="(dirname ?? '') + '/' + name"
             :name="childName as string"
             :type="((diff as unknown as any)[KEY_DIFF_DIFF_MIXED])[KEY_ACTION] as any"
-            :old-value="((diff as unknown as Diff)[KEY_OLD_VALUE]) ?? null"
           />
           <FileDiffItemDir
             v-else
@@ -96,7 +93,6 @@ import {
   KEY_ACTION,
   KEY_DIFF_DIFF_MIXED,
   KEY_DIFF_OBJECT_MIXED,
-  KEY_OLD_VALUE
 } from "src/libs/utils/const"
 import { isDiffMixed } from "src/libs/utils/isDiffMixed"
 import { isDiffObject } from "src/libs/utils/isDiffObject"

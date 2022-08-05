@@ -40,9 +40,7 @@
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue"
 import { join } from "path-browserify"
-import { useQuasar } from "quasar"
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
-import type { Diff, DiffMixed, DiffObject } from "src/libs/utils/types"
 import { fs } from "src/modules/fs"
 import { computed } from "vue"
 
@@ -53,10 +51,8 @@ import { CLASS_PATH_ACTIVE } from "./class-path-active"
 const props = defineProps<{
   name: string
   type: "ADDED" | "MODIFIED" | "DELETED"
-  oldValue: Diff | DiffObject | DiffMixed | string | null
   dirname: string
 }>()
-const $q = useQuasar()
 const filepath = computed(() => join("/", props.dirname, props.name))
 
 const FILE_COLOR = {
@@ -70,24 +66,6 @@ function goto() {
   editorFileExpose.setEditFile?.(filepath.value)
 }
 async function discard() {
-  switch (props.type) {
-    case "MODIFIED":
-    case "DELETED":
-      // restore file
-      await fs.writeFile(filepath.value, props.oldValue as string)
-      break
-    case "ADDED":
-      $q.dialog({
-        title: "Discard file?",
-        message: "Would you delete file?",
-        cancel: true,
-        dark: true,
-        ok: true
-      }).onOk(async () => {
-        await fs.unlink(filepath.value)
-      })
-      break
-  }
-  console.log(props)
+  await fs.restore(filepath.value)
 }
 </script>
