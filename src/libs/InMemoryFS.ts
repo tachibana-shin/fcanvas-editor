@@ -1,12 +1,5 @@
-import type { FirebaseApp } from "@firebase/app"
-import { getAuth } from "@firebase/auth"
-import type {
-  DocumentData,
-  DocumentReference,
-  FieldValue,
-  WriteBatch
-} from "@firebase/firestore"
-import { deleteField, doc, getFirestore, writeBatch } from "@firebase/firestore"
+import type { FieldValue } from "@firebase/firestore"
+import { deleteField } from "@firebase/firestore"
 import mitt from "mitt"
 import { dirname, join, relative } from "path-browserify"
 import sort from "sort-array"
@@ -60,10 +53,6 @@ export class InMemoryFS {
     const paths = path.split("/").filter(Boolean)
 
     return [paths.slice(0, -1), paths[paths.length - 1]]
-  }
-
-  private normalize(path: string) {
-    return path.replace(/\/+$/g, "")
   }
 
   private getChangeTree(path: string): [Diff, string] {
@@ -121,8 +110,6 @@ export class InMemoryFS {
     this.refreshObjectURLFromDir("", this.memory, true)
     for (const name in this.memory)
       if (name !== CHAR_KEEP) delete this.memory[name]
-
-    delete this.batch
   }
 
   resetChangelog() {
@@ -166,7 +153,7 @@ export class InMemoryFS {
   async readFile(path: string) {
     return queryObject(
       this.memory,
-      this.normalize(path).split("/"),
+      (path).split("/"),
       "FILE_NOT_EXISTS: ",
       true
     )
@@ -368,7 +355,7 @@ export class InMemoryFS {
   async lstat(path: string) {
     const obj = queryObject(
       this.memory,
-      this.normalize(path).split("/"),
+      (path).split("/"),
       "PATH_NOT_EXISTS: "
     )
 
@@ -387,7 +374,7 @@ export class InMemoryFS {
       Object.keys(
         queryObject(
           this.memory,
-          this.normalize(path).split("/"),
+          (path).split("/"),
           "DIR_NOT_EXISTS: ",
           false
         )
@@ -397,7 +384,7 @@ export class InMemoryFS {
 
   async exists(path: string) {
     try {
-      return !!queryObject(this.memory, this.normalize(path).split("/"), "")
+      return !!queryObject(this.memory, (path).split("/"), "")
     } catch {
       return false
     }
@@ -405,53 +392,6 @@ export class InMemoryFS {
 
   async readFiles() {
     return readFiles("", this.memory)
-  }
-
-  // batch
-  private batch?: WriteBatch
-  private sketch?: DocumentReference<DocumentData>
-
-  private onWrite = async (path: string) => {
-    if (!this.sketch) return
-    if (path === "/") return
-
-    const paths = encodePath(path).split("/")
-
-    this.batch?.update(this.sketch, {
-      ["fs" + paths.join(".")]: encodeObject(
-        await queryObject(this.memory, path.split("/"), "")
-      )
-    })
-  }
-
-  private onUnlink = async (path: string) => {
-    if (!this.sketch) return
-
-    const paths = encodePath(path).split("/")
-
-    this.batch?.update(this.sketch, {
-      ["fs" + paths.join(".")]: deleteField()
-    })
-  }
-
-  createbatch(app: FirebaseApp, id: string) {
-    // this.batch.
-    const db = getFirestore(app)
-    const auth = getAuth(app)
-
-    if (!auth.currentUser) return
-
-    this.sketch = doc(db, "users", auth.currentUser.uid, "sketches", id)
-
-    this.batch = writeBatch(db)
-
-    this.events.off("write", this.onWrite)
-    this.events.off("unlink", this.onUnlink)
-    this.events.off("mkdir", this.onWrite)
-
-    this.events.on("write", this.onWrite)
-    this.events.on("unlink", this.onUnlink)
-    this.events.on("mkdir", this.onWrite)
   }
 
   async restore(
@@ -508,7 +448,7 @@ export class InMemoryFS {
       this.getChangeTree(filepath)
     ),
     treeUpdate: Record<string, string | FieldValue> = {},
-    cwd: string = "/",
+    cwd = "/",
     encodeUri = true
   ) {
     const absolutePath = join(cwd, filepath)
