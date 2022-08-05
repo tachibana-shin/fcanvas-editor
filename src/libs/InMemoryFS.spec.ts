@@ -829,7 +829,7 @@ describe("static restore", () => {
 
     await fs.writeFile("/test.txt", "hello world")
     // fs.changelog
-    await InMemoryFS.restore(fs, "/test.txt")
+    await fs.restore("/test.txt")
 
     expect(await fs.exists("/test.txt")).toEqual(false)
     expect(fs.changelog).toEqual({})
@@ -844,7 +844,7 @@ describe("static restore", () => {
 
     await fs.writeFile("/test.txt", "hello world")
     await fs.writeFile("/test.txt", "hello world 2")
-    await InMemoryFS.restore(fs, "/test.txt")
+    await fs.restore("/test.txt")
 
     expect(await fs.exists("/test.txt")).toEqual(false)
     expect(fs.changelog).toEqual({})
@@ -856,7 +856,7 @@ describe("static restore", () => {
     resetChangelog()
 
     await fs.writeFile("/test.txt", "hello world 2")
-    await InMemoryFS.restore(fs, "/test.txt")
+    await fs.restore("/test.txt")
 
     expect(await fs.exists("/test.txt")).toEqual(true)
     expect((await fs.lstat("/test.txt")).isFile()).toEqual(true)
@@ -870,7 +870,7 @@ describe("static restore", () => {
     resetChangelog()
 
     await fs.unlink("/test.txt")
-    await InMemoryFS.restore(fs, "/test.txt")
+    await fs.restore("/test.txt")
 
     expect(
       (await fs.exists("/test.txt")) && (await fs.lstat("/test.txt")).isFile()
@@ -884,8 +884,8 @@ describe("static restore", () => {
     await fs.writeFile("/test.txt", "hello world")
     resetChangelog()
     await fs.rename("/test.txt", "/test2.txt")
-    await InMemoryFS.restore(fs, "/test.txt")
-    await InMemoryFS.restore(fs, "/test2.txt")
+    await fs.restore("/test.txt")
+    await fs.restore("/test2.txt")
 
     expect(
       (await fs.exists("/test.txt")) && (await fs.lstat("/test.txt")).isFile()
@@ -905,8 +905,8 @@ describe("static restore", () => {
     expect(fs.changelogLength.value).toEqual(0)
 
     await fs.rename("/folder-test", "/folder-test2")
-    await InMemoryFS.restore(fs, "/folder-test")
-    await InMemoryFS.restore(fs, "/folder-test2")
+    await fs.restore("/folder-test")
+    await fs.restore("/folder-test2")
 
     expect(
       (await fs.exists("/folder-test/test.txt")) &&
@@ -933,7 +933,7 @@ describe("static restore", () => {
     expect(fs.changelogLength.value).toEqual(0)
 
     await fs.unlink("/folder-test")
-    await InMemoryFS.restore(fs, "/folder-test")
+    await fs.restore("/folder-test")
 
     expect((await fs.lstat("/folder-test/test.txt")).isFile()).toEqual(true)
     expect(fs.changelog).toEqual({
@@ -979,7 +979,7 @@ describe("static restore", () => {
         }
       }
     })
-    await InMemoryFS.restore(fs, "/test")
+    await fs.restore("/test")
     expect((await fs.lstat("/test/index")).isFile()).toEqual(true)
     expect((await fs.lstat("/test2")).isFile()).toEqual(true)
     expect(fs.changelog).toEqual({
@@ -1000,7 +1000,7 @@ describe("static restore", () => {
 
     await fs.mkdir("/test.txt")
     await fs.writeFile("/test.txt/test.bat", "echo hello world")
-    await InMemoryFS.restore(fs, "/test.txt")
+    await fs.restore("/test.txt")
 
     expect((await fs.lstat("/test.txt")).isFile()).toEqual(true)
     expect(fs.changelog).toEqual({})
@@ -1042,7 +1042,7 @@ describe("static restore", () => {
     })
     expect(fs.changelogLength.value).toEqual(3)
 
-    await InMemoryFS.restore(fs, "/test.txt")
+    await fs.restore("/test.txt")
 
     expect((await fs.lstat("/test.txt")).isFile()).toEqual(true)
     expect(fs.changelog).toEqual({})
@@ -1081,8 +1081,8 @@ describe("static restore", () => {
       }
     })
 
-    await InMemoryFS.restore(fs, "/test")
-    await InMemoryFS.restore(fs, "/test2")
+    await fs.restore("/test")
+    await fs.restore("/test2")
 
     expect((await fs.lstat("/test/index")).isFile()).toEqual(true)
     expect((await fs.lstat("/test2")).isFile()).toEqual(true)
@@ -1123,8 +1123,8 @@ describe("static restore", () => {
       }
     })
 
-    await InMemoryFS.restore(fs, "/test")
-    await InMemoryFS.restore(fs, "/test2")
+    await fs.restore("/test")
+    await fs.restore("/test2")
 
     expect((await fs.lstat("/test/index")).isFile()).toEqual(true)
     expect((await fs.lstat("/test2")).isFile()).toEqual(true)

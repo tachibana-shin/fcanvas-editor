@@ -41,55 +41,6 @@ function flatDiff([diff, name]: [Diff, string]) {
 }
 
 export class InMemoryFS {
-  static async restore(
-    fs: InMemoryFS,
-    filepath: string,
-    diff: Diff | DiffMixed | DiffObject = flatDiff(fs.getChangeTree(filepath))
-  ) {
-    if (isDiffObject(diff)) {
-      switch (diff[KEY_ACTION]) {
-        case "ADDED":
-          await fs.unlink(filepath).catch((err) => {
-            console.error(err)
-          })
-          break
-        case "MODIFIED":
-        case "DELETED":
-          await fs.mkdir(dirname(filepath), {
-            recursive: true
-          })
-          await fs.writeFile(filepath, diff[KEY_OLD_VALUE] as string)
-          break
-      }
-
-      return
-    }
-    if (isDiffMixed(diff)) {
-      await fs.unlink(filepath)
-
-      const obj = diff[KEY_DIFF_OBJECT_MIXED]
-
-      if (isDiffObject(obj)) {
-        await fs.mkdir(dirname(filepath), {
-          recursive: true
-        })
-        await fs.writeFile(filepath, obj[KEY_OLD_VALUE] as string)
-      } else {
-        for (const name in obj) {
-          await InMemoryFS.restore(fs, filepath + "/" + name, obj[name])
-        }
-      }
-
-      return
-    }
-
-    // for ......
-    // diff is Diff
-    for (const name in diff) {
-      await InMemoryFS.restore(fs, filepath + "/" + name, diff[name])
-    }
-  }
-
   protected readonly memory: Directory = {
     [CHAR_KEEP]: ""
   }
@@ -501,6 +452,54 @@ export class InMemoryFS {
     this.events.on("write", this.onWrite)
     this.events.on("unlink", this.onUnlink)
     this.events.on("mkdir", this.onWrite)
+  }
+
+  async restore(
+    filepath: string,
+    diff: Diff | DiffMixed | DiffObject = flatDiff(this.getChangeTree(filepath))
+  ) {
+    if (isDiffObject(diff)) {
+      switch (diff[KEY_ACTION]) {
+        case "ADDED":
+          await this.unlink(filepath).catch((err) => {
+            console.error(err)
+          })
+          break
+        case "MODIFIED":
+        case "DELETED":
+          await this.mkdir(dirname(filepath), {
+            recursive: true
+          })
+          await this.writeFile(filepath, diff[KEY_OLD_VALUE] as string)
+          break
+      }
+
+      return
+    }
+    if (isDiffMixed(diff)) {
+      await this.unlink(filepath)
+
+      const obj = diff[KEY_DIFF_OBJECT_MIXED]
+
+      if (isDiffObject(obj)) {
+        await this.mkdir(dirname(filepath), {
+          recursive: true
+        })
+        await this.writeFile(filepath, obj[KEY_OLD_VALUE] as string)
+      } else {
+        for (const name in obj) {
+          await this.restore(filepath + "/" + name, obj[name])
+        }
+      }
+
+      return
+    }
+
+    // for ......
+    // diff is Diff
+    for (const name in diff) {
+      await this.restore(filepath + "/" + name, diff[name])
+    }
   }
 
   async commit(
