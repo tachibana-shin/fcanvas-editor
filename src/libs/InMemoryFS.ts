@@ -7,7 +7,7 @@ import type {
 } from "@firebase/firestore"
 import { deleteField, doc, getFirestore, writeBatch } from "@firebase/firestore"
 import mitt from "mitt"
-import { join, relative } from "path-browserify"
+import { dirname, join, relative } from "path-browserify"
 import sort from "sort-array"
 import { reactive, ref } from "vue"
 
@@ -17,16 +17,76 @@ import {
   CHAR_KEEP,
   KEY_ACTION,
   KEY_DIFF_DIFF_MIXED,
-  KEY_DIFF_OBJECT_MIXED
+  KEY_DIFF_OBJECT_MIXED,
+  KEY_OLD_VALUE
 } from "./utils/const"
 import { isDiffMixed } from "./utils/isDiffMixed"
 import { isDiffObject } from "./utils/isDiffObject"
 import { isDirectory } from "./utils/isDirectory"
 import { queryObject } from "./utils/queryObject"
 import { readFiles } from "./utils/readFiles"
-import type { Diff, Directory, File } from "./utils/types"
+import type {
+  Diff,
+  DiffMixed,
+  DiffObject,
+  Directory,
+  File
+} from "./utils/types"
+
+function flatDiff([diff, name]: [Diff, string]) {
+  return diff[name]
+}
 
 export class InMemoryFS {
+  static async restore(
+    fs: InMemoryFS,
+    filepath: string,
+    diff: Diff | DiffMixed | DiffObject = flatDiff(fs.getChangeTree(filepath))
+  ) {
+    if (isDiffObject(diff)) {
+      switch (diff[KEY_ACTION]) {
+        case "ADDED":
+          await fs.unlink(filepath).catch((err) => {
+            console.error(err)
+          })
+          break
+        case "MODIFIED":
+        case "DELETED":
+          await fs.mkdir(dirname(filepath), {
+            recursive: true
+          })
+          await fs.writeFile(filepath, diff[KEY_OLD_VALUE] as string)
+          break
+      }
+
+      return
+    }
+    if (isDiffMixed(diff)) {
+      await fs.unlink(filepath)
+
+      const obj = diff[KEY_DIFF_OBJECT_MIXED]
+
+      if (isDiffObject(obj)) {
+        await fs.mkdir(dirname(filepath), {
+          recursive: true
+        })
+        await fs.writeFile(filepath, obj[KEY_OLD_VALUE] as string)
+      } else {
+        for (const name in obj) {
+          await InMemoryFS.restore(fs, filepath + "/" + name, obj[name])
+        }
+      }
+
+      return
+    }
+
+    // for ......
+    // diff is Diff
+    for (const name in diff) {
+      await InMemoryFS.restore(fs, filepath + "/" + name, diff[name])
+    }
+  }
+
   protected readonly memory: Directory = {
     [CHAR_KEEP]: ""
   }
@@ -192,21 +252,29 @@ export class InMemoryFS {
     this.events.emit("write", path)
   }
 
-  async mkdir(path: string) {
+  async mkdir(
+    path: string,
+    options?: {
+      recursive?: boolean
+    }
+  ) {
     const [pathsSplitted, name] = this.splitPaths(path)
 
     const parent = queryObject(
       this.memory,
       pathsSplitted,
       "DIR_NOT_EXISTS: ",
-      false
+      false,
+      options?.recursive
     )
+    const has = name ? parent[name] : parent
 
-    const has = parent[name]
-
-    if (has !== undefined)
+    if (has !== undefined) {
+      if (isDirectory(has) && options?.recursive) return
+      // if (options?.recursive) return
       // eslint-disable-next-line functional/no-throw-statement
       throw new Error((isDirectory(has) ? "IS_DIR: " : "IS_FILE: ") + path)
+    }
     // {
     //   const [parent, name] = this.getChangeTree(path)
 
@@ -458,17 +526,8 @@ export class InMemoryFS {
 //   await fs.writeFile("/test.txt", "hello world")
 
 //   fs.changelog = {}
-//   fs.changelogLength.value = 0
 
-//   await fs.unlink("/test.txt")
-
-//   await fs.mkdir("/test.txt")
-//   await fs.writeFile("/test.txt/test.bat", "echo hello world")
-//   await fs.writeFile("/test.txt/test.bat2", "echo hello world")
-// console.clear()
-//   await fs.unlink("/test.txt")
-//   await fs.writeFile("/test.txt", "hello world")
-
-//   return console.log(fs.changelogLength.value)
-//   return console.log(fs.changelogLength.value)
+//   await fs.writeFile("/test.txt", "hello world 2")
+//  await InMemoryFS.restore(fs, "/test.txt")
+// return console.log(fs)
 // }

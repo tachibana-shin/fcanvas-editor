@@ -12,19 +12,22 @@ function queryObject(
   memory: Directory,
   pathsSplitted: string[],
   message: string,
-  queryFile: false
+  queryFile: false,
+  recursive?: boolean
 ): Directory
 
 function queryObject(
   memory: Directory,
   pathsSplitted: string[],
-  message: string
+  message: string,
+  queryFile?: boolean
 ): File | Directory
 function queryObject(
   memory: Directory,
   pathsSplitted: string[],
   message: string,
-  queryFile?: boolean
+  queryFile?: boolean,
+  recursive?: boolean
 ): string | Directory {
   const paths = pathsSplitted.slice(0, -1)
   const filename = pathsSplitted[pathsSplitted.length - 1]
@@ -37,11 +40,18 @@ function queryObject(
     const tmemory = memory[name]
 
     if (!isDirectory(tmemory))
-      // eslint-disable-next-line functional/no-throw-statement
-      throw new Error(message + pathsSplitted.join("/"))
+      if (recursive) {
+        memory = memory[name] = {}
+        continue
+      } else {
+        // eslint-disable-next-line functional/no-throw-statement
+        throw new Error(message + pathsSplitted.join("/"))
+      }
 
     memory = tmemory
   }
+
+  if (filename && recursive && !memory[filename]) memory[filename] = {}
 
   const obj = !filename ? memory : memory[filename]
 
