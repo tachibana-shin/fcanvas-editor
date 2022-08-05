@@ -30,10 +30,13 @@ import type {
   DiffMixed,
   DiffObject,
   Directory,
-  File
+  File,
+  TreeUpdate
 } from "./utils/types"
 
 function flatDiff([diff, name]: [Diff, string]) {
+  if (name === undefined) return diff
+
   return diff[name]
 }
 
@@ -500,8 +503,79 @@ export class InMemoryFS {
     this.events.on("mkdir", this.onWrite)
   }
 
-  commit() {
-    return this.batch?.commit()
+  async commit(
+    filepath: string,
+    diff: Diff | DiffMixed | DiffObject = flatDiff(
+      this.getChangeTree(filepath)
+    ),
+    treeUpdate: TreeUpdate = {},
+    cwd: string = "/"
+  ) {
+    const [paths, name] = this.splitPaths(filepath)
+    const parent = queryObject(
+      treeUpdate as Directory,
+      paths,
+      "",
+      false,
+      true
+    ) as TreeUpdate
+
+    if (isDiffObject(diff)) {
+      switch (diff[KEY_ACTION]) {
+        case "ADDED":
+        case "MODIFIED":
+          // add ok?
+          parent[name] = await this.readFile(cwd + "/" + filepath) // in diff not found
+          break
+        case "DELETED":
+          parent[name] = deleteField()
+          // delete ok
+          break
+      }
+
+      return
+    }
+    if (isDiffMixed(diff)) {
+      const obj = diff[KEY_DIFF_DIFF_MIXED]
+
+      if (isDiffObject(obj)) {
+        // obj[ KEY_ACTION ] never is "ADDED"
+        switch (obj[KEY_ACTION]) {
+          case "DELETED":
+          case "MODIFIED":
+            parent[name] = obj[KEY_OLD_VALUE] as string
+            break
+          case "ADDED":
+            parent[name] = await this.readFile(cwd + "/" + filepath) // in diff not found
+            break
+        }
+      } else {
+        const parentTreeUpdate = name
+          ? ((treeUpdate[name] ??= {}) as TreeUpdate)
+          : treeUpdate
+
+        for (const name in obj) {
+          await this.commit(name, obj[name], parentTreeUpdate, filepath)
+        }
+      }
+
+      return
+    }
+
+    // for ......
+    // diff is
+
+    const parentTreeUpdate = name
+      ? ((treeUpdate[name] ??= {}) as TreeUpdate)
+      : treeUpdate
+    for (const name in diff) {
+      await this.commit(name, diff[name], parentTreeUpdate, filepath)
+    }
+
+    // zero
+
+    // return this.batch?.commit()
+    return treeUpdate
   }
 
   toFDBObject(): Directory {
@@ -528,6 +602,8 @@ export class InMemoryFS {
 //   fs.changelog = {}
 
 //   await fs.writeFile("/test.txt", "hello world 2")
-//  await InMemoryFS.restore(fs, "/test.txt")
-// return console.log(fs)
+
+//   console.log(await fs.commit("/"))
+
+//   return console.log(fs)
 // }

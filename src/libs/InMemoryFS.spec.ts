@@ -1,4 +1,5 @@
 // eslint-disable-next-line n/no-unsupported-features/node-builtins
+import { deleteField } from "@firebase/firestore"
 import { Blob } from "buffer"
 import { URL } from "url"
 
@@ -274,6 +275,22 @@ describe("changelog", () => {
     resetChangelog()
 
     await fs.writeFile("/test.txt", "hello world 2")
+
+    expect(fs.changelog).toEqual({
+      "test.txt": {
+        [KEY_ACTION]: "MODIFIED",
+        [KEY_OLD_VALUE]: "hello world"
+      }
+    })
+    expect(fs.changelogLength.value).toEqual(1)
+  })
+  test("modified file", async () => {
+    fs.clean()
+    await fs.writeFile("/test.txt", "hello world")
+    resetChangelog()
+
+    await fs.writeFile("/test.txt", "hello world 2")
+    await fs.writeFile("/test.txt", "hello world 3")
 
     expect(fs.changelog).toEqual({
       "test.txt": {
@@ -1113,6 +1130,300 @@ describe("static restore", () => {
     expect((await fs.lstat("/test2")).isFile()).toEqual(true)
     expect(fs.changelog).toEqual({ test: {} })
     expect(fs.changelogLength.value).toEqual(0)
+  })
+})
+describe("commit", () => {
+  const fs = new InMemoryFS()
+
+  function resetChangelog() {
+    fs.resetChangelog()
+    fs.changelogLength.value = 0
+  }
+
+  test("add file", async () => {
+    fs.clean()
+    resetChangelog()
+
+    expect(fs.changelog).toEqual({})
+    expect(fs.changelogLength.value).toEqual(0)
+
+    await fs.writeFile("/test.txt", "hello world")
+
+    expect(await fs.commit("/")).toEqual({
+      "test.txt": "hello world"
+    })
+  })
+
+  test("add file deep", async () => {
+    fs.clean()
+    resetChangelog()
+
+    expect(fs.changelog).toEqual({})
+    expect(fs.changelogLength.value).toEqual(0)
+
+    await fs.writeFile("/test.txt", "hello world")
+    await fs.writeFile("/test.txt", "hello world 2")
+
+    expect(await fs.commit("/")).toEqual({
+      "test.txt": "hello world 2"
+    })
+  })
+  test("modified file", async () => {
+    fs.clean()
+    await fs.writeFile("/test.txt", "hello world")
+    resetChangelog()
+
+    await fs.writeFile("/test.txt", "hello world 2")
+
+    expect(await fs.commit("/")).toEqual({
+      "test.txt": "hello world 2"
+    })
+
+    await fs.writeFile("/test.txt", "hello world 3")
+
+    expect(await fs.commit("/")).toEqual({
+      "test.txt": "hello world 3"
+    })
+  })
+  test("delete file", async () => {
+    fs.clean()
+
+    await fs.writeFile("/test.txt", "hello")
+    resetChangelog()
+
+    await fs.unlink("/test.txt")
+
+    expect(await fs.commit("/")).toEqual({
+      "test.txt": deleteField()
+    })
+  })
+  test("rename file", async () => {
+    fs.clean()
+
+    await fs.writeFile("/test.txt", "hello world")
+    resetChangelog()
+    await fs.rename("/test.txt", "/test2.txt")
+
+    expect(await fs.commit("/")).toEqual({
+      "test.txt": deleteField(),
+      "test2.txt": "hello world"
+    })
+  })
+  test("rename dir", async () => {
+    fs.clean()
+    await fs.mkdir("/folder-test")
+    await fs.writeFile("/folder-test/test.txt", "hello world")
+
+    resetChangelog()
+
+    expect(fs.changelog).toEqual({})
+    expect(fs.changelogLength.value).toEqual(0)
+
+    await fs.rename("/folder-test", "/folder-test2")
+
+    expect(await fs.commit("/")).toEqual({
+      "folder-test2": {
+        "test.txt": "hello world"
+      },
+      "folder-test": {
+        "test.txt": deleteField()
+      }
+    })
+  })
+  test("delete dir", async () => {
+    fs.clean()
+    await fs.mkdir("/folder-test")
+    await fs.writeFile("/folder-test/test.txt", "hello world")
+
+    resetChangelog()
+
+    expect(fs.changelog).toEqual({})
+    expect(fs.changelogLength.value).toEqual(0)
+
+    await fs.unlink("/folder-test")
+
+    expect(await fs.commit("/")).toEqual({
+      "folder-test": {
+        "test.txt": deleteField()
+      }
+    })
+  })
+  test("mixed: rm & mv & restore", async () => {
+    fs.clean()
+
+    await fs.mkdir("/test")
+    await fs.writeFile("/test/index", "test")
+    await fs.writeFile("/test2", "")
+    resetChangelog()
+
+    await fs.unlink("/test")
+    await fs.rename("/test2", "/test")
+    await fs.writeFile("/test", "hello world")
+    await fs.writeFile("/test", "")
+    expect(fs.changelog).toEqual({
+      test: {
+        [KEY_DIFF_OBJECT_MIXED]: {
+          index: {
+            [KEY_ACTION]: "DELETED",
+            [KEY_OLD_VALUE]: "test"
+          }
+        },
+        [KEY_DIFF_DIFF_MIXED]: {
+          [KEY_ACTION]: "ADDED"
+        }
+      },
+      test2: {
+        [KEY_ACTION]: "DELETED",
+        [KEY_OLD_VALUE]: ""
+      }
+    })
+    await fs.rename("/test", "/test2")
+
+    expect(await fs.commit("/")).toEqual({
+      test: {
+        index: deleteField()
+      }
+    })
+  })
+  test("mixed: delete file & create dir", async () => {
+    fs.clean()
+    await fs.writeFile("/test.txt", "hello world")
+
+    resetChangelog()
+
+    expect(fs.changelog).toEqual({})
+    expect(fs.changelogLength.value).toEqual(0)
+
+    await fs.unlink("/test.txt")
+
+    await fs.mkdir("/test.txt")
+    await fs.writeFile("/test.txt/test.bat", "echo hello world")
+
+    expect(await fs.commit("/")).toEqual({
+      "test.txt": {
+        "test.bat": "echo hello world"
+      }
+    })
+  })
+  test("mixed: delete file & create dir deep", async () => {
+    fs.clean()
+    resetChangelog()
+    await fs.writeFile("/test.txt", "hello world")
+
+    resetChangelog()
+
+    expect(fs.changelog).toEqual({})
+    expect(fs.changelogLength.value).toEqual(0)
+
+    await fs.unlink("/test.txt")
+
+    await fs.mkdir("/test.txt")
+    await fs.writeFile("/test.txt/test.bat", "echo hello world")
+    await fs.writeFile("/test.txt/test.bat2", "echo hello world")
+
+    expect(fs.changelog).toEqual({
+      "test.txt": {
+        [KEY_DIFF_OBJECT_MIXED]: {
+          [KEY_ACTION]: "DELETED",
+          [KEY_OLD_VALUE]: "hello world"
+        },
+        [KEY_DIFF_DIFF_MIXED]: {
+          "test.bat": {
+            [KEY_ACTION]: "ADDED",
+            [KEY_OLD_VALUE]: undefined
+          },
+          "test.bat2": {
+            [KEY_ACTION]: "ADDED",
+            [KEY_OLD_VALUE]: undefined
+          }
+        }
+      }
+    })
+    expect(fs.changelogLength.value).toEqual(3)
+
+    expect(await fs.commit("/")).toEqual({
+      "test.txt": {
+        "test.bat": "echo hello world",
+        "test.bat2": "echo hello world"
+      }
+    })
+  })
+  test("mixed: delete dir & create file", async () => {
+    fs.clean()
+
+    await fs.mkdir("/test")
+    await fs.writeFile("/test/index", "test")
+    await fs.writeFile("/test2", "")
+    resetChangelog()
+
+    expect(fs.changelog).toEqual({})
+    expect(fs.changelogLength.value).toEqual(0)
+
+    await fs.unlink("/test")
+    await fs.rename("/test2", "/test")
+
+    expect(fs.changelog).toEqual({
+      test: {
+        [KEY_DIFF_OBJECT_MIXED]: {
+          index: {
+            [KEY_ACTION]: "DELETED",
+            [KEY_OLD_VALUE]: "test"
+          }
+        },
+        [KEY_DIFF_DIFF_MIXED]: {
+          [KEY_ACTION]: "ADDED",
+          [KEY_OLD_VALUE]: undefined
+        }
+      },
+      test2: {
+        [KEY_ACTION]: "DELETED",
+        [KEY_OLD_VALUE]: ""
+      }
+    })
+
+    expect(await fs.commit("/")).toEqual({
+      test: "",
+      test2: deleteField()
+    })
+  })
+  test("mixed: delete dir & create file deep", async () => {
+    fs.clean()
+
+    await fs.mkdir("/test")
+    await fs.writeFile("/test/index", "test")
+    await fs.writeFile("/test2", "")
+    resetChangelog()
+
+    expect(fs.changelog).toEqual({})
+    expect(fs.changelogLength.value).toEqual(0)
+
+    await fs.unlink("/test")
+    await fs.rename("/test2", "/test")
+    await fs.writeFile("/test", "hello world")
+
+    expect(fs.changelog).toEqual({
+      test: {
+        [KEY_DIFF_OBJECT_MIXED]: {
+          index: {
+            [KEY_ACTION]: "DELETED",
+            [KEY_OLD_VALUE]: "test"
+          }
+        },
+        [KEY_DIFF_DIFF_MIXED]: {
+          [KEY_ACTION]: "ADDED",
+          [KEY_OLD_VALUE]: undefined
+        }
+      },
+      test2: {
+        [KEY_ACTION]: "DELETED",
+        [KEY_OLD_VALUE]: ""
+      }
+    })
+
+    expect(await fs.commit("/")).toEqual({
+      test: "hello world",
+      test2: deleteField()
+    })
   })
 })
 describe("object url", () => {
