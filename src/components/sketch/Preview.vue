@@ -24,11 +24,18 @@
 </template>
 
 <script lang="ts" setup>
+import {fs} from "src/modules/fs"
 import { computed } from "vue";
 
 import Resizable from "../ui/Resizable.vue"
 
 const srcDoc = computed(() => {
-  return ""
+  return `
+  <script type="importmap">
+    ${JSON.stringify(
+      Object.fromEntries(fs.objectURLMap.entries())
+    )}
+  <\\/script>
+  `
 })
 </script>
