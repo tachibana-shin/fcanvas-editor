@@ -12,7 +12,7 @@ import { Notify } from "quasar"
 import type { Directory } from "src/libs/utils/types"
 import { app } from "src/modules/firebase"
 import { fs } from "src/modules/fs"
-import type { Router} from "vue-router"
+import type { Router } from "vue-router"
 
 export const useEditorStore = defineStore("editor", {
   state: () => ({
@@ -35,7 +35,6 @@ export const useEditorStore = defineStore("editor", {
 
       const { sketchName: oldName } = this
 
-
       this.sketchName = newName
 
       if (!this.sketchId) return
@@ -51,7 +50,6 @@ export const useEditorStore = defineStore("editor", {
         )
         Notify.create("Sketch name updated successfully")
       } catch (err) {
-
         this.sketchName = oldName
 
         Notify.create("Sketch name update failed")
@@ -73,9 +71,8 @@ export const useEditorStore = defineStore("editor", {
 
       // update sketch
       if (this.sketchId) {
-        await fs.commit()
+        await updateDoc(doc(sketches, this.sketchId), await fs.commit("/"))
         fs.resetChangelog()
-        fs.createbatch(app, this.sketchId)
 
         Notify.create("Project saved successfully.")
 
@@ -90,7 +87,6 @@ export const useEditorStore = defineStore("editor", {
 
       this.sketchId = id
       fs.resetChangelog()
-      fs.createbatch(app, id)
 
       Notify.create("Project saved successfully.")
 
@@ -101,7 +97,6 @@ export const useEditorStore = defineStore("editor", {
       name?: string
       template: Directory
     }) {
-
       this.sketchId = payload.id ?? null
 
       this.sketchName =
@@ -111,8 +106,6 @@ export const useEditorStore = defineStore("editor", {
         }).spaced
 
       fs.fromFDBObject(payload.template)
-
-      if (payload.id) fs.createbatch(app, payload.id)
     }
   }
 })
