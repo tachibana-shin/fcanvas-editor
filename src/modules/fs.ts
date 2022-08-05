@@ -12,10 +12,6 @@ if (import.meta.env.NODE_ENV !== "production") {
 
 export type FS = typeof fs
 
-export function createBlobURL(content: string) {
-  return URL.createObjectURL(new Blob([content]))
-}
-
 const fileURLObjectMap = new Map<string, string>()
 // free memory
 fs.events.on("write", (file) => {
@@ -33,7 +29,9 @@ export async function getBlobURLOfFile(path: string): Promise<string> {
   const inM = fileURLObjectMap.get(path)
   if (inM) return inM
   // wji
-  const url = createBlobURL(await complier(await fs.readFile(path), path))
+  const url = URL.createObjectURL(
+    new Blob([await complier(await fs.readFile(path), path)])
+  )
 
   fileURLObjectMap.set(path, url)
 

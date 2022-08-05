@@ -24,6 +24,8 @@
 </template>
 
 <script lang="ts" setup>
+import { computed } from "vue";
+
 import Resizable from "../ui/Resizable.vue"
 
 const srcDoc = computed(() => {
