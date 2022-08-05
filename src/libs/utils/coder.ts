@@ -2,10 +2,10 @@ import { isDirectory } from "./isDirectory"
 import type { Directory, File } from "./types"
 
 export function encodePath(path: string) {
-  return path.replaceAll(".", "#dot")
+  return path.replaceAll(".", "#dot;")
 }
 export function decodePath(path: string) {
-  return path.replaceAll("#dot", ".")
+  return path.replaceAll("#dot;", ".")
 }
 
 function coding<T extends Directory | File>(

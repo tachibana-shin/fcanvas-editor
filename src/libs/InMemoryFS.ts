@@ -3,6 +3,7 @@ import { getAuth } from "@firebase/auth"
 import type {
   DocumentData,
   DocumentReference,
+  FieldValue,
   WriteBatch
 } from "@firebase/firestore"
 import { deleteField, doc, getFirestore, writeBatch } from "@firebase/firestore"
@@ -30,8 +31,7 @@ import type {
   DiffMixed,
   DiffObject,
   Directory,
-  File,
-  TreeUpdate
+  File
 } from "./utils/types"
 
 function flatDiff([diff, name]: [Diff, string]) {
@@ -507,27 +507,24 @@ export class InMemoryFS {
     diff: Diff | DiffMixed | DiffObject = flatDiff(
       this.getChangeTree(filepath)
     ),
-    treeUpdate: TreeUpdate = {},
-    cwd: string = "/"
+    treeUpdate: Record<string, string | FieldValue> = {},
+    cwd: string = "/",
+    encodeUri = true
   ) {
-    const [paths, name] = this.splitPaths(filepath)
-    const parent = queryObject(
-      treeUpdate as Directory,
-      paths,
-      "",
-      false,
-      true
-    ) as TreeUpdate
+    const absolutePath = join(cwd, filepath)
+    const uid = encodeUri
+      ? encodePath(relative("/", absolutePath)).replaceAll("/", ".")
+      : relative("/", absolutePath)
 
     if (isDiffObject(diff)) {
       switch (diff[KEY_ACTION]) {
         case "ADDED":
         case "MODIFIED":
           // add ok?
-          parent[name] = await this.readFile(cwd + "/" + filepath) // in diff not found
+          treeUpdate[uid] = await this.readFile(absolutePath) // in diff not found
           break
         case "DELETED":
-          parent[name] = deleteField()
+          treeUpdate[uid] = deleteField()
           // delete ok
           break
       }
@@ -542,19 +539,21 @@ export class InMemoryFS {
         switch (obj[KEY_ACTION]) {
           case "DELETED":
           case "MODIFIED":
-            parent[name] = obj[KEY_OLD_VALUE] as string
+            treeUpdate[uid] = obj[KEY_OLD_VALUE] as string
             break
           case "ADDED":
-            parent[name] = await this.readFile(cwd + "/" + filepath) // in diff not found
+            treeUpdate[uid] = await this.readFile(absolutePath) // in diff not found
             break
         }
       } else {
-        const parentTreeUpdate = name
-          ? ((treeUpdate[name] ??= {}) as TreeUpdate)
-          : treeUpdate
-
         for (const name in obj) {
-          await this.commit(name, obj[name], parentTreeUpdate, filepath)
+          await this.commit(
+            name,
+            obj[name],
+            treeUpdate,
+            absolutePath,
+            encodeUri
+          )
         }
       }
 
@@ -564,11 +563,8 @@ export class InMemoryFS {
     // for ......
     // diff is
 
-    const parentTreeUpdate = name
-      ? ((treeUpdate[name] ??= {}) as TreeUpdate)
-      : treeUpdate
     for (const name in diff) {
-      await this.commit(name, diff[name], parentTreeUpdate, filepath)
+      await this.commit(name, diff[name], treeUpdate, absolutePath, encodeUri)
     }
 
     // zero

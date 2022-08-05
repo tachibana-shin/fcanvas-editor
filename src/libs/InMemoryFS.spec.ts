@@ -812,7 +812,7 @@ describe("changelog", () => {
     })
   })
 })
-describe("static restore", () => {
+describe("restore", () => {
   const fs = new InMemoryFS()
 
   function resetChangelog() {
@@ -1150,7 +1150,7 @@ describe("commit", () => {
     await fs.writeFile("/test.txt", "hello world")
 
     expect(await fs.commit("/")).toEqual({
-      "test.txt": "hello world"
+      "test#dot;txt": "hello world"
     })
   })
 
@@ -1165,7 +1165,7 @@ describe("commit", () => {
     await fs.writeFile("/test.txt", "hello world 2")
 
     expect(await fs.commit("/")).toEqual({
-      "test.txt": "hello world 2"
+      "test#dot;txt": "hello world 2"
     })
   })
   test("modified file", async () => {
@@ -1176,13 +1176,13 @@ describe("commit", () => {
     await fs.writeFile("/test.txt", "hello world 2")
 
     expect(await fs.commit("/")).toEqual({
-      "test.txt": "hello world 2"
+      "test#dot;txt": "hello world 2"
     })
 
     await fs.writeFile("/test.txt", "hello world 3")
 
     expect(await fs.commit("/")).toEqual({
-      "test.txt": "hello world 3"
+      "test#dot;txt": "hello world 3"
     })
   })
   test("delete file", async () => {
@@ -1194,7 +1194,7 @@ describe("commit", () => {
     await fs.unlink("/test.txt")
 
     expect(await fs.commit("/")).toEqual({
-      "test.txt": deleteField()
+      "test#dot;txt": deleteField()
     })
   })
   test("rename file", async () => {
@@ -1205,8 +1205,8 @@ describe("commit", () => {
     await fs.rename("/test.txt", "/test2.txt")
 
     expect(await fs.commit("/")).toEqual({
-      "test.txt": deleteField(),
-      "test2.txt": "hello world"
+      "test#dot;txt": deleteField(),
+      "test2#dot;txt": "hello world"
     })
   })
   test("rename dir", async () => {
@@ -1222,12 +1222,8 @@ describe("commit", () => {
     await fs.rename("/folder-test", "/folder-test2")
 
     expect(await fs.commit("/")).toEqual({
-      "folder-test2": {
-        "test.txt": "hello world"
-      },
-      "folder-test": {
-        "test.txt": deleteField()
-      }
+      "folder-test2.test#dot;txt": "hello world",
+      "folder-test.test#dot;txt": deleteField()
     })
   })
   test("delete dir", async () => {
@@ -1243,9 +1239,7 @@ describe("commit", () => {
     await fs.unlink("/folder-test")
 
     expect(await fs.commit("/")).toEqual({
-      "folder-test": {
-        "test.txt": deleteField()
-      }
+      "folder-test.test#dot;txt": deleteField()
     })
   })
   test("mixed: rm & mv & restore", async () => {
@@ -1280,9 +1274,7 @@ describe("commit", () => {
     await fs.rename("/test", "/test2")
 
     expect(await fs.commit("/")).toEqual({
-      test: {
-        index: deleteField()
-      }
+      "test.index": deleteField()
     })
   })
   test("mixed: delete file & create dir", async () => {
@@ -1300,9 +1292,7 @@ describe("commit", () => {
     await fs.writeFile("/test.txt/test.bat", "echo hello world")
 
     expect(await fs.commit("/")).toEqual({
-      "test.txt": {
-        "test.bat": "echo hello world"
-      }
+      "test#dot;txt.test#dot;bat": "echo hello world"
     })
   })
   test("mixed: delete file & create dir deep", async () => {
@@ -1342,10 +1332,8 @@ describe("commit", () => {
     expect(fs.changelogLength.value).toEqual(3)
 
     expect(await fs.commit("/")).toEqual({
-      "test.txt": {
-        "test.bat": "echo hello world",
-        "test.bat2": "echo hello world"
-      }
+      "test#dot;txt.test#dot;bat": "echo hello world",
+      "test#dot;txt.test#dot;bat2": "echo hello world"
     })
   })
   test("mixed: delete dir & create file", async () => {

@@ -25,7 +25,3 @@ export interface DiffMixed {
 export interface Diff {
   [name: string]: DiffObject | Diff | DiffMixed
 }
-
-export interface TreeUpdate {
-  [name: string]: TreeUpdate | string | FieldValue
-}
