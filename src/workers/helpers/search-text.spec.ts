@@ -185,7 +185,7 @@ describe("search-text", () => {
         index: 6,
         match: "Hello",
         after: " World",
-        before: "",
+        before: "Shin! ",
         posStart: {
           line: 1,
           column: 7
@@ -210,7 +210,7 @@ describe("search-text", () => {
       {
         index: 0,
         match: "Hello",
-        after: " World! Ohayo",
+        after: " World! Ohayo! Shin",
         before: "",
         posStart: {
           line: 1,
