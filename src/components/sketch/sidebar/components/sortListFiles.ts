@@ -1,27 +1,29 @@
 import sortArray from "sort-array"
 
-interface Info {
-  filepath: string
-  isDir: boolean
-}
+type Info = Record<string, boolean>
 
-export function sortListFiles(list: Info[]) {
-  const dirs: Info[] = []
-  const files: Info[] = []
+export function sortListFiles(list: Info): Info {
+  const dirs: string[] = []
+  const files: string[] = []
 
-  list.forEach((inf) => {
-    if (inf.isDir) dirs.push(inf)
-    else files.push(inf)
-  })
+  for (const name in list) {
+    if (list[name] === true) {
+      dirs.push(name)
+    } else {
+      files.push(name)
+    }
+  }
 
-  return [
-    ...sortArray(dirs, {
-      by: "filepath",
-      order: "asc"
-    }),
-    ...sortArray(files, {
-      by: "filepath",
-      order: "asc"
-    })
-  ]
+  return {
+    ...Object.fromEntries(
+      sortArray(dirs, {
+        order: "asc"
+      }).map((name) => [name, true])
+    ),
+    ...Object.fromEntries(
+      sortArray(files, {
+        order: "asc"
+      }).map((name) => [name, false])
+    )
+  }
 }

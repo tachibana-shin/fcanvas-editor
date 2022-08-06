@@ -52,17 +52,19 @@
 
     <div v-show="opened">
       <template
-        v-for="item in adding ? sortListFiles([adding, ...files]) : files"
-        :key="item.filepath"
+        v-for="(isDir, filepath) in adding
+          ? sortListFiles({ '': adding, ...files })
+          : files"
+        :key="filepath"
       >
         <RenameFileOrDir
-          v-if="item.filepath === ''"
+          v-if="filepath === ''"
           :class="{
             'pl-2': !show
           }"
-          :dir="item.isDir"
+          :dir="isDir"
           :siblings="siblings"
-          @save="createNewFile($event, item.isDir)"
+          @save="createNewFile($event, isDir)"
           @blur="adding = null"
         />
         <FileTreeMixture
@@ -70,8 +72,8 @@
           :class="{
             'pl-2': !show
           }"
-          :dir="item.isDir"
-          :filepath="item.filepath"
+          :dir="isDir"
+          :filepath="filepath"
           :fs="fs"
         />
       </template>
@@ -87,11 +89,11 @@ import { throttle } from "quasar"
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon"
 import Menu from "src/components/ui/Menu.vue"
 import type { FS } from "src/modules/fs"
-import { fs, watchDir } from "src/modules/fs"
+import { fs } from "src/modules/fs"
 import { useEditorStore } from "src/stores/editor"
 import { computed, onBeforeUnmount, ref, watch } from "vue"
 
-import FileTreeMixture from "./FileTreeMixture.vue"
+// import FileTreeMixture from "./FileTreeMixture.vue"
 import RenameFileOrDir from "./RenameFileOrDir.vue"
 import { CLASS_PATH_ACTIVE } from "./class-path-active"
 import { sortListFiles } from "./sortListFiles"
@@ -113,15 +115,11 @@ const renaming = ref(false)
 const loading = ref(false)
 const opened = ref(props.show ?? false)
 
-interface FileDirItem {
-  filepath: string
-  isDir: boolean
-}
-const files = ref<FileDirItem[]>([])
+const files = ref<Record<string, boolean>>({})
 const siblings = computed(() =>
-  files.value.map((item) => basename(item.filepath))
+  Object.keys(files.value).map((file) => basename(file))
 )
-const adding = ref<FileDirItem | null>(null)
+const adding = ref<boolean | null>(null)
 
 function onClick() {
   editorStore.currentSelect = props.filepath
@@ -201,30 +199,26 @@ async function createNewFile(newFileName: string, isDir: boolean) {
   else await fs.writeFile(newPath, "")
   loading.value = false
 
-  files.value = sortListFiles([
+  files.value = sortListFiles({
     ...files.value,
-    {
-      filepath: newPath,
-      isDir
-    }
-  ])
+    [newPath]: isDir
+  })
 }
 const reloadDir = throttle(async function () {
   try {
     const filesName = await fs.readdir(props.filepath)
 
     files.value = sortListFiles(
-      await Promise.all(
-        filesName.map(async (name) => {
-          const path = join(props.filepath, name)
+      Object.fromEntries(
+        await Promise.all(
+          filesName.map(async (name) => {
+            const path = join(props.filepath, name)
 
-          const isDir = (await fs.lstat(path)).isDirectory()
+            const isDir = (await fs.lstat(path)).isDirectory()
 
-          return {
-            filepath: path,
-            isDir
-          }
-        })
+            return [path, isDir]
+          })
+        )
       )
     )
   } catch (err) {
@@ -241,17 +235,11 @@ async function unlink() {
 }
 async function createFile() {
   opened.value = true
-  adding.value = {
-    filepath: "",
-    isDir: false
-  }
+  adding.value = false
 }
 async function createDir() {
   opened.value = true
-  adding.value = {
-    filepath: "",
-    isDir: true
-  }
+  adding.value = true
 }
 // =================================
 
@@ -260,8 +248,31 @@ if (opened.value) {
   watcher()
 }
 
-const dirWatcher = watchDir(props.filepath, reloadDir)
-onBeforeUnmount(() => dirWatcher())
+async function handlerDirChange(filepath: string, exists: boolean) {
+  if (dirname(filepath) === props.filepath) {
+    console.log("this event for me %s", props.filepath)
+
+    if (exists) {
+      if (!(filepath in files.value))
+        files.value = sortListFiles({
+          ...files.value,
+          [filepath]: (await fs.lstat(filepath)).isDirectory()
+        })
+    } else {
+      delete files.value[filepath]
+    }
+  }
+}
+
+const handlerWrite = (file: string) => handlerDirChange(file, true)
+const handlerUnlink = (file: string) => handlerDirChange(file, false)
+
+fs.events.on("write", handlerWrite)
+fs.events.on("unlink", handlerUnlink)
+onBeforeUnmount(() => {
+  fs.events.off("write", handlerWrite)
+  fs.events.off("unlink", handlerUnlink)
+})
 
 defineExpose({
   createFile,
