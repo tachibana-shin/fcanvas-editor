@@ -3,6 +3,9 @@ import esbuildDotWASM from "esbuild-wasm/esbuild.wasm?url"
 import { extname, join } from "path-browserify"
 import { InMemoryFS } from "src/libs/InMemoryFS"
 
+import { resolveImport } from "./helpers/resolve-import"
+import { resolvePath } from "./helpers/resolve-path"
+
 export const fs = new InMemoryFS()
 
 if (import.meta.env.NODE_ENV !== "production") {
@@ -48,8 +51,10 @@ export function isPathChange(parent: string, filepath: string) {
 esbuildWASM.initialize({
   wasmURL: esbuildDotWASM
 })
-async function complier(content: string, filename: string): Promise<string> {
-  switch (extname(filename)) {
+async function complier(content: string, filepath: string): Promise<string> {
+  content = resolveImport(content, (path) => resolvePath(filepath, path))
+
+  switch (extname(filepath)) {
     case ".ts":
       return (
         await esbuildWASM.transform(content, {

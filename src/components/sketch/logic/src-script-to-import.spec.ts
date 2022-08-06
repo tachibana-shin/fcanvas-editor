@@ -23,7 +23,7 @@ describe("srcScriptToImport", () => {
     .toEqual(`
     <script
       type="module"
-
+      
     >import "/main.js"</script>
     `)
   })
