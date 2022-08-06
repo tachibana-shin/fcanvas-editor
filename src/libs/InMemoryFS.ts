@@ -38,7 +38,7 @@ export class InMemoryFS {
     [CHAR_KEEP]: ""
   }
 
-  public readonly objectURLMap = new Map<string, string>()
+  public readonly objectURLMap = reactive(new Map<string, string>())
 
   public readonly changelog: Diff = reactive({})
   public changelogLength = ref(0)
