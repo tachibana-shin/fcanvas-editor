@@ -1,9 +1,9 @@
 import { dirname, join, resolve } from "path-browserify"
 
-export async function resolvePath(
+export function resolvePath(
   filesource: string,
   path: string
-): Promise<string> {
+): string {
   if (path.startsWith("./") || path.startsWith("../") || path.startsWith("/")) {
     const filepath = join("~/", resolve(dirname(filesource), path))
     // resolve
