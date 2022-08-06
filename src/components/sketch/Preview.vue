@@ -72,7 +72,11 @@ const srcDoc = computed(() => {
             return [name, `https://cdn.skypack.dev/${name}@${version}`]
           })
         ),
-        Object.fromEntries(fs.objectURLMap.entries())
+        Object.fromEntries(
+          Array.from(fs.objectURLMap.entries()).map(([path, blobUrl]) => {
+            return [`~${path}`, blobUrl]
+          })
+        )
       )
     },
     null,
