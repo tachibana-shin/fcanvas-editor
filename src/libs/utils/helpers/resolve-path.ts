@@ -1,11 +1,13 @@
 import { dirname, resolve } from "path-browserify"
 
-import { fs } from "../fs"
+import { fs } from "../../../modules/fs"
 
-export function resolvePath(filesource: string, path: string): string {
+export async function resolvePath(filesource: string, path: string): Promise<string> {
   if (path.startsWith("./") || path.startsWith("../") || path.startsWith("/")) {
     const filepath = resolve(dirname(filesource), path)
     // resolve
+
+    console.log({ filepath, filesource, path, map: fs.objectURLMap })
 
     return fs.objectURLMap.get(filepath) ?? path
   } else {

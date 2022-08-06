@@ -7,6 +7,7 @@ import { reactive, ref } from "vue"
 
 import { addDiff } from "./utils/addDiff"
 import { decodeObject, encodeObject, encodePath } from "./utils/coder"
+import { compiler } from "./utils/compiler"
 import {
   CHAR_KEEP,
   KEY_ACTION,
@@ -118,7 +119,7 @@ export class InMemoryFS {
     }
   }
 
-  private refreshObjectURLFromFile(
+  private async refreshObjectURLFromFile(
     path: string,
     content: string,
     isRevoke: boolean
@@ -133,7 +134,7 @@ export class InMemoryFS {
       this.objectURLMap.set(
         path,
         URL.createObjectURL(
-          new Blob([content], {
+          new Blob([await compiler(content, path)], {
             type: "application/javascript"
           })
         )

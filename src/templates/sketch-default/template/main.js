@@ -1,5 +1,7 @@
 import { Layer, Rect, Stage } from "fcanvas"
 
+import { log } from "./log.js"
+
 const stage = new Stage({
   container: "app"
 })
@@ -15,3 +17,5 @@ const rect = new Rect({
   stroke: "#000"
 })
 layer.add(rect)
+
+log("hello fcanvas")
