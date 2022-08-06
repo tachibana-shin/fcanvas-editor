@@ -1,10 +1,5 @@
-import esbuildWASM from "esbuild-wasm"
-import esbuildDotWASM from "esbuild-wasm/esbuild.wasm?url"
-import { extname, join } from "path-browserify"
+import { join } from "path-browserify"
 import { InMemoryFS } from "src/libs/InMemoryFS"
-
-import { resolveImport } from "./helpers/resolve-import"
-import { resolvePath } from "./helpers/resolve-path"
 
 export const fs = new InMemoryFS()
 
@@ -15,55 +10,12 @@ if (import.meta.env.NODE_ENV !== "production") {
 
 export type FS = typeof fs
 
-const fileURLObjectMap = new Map<string, string>()
-// free memory
-fs.events.on("write", (file) => {
-  // clean
-  fileURLObjectMap.forEach((url, path) => {
-    if (isPathChange(file, path)) {
-      // cancel
-
-      URL.revokeObjectURL(url)
-      fileURLObjectMap.delete(path)
-    }
-  })
-})
-export async function getBlobURLOfFile(path: string): Promise<string> {
-  const inM = fileURLObjectMap.get(path)
-  if (inM) return inM
-  // wji
-  const url = URL.createObjectURL(
-    new Blob([await complier(await fs.readFile(path), path)])
-  )
-
-  fileURLObjectMap.set(path, url)
-
-  return url
-}
 export function isPathChange(parent: string, filepath: string) {
   parent = join("/", parent)
   filepath = join("/", filepath)
   return (
     filepath === parent || filepath.startsWith(`${parent}/`) || parent === "/"
   )
-}
-
-esbuildWASM.initialize({
-  wasmURL: esbuildDotWASM
-})
-async function complier(content: string, filepath: string): Promise<string> {
-  content = resolveImport(content, (path) => resolvePath(filepath, path))
-
-  switch (extname(filepath)) {
-    case ".ts":
-      return (
-        await esbuildWASM.transform(content, {
-          loader: "ts"
-        })
-      ).code
-  }
-
-  return content
 }
 
 export function watchFile(
