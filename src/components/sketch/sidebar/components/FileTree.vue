@@ -93,7 +93,7 @@ import { fs } from "src/modules/fs"
 import { useEditorStore } from "src/stores/editor"
 import { computed, onBeforeUnmount, ref, watch } from "vue"
 
-// import FileTreeMixture from "./FileTreeMixture.vue"
+import FileTreeMixture from "./FileTreeMixture.vue"
 import RenameFileOrDir from "./RenameFileOrDir.vue"
 import { CLASS_PATH_ACTIVE } from "./class-path-active"
 import { sortListFiles } from "./sortListFiles"
