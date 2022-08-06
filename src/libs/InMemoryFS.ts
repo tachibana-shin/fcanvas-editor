@@ -130,7 +130,14 @@ export class InMemoryFS {
     }
 
     if (!isRevoke)
-      this.objectURLMap.set(path, URL.createObjectURL(new Blob([content])))
+      this.objectURLMap.set(
+        path,
+        URL.createObjectURL(
+          new Blob([content], {
+            type: "application/javascript"
+          })
+        )
+      )
   }
 
   private refreshObjectURLFromDir(
@@ -151,12 +158,7 @@ export class InMemoryFS {
   }
 
   async readFile(path: string) {
-    return queryObject(
-      this.memory,
-      (path).split("/"),
-      "FILE_NOT_EXISTS: ",
-      true
-    )
+    return queryObject(this.memory, path.split("/"), "FILE_NOT_EXISTS: ", true)
   }
 
   async writeFile(path: string, content: string) {
@@ -353,11 +355,7 @@ export class InMemoryFS {
   }
 
   async lstat(path: string) {
-    const obj = queryObject(
-      this.memory,
-      (path).split("/"),
-      "PATH_NOT_EXISTS: "
-    )
+    const obj = queryObject(this.memory, path.split("/"), "PATH_NOT_EXISTS: ")
 
     return {
       isDirectory() {
@@ -372,19 +370,14 @@ export class InMemoryFS {
   async readdir(path: string) {
     return sort(
       Object.keys(
-        queryObject(
-          this.memory,
-          (path).split("/"),
-          "DIR_NOT_EXISTS: ",
-          false
-        )
+        queryObject(this.memory, path.split("/"), "DIR_NOT_EXISTS: ", false)
       ).filter((name) => name !== CHAR_KEEP)
     )
   }
 
   async exists(path: string) {
     try {
-      return !!queryObject(this.memory, (path).split("/"), "")
+      return !!queryObject(this.memory, path.split("/"), "")
     } catch {
       return false
     }

@@ -61,7 +61,13 @@ async function complier(content: string, filename: string): Promise<string> {
   return content
 }
 
-export function watchFile(filepath: string, cb: (exists: boolean) => void) {
+export function watchFile(
+  filepath: string,
+  cb: (exists: boolean) => void,
+  options?: {
+    immediate?: boolean
+  }
+) {
   const handlerWrite = (file: string) => {
     // eslint-disable-next-line n/no-callback-literal
     if (isPathChange(file, filepath)) cb(true)
@@ -69,6 +75,11 @@ export function watchFile(filepath: string, cb: (exists: boolean) => void) {
   const handlerUnlink = (file: string) => {
     // eslint-disable-next-line n/no-callback-literal
     if (isPathChange(file, filepath)) cb(false)
+  }
+
+  if (options?.immediate) {
+    // eslint-disable-next-line promise/catch-or-return, promise/no-callback-in-promise
+    fs.exists(filepath).then(cb)
   }
 
   fs.events.on("write", handlerWrite)
