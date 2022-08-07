@@ -7,7 +7,6 @@ import { reactive, ref } from "vue"
 
 import { addDiff } from "./utils/addDiff"
 import { decodeObject, encodeObject, encodePath } from "./utils/coder"
-import { compiler } from "./utils/compiler"
 import {
   CHAR_KEEP,
   KEY_ACTION,
@@ -134,7 +133,7 @@ export class InMemoryFS {
       this.objectURLMap.set(
         path,
         URL.createObjectURL(
-          new Blob([await compiler(content, path)], {
+          new Blob([content], {
             type: "application/javascript"
           })
         )
@@ -388,6 +387,35 @@ export class InMemoryFS {
     return readFiles("", this.memory)
   }
 
+  async globby(pathMatch: string, allFiles = new Set<string>()) {
+    const [paths, name] = this.splitPaths(pathMatch)
+    paths.push(name)
+
+    // paths is example ["src", "pages". "*"]
+    // eslint-disable-next-line functional/no-let
+    let dirname = "/"
+    // eslint-disable-next-line functional/no-let
+    for (let i = 0; i < paths.length; i++) {
+      const path = paths[i]
+
+      if (path === "*") {
+        // share memory
+        ;(await this.readdir(dirname)).forEach((name) => {
+          this.globby(
+            dirname + "/" + name + "/" + paths.slice(i + 1).join("/"),
+            allFiles
+          )
+        })
+      } else {
+        dirname += path + (i === paths.length - 1 ? "" : "/")
+      }
+    }
+
+    if ((await this.lstat(dirname)).isFile()) allFiles.add(dirname)
+
+    return Array.from(allFiles.values())
+  }
+
   async restore(
     filepath: string,
     diff: Diff | DiffMixed | DiffObject = flatDiff(this.getChangeTree(filepath))
@@ -531,8 +559,8 @@ export class InMemoryFS {
 //   fs.changelog = {}
 
 //   await fs.writeFile("/test.txt", "hello world 2")
+//   await fs.mkdir("/pages")
+//   await fs.writeFile("/pages/test.txt", "hello world 3")
 
-//   console.log(await fs.commit("/"))
-
-//   return console.log(fs)
+//   console.log(await fs.globby("/pages/*"))
 // }

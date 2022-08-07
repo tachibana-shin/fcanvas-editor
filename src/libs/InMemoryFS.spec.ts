@@ -1,8 +1,8 @@
 // eslint-disable-next-line n/no-unsupported-features/node-builtins
-import { deleteField } from "@firebase/firestore"
 import { Blob } from "buffer"
 import { URL } from "url"
 
+import { deleteField } from "@firebase/firestore"
 import { v4 } from "uuid"
 import { describe, expect, test } from "vitest"
 
@@ -222,6 +222,22 @@ describe("InMemoryFS", () => {
     await fs.writeFile("/examples/test.txt", "test")
 
     expect(await fs.readFiles()).toEqual(["test.txt", "examples/test.txt"])
+  })
+
+  test("globby", async () => {
+    fs.clean()
+
+    await fs.writeFile("/test.txt", "hello world")
+    await fs.writeFile("/test2.txt", "hello world 2")
+    await fs.mkdir("/pages")
+    await fs.writeFile("/pages/test.txt", "hello world 3")
+    await fs.writeFile("/pages/index.txt", "hello world 3")
+
+    expect(await fs.globby("/*")).toEqual(["/test.txt", "/test2.txt"])
+    expect(await fs.globby("/pages/*")).toEqual([
+      "/pages/index.txt",
+      "/pages/test.txt"
+    ])
   })
 })
 describe("changelog", () => {
