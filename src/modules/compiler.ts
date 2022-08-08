@@ -1,37 +1,21 @@
+// import { Blob } from "buffer"
 import esbuildWASM from "esbuild-wasm"
 import esbuildDotWASM from "esbuild-wasm/esbuild.wasm?url"
+// const esbuildDotWASM = ""
 import { extname } from "path-browserify"
 import { fs, isPathChange } from "src/modules/fs"
-import { v4 } from "uuid"
 
 import { pathToMatch } from "./helpers/path-to-match"
 import { resolveImport } from "./helpers/resolve-import"
 import { resolvePath } from "./helpers/resolve-path"
 
-const blobMap = new Map<string, Blob>()
-Object.assign(URL, {
-  createObjectURL(blob: Blob) {
-    const url = `blob:${v4()}`
-    blobMap.set(url, blob)
-
-    return url
-  },
-  revokeObjectURL(url: string) {
-    const blob = blobMap.get(url)
-    if (blob) {
-      blobMap.delete(url)
-    }
-  }
-})
-
-type ObjectUrlMap = Map<
-  string,
-  {
-    blob: string
-    dependencies: Set<string>
-    count: number
-  }
->
+interface InfoFileMap {
+  blob: string
+  dependencies: Set<string>
+  count: number
+}
+// global.Blob = Blob
+export type ObjectUrlMap = Map<string, InfoFileMap | number>
 
 // eslint-disable-next-line functional/no-let
 let esbuildLoaded = false
@@ -45,8 +29,8 @@ let esbuildLoaded = false
 export async function compiler(
   filepath: string,
   objectURLMap: ObjectUrlMap = new Map(),
-  force = false
-): Promise<ObjectUrlMap> {
+  isDepend = false
+): Promise<Map<string, InfoFileMap>> {
   console.log("compiler: start build %s", filepath)
   const dependencies: Set<string> = new Set()
 
@@ -106,24 +90,44 @@ export async function compiler(
     })
   })
 
+  const newDependencies = new Set<string>()
+  // re make build file
+  dependencies.forEach((item) => {
+    newDependencies.add(item)
+
+    const obj = objectURLMap.get(item)
+    if (typeof obj === "object") obj.count++
+    else objectURLMap.set(item, (obj ?? 0) + 1)
+  })
   const inMap = objectURLMap.get(filepath)
-  if (inMap) {
-    if (!force) inMap.count++
+
+  // console.log({filepath, dependencies,inMap})
+  if (typeof inMap === "object") {
     inMap.dependencies.forEach((item) => {
       const obj = objectURLMap.get(item)
 
-      if (!obj || dependencies.has(item)) return
+      if (!obj) return
+      if (dependencies.has(item)) {
+        // inMap.count++
+        return
+      }
 
-      obj.count--
+      if (typeof obj === "object") {
+        obj.count--
 
-      if (obj.count < 1) deleteIfChanged(item, objectURLMap)
+        if (obj.count <= 0) deleteIfChanged(item, objectURLMap)
+      } else {
+        if (obj <= 1) objectURLMap.delete(item)
+        else objectURLMap.set(item, obj - 1)
+      }
     })
-    inMap.dependencies = dependencies
+    inMap.dependencies.clear()
+    newDependencies.forEach((item) => inMap.dependencies.add(item))
   } else
     objectURLMap.set(filepath, {
       blob,
       dependencies,
-      count: 1
+      count: (inMap ?? 0) + (isDepend ? 0 : 1)
     })
 
   const tasks = []
@@ -131,12 +135,12 @@ export async function compiler(
   // second. Compile dependencies.
   for (const dependency of dependencies) {
     // because dependency like /<file>.ts, so we need to remove ~/
-    tasks.push(compiler(dependency, objectURLMap, force))
+    tasks.push(compiler(dependency, objectURLMap, true))
   }
 
   await Promise.all(tasks)
 
-  return objectURLMap
+  return objectURLMap as unknown as Map<string, InfoFileMap>
 }
 
 function deleteIfChanged(filepath: string, objectURLMap: ObjectUrlMap) {
@@ -144,6 +148,10 @@ function deleteIfChanged(filepath: string, objectURLMap: ObjectUrlMap) {
 
   if (!t) return
 
+  if (typeof t !== "object") {
+    console.warn("あらたぶんこれをあerror")
+    return
+  }
   t.count--
 
   if (t.count > 0) return
@@ -178,7 +186,7 @@ export function watchMap(objectURLMap: ObjectUrlMap): () => void {
           if (objectURLMap.has(file)) {
             if (exists)
               // if catch is not directory, then repack now
-              await compiler(file, objectURLMap, true)
+              await compiler(file, objectURLMap)
             else deleteIfChanged(file, objectURLMap)
           }
         })
@@ -188,7 +196,7 @@ export function watchMap(objectURLMap: ObjectUrlMap): () => void {
         console.log("decompiler")
         if (exists)
           // if catch is not directory, then repack now
-          await compiler(path, objectURLMap, true)
+          await compiler(path, objectURLMap)
         else deleteIfChanged(path, objectURLMap)
       }
     }
@@ -212,11 +220,10 @@ export function watchMap(objectURLMap: ObjectUrlMap): () => void {
 //   await fs.writeFile("/sub.js", "console.log('hello')")
 
 //   const map = await compiler("/main.js")
-//   watchMap(map, () => {
-//     console.log(map)
-//   })
+//   watchMap(map)
 
 //   await fs.writeFile("/main.js", "console.log('hello')")
+
 //   setTimeout(() => console.log(map))
-//   return await console.log(map)
+//   // return await console.log(map)
 // }
