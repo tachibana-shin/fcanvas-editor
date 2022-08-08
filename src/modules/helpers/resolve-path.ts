@@ -1,5 +1,10 @@
 import { dirname, join, resolve } from "path-browserify"
-
+/**
+ *
+ * @param filesource
+ * @param path
+ * @returns return like ~/<path> or name
+ */
 export function resolvePath(
   filesource: string,
   path: string

@@ -18,6 +18,11 @@ describe("resolve-import", () => {
       "import { fs } from 'https://unpkg.com/fs'"
     )
   })
+  test("import not var", () => {
+    expect(resolveImport("import 'fs'", fn)).toEqual(
+      "import 'https://unpkg.com/fs'"
+    )
+  })
   test("import * as", () => {
     expect(resolveImport("import * as fs from 'fs'", fn)).toEqual(
       "import * as fs from 'https://unpkg.com/fs'"
