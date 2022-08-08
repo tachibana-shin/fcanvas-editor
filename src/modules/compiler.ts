@@ -9,58 +9,18 @@ import { pathToMatch } from "./helpers/path-to-match"
 import { resolveImport } from "./helpers/resolve-import"
 import { resolvePath } from "./helpers/resolve-path"
 
-interface InfoFileMap {
+export interface InfoFileMap {
   blob: string
   dependencies: Set<string>
   count: number
 }
 // global.Blob = Blob
-export type ObjectUrlMap = Map<string, InfoFileMap | number>
+type ObjectUrlMap = Map<string, InfoFileMap | number>
 
 // eslint-disable-next-line functional/no-let
 let esbuildLoaded = false
-/**
- *
- * @param filepath - string
- * @param objectURLMap - Map<string, string>
- * @returns Map<string, string> is example
- * @example Return = { "/src/main.js": "blob:...." }
- */
-export async function compiler(
-  filepath: string,
-  objectURLMap: ObjectUrlMap = new Map(),
-  isDepend = false
-): Promise<Map<string, InfoFileMap>> {
-  console.log("compiler: start build %s", filepath)
-  const dependencies: Set<string> = new Set()
 
-  const promises: Promise<string[]>[] = []
-  // eslint-disable-next-line functional/no-let
-  let content = resolveImport(
-    await fs.readFile(filepath),
-    (path, type, scap) => {
-      const r = resolvePath(filepath, path)
-
-      if (r.startsWith("~/")) {
-        if (scap === "`" && type.startsWith("import")) {
-          // this is request dynamic import template. ex: import(`/assets/${name}.jpg`)
-          // we need to resolve path to absolute path
-          // hmmm, this is not good, we need to use absolute path to resolve dynamic import
-          // but we need to use absolute path to resolve dynamic import
-          // so we need to use absolute path to resolve dynamic import
-          const reg = pathToMatch(r.slice(1))
-          console.warn("compiler: dynamic import %s", reg)
-          promises.push(fs.globby(reg))
-        } else {
-          // normal
-          dependencies.add(r.slice(1))
-        }
-      }
-
-      return r
-    }
-  )
-
+async function buildToBlob(filepath: string, content: string) {
   // first. Compile file main. after compile, add dependencies to dependencies.
   switch (extname(filepath)) {
     case ".ts":
@@ -84,6 +44,51 @@ export async function compiler(
     })
   )
 
+  return blob
+}
+
+/**
+ *
+ * @param filepath - string
+ * @param objectURLMap - Map<string, string>
+ * @returns Map<string, string> is example
+ * @example Return = { "/src/main.js": "blob:...." }
+ */
+export async function compiler(
+  filepath: string,
+  objectURLMap: ObjectUrlMap = new Map(),
+  isDepend = false,
+  forceBuild = false
+): Promise<Map<string, InfoFileMap>> {
+  console.log("compiler: start build %s", filepath)
+  const dependencies: Set<string> = new Set()
+
+  const promises: Promise<string[]>[] = []
+
+  const content = resolveImport(
+    await fs.readFile(filepath),
+    (path, type, scap) => {
+      const r = resolvePath(filepath, path)
+
+      if (r.startsWith("~/")) {
+        if (scap === "`" && type.startsWith("import")) {
+          // this is request dynamic import template. ex: import(`/assets/${name}.jpg`)
+          // we need to resolve path to absolute path
+          // hmmm, this is not good, we need to use absolute path to resolve dynamic import
+          // but we need to use absolute path to resolve dynamic import
+          // so we need to use absolute path to resolve dynamic import
+          const reg = pathToMatch(r.slice(1))
+          console.warn("compiler: dynamic import %s", reg)
+          promises.push(fs.globby(reg))
+        } else {
+          // normal
+          dependencies.add(r.slice(1))
+        }
+      }
+
+      return r
+    }
+  )
   ;(await Promise.all(promises)).forEach((files) => {
     files.forEach((file) => {
       dependencies.add(file)
@@ -101,7 +106,7 @@ export async function compiler(
   })
   const inMap = objectURLMap.get(filepath)
 
-  // console.log({filepath, dependencies,inMap})
+  // console.log({filepath, dependencies,inMap, objectURLMap})
   if (typeof inMap === "object") {
     inMap.dependencies.forEach((item) => {
       const obj = objectURLMap.get(item)
@@ -123,12 +128,23 @@ export async function compiler(
     })
     inMap.dependencies.clear()
     newDependencies.forEach((item) => inMap.dependencies.add(item))
-  } else
+    if (forceBuild) {
+      URL.revokeObjectURL(inMap.blob)
+      inMap.blob = await buildToBlob(filepath, content)
+    }
+  } else {
+    // console.log({ inMap, filepath })
+    const blob = await buildToBlob(filepath, content)
+    const count = objectURLMap.get(filepath)
+
     objectURLMap.set(filepath, {
       blob,
       dependencies,
-      count: (inMap ?? 0) + (isDepend ? 0 : 1)
+      count:
+        typeof count === "object" ? count.count : count ?? (isDepend ? 0 : 1)
     })
+    // objectURLMap.get(filepath).blob = await buildToBlob(filepath, content)
+  }
 
   const tasks = []
   // done. compile file main.
@@ -186,7 +202,7 @@ export function watchMap(objectURLMap: ObjectUrlMap): () => void {
           if (objectURLMap.has(file)) {
             if (exists)
               // if catch is not directory, then repack now
-              await compiler(file, objectURLMap)
+              await compiler(file, objectURLMap, false, true)
             else deleteIfChanged(file, objectURLMap)
           }
         })
@@ -196,7 +212,7 @@ export function watchMap(objectURLMap: ObjectUrlMap): () => void {
         console.log("decompiler")
         if (exists)
           // if catch is not directory, then repack now
-          await compiler(path, objectURLMap)
+          await compiler(path, objectURLMap, false, true)
         else deleteIfChanged(path, objectURLMap)
       }
     }
@@ -216,13 +232,13 @@ export function watchMap(objectURLMap: ObjectUrlMap): () => void {
 
 // main()
 // async function main() {
-//   await fs.writeFile("/main.js", "import './sub.js'")
+//   fs.clean()
+
+//   await fs.writeFile("/main.js", "import './sub.js'\nimport './sub2.js'")
 //   await fs.writeFile("/sub.js", "console.log('hello')")
+//   await fs.writeFile("/sub2.js", "import './sub.js'; console.log('hello')")
 
 //   const map = await compiler("/main.js")
-//   watchMap(map)
-
-//   await fs.writeFile("/main.js", "console.log('hello')")
 
 //   setTimeout(() => console.log(map))
 //   // return await console.log(map)
