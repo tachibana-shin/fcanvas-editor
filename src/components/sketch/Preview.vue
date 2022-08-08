@@ -32,6 +32,7 @@ import { computed, onBeforeUnmount, reactive, ref, watchEffect } from "vue"
 
 import Resizable from "../ui/Resizable.vue"
 
+import transportConsoleClient from "./injects/transport-console.js?raw"
 import { srcScriptToImport } from "./logic/src-script-to-import"
 
 function useWatchContentFile(path: string) {
@@ -102,18 +103,18 @@ const importmap = computed(() => {
       }
     },
     null,
-    2
+    import.meta.env.NODE_ENV === "production" ? undefined : 2
   )
 })
 
 const srcDoc = computed(() => {
   if (!indexDotHtml.value) return
 
-  console.log(objectMapCompiler)
-
-  return `<script type="importmap">${
-    importmap.value
-    // eslint-disable-next-line no-useless-escape
-  }<\/script>${indexDotHtmlTransformed.value?.code}`
+  // eslint-disable-next-line no-useless-escape
+  return `\<script>{${transportConsoleClient}}<\/script><\/script><script type="importmap">
+${
+  importmap.value
+  // eslint-disable-next-line no-useless-escape
+}<\/script>${indexDotHtmlTransformed.value?.code}`
 })
 </script>
