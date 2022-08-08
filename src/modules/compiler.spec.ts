@@ -55,7 +55,7 @@ describe("compiler", () => {
     await fs.writeFile("/sub2.js", "import './sub.js'; console.log('hello')")
 
     const map = await compiler("/main.js")
-    
+
     expect(map.has("/main.js")).toBe(true)
     expect(map.has("/sub.js")).toBe(true)
     expect(map.get("/sub.js")?.count).toBe(2)
@@ -229,5 +229,32 @@ describe("watchMap", () => {
     expect(map.has("/main.js")).toBe(true)
     expect(map.get("/main.js")?.blob).not.toEqual(blob)
     expect(map.size).toEqual(1)
+  })
+  test("should cache", async () => {
+    fs.clean()
+    await fs.writeFile("/main.js", "import './sub.js';import './sub2.js'")
+    await fs.writeFile("/sub.js", "console.log('hello')")
+    await fs.writeFile("/sub2.js", "console.log('hello')")
+
+    const map = await compiler("/main.js")
+
+    watchMap(map)
+
+    expect(map.has("/main.js")).toBe(true)
+    expect(map.has("/sub.js")).toBe(true)
+    expect(map.get("/sub.js")?.count).toEqual(1)
+    expect(map.has("/sub2.js")).toBe(true)
+    expect(map.size).toEqual(3)
+
+    const blob = map.get("/sub.js")?.blob
+
+    await fs.writeFile("/sub2.js", "import './sub.js'")
+    await waitTask()
+
+    expect(map.has("/sub.js")).toBe(true)
+    expect(map.has("/sub2.js")).toBe(true)
+    expect(map.get("/sub.js")?.blob).toEqual(blob)
+
+    expect(map.size).toEqual(3)
   })
 })
