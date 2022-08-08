@@ -6,20 +6,27 @@ describe("srcScriptToImport", () => {
   test("script src", () => {
     expect(
       srcScriptToImport('<script type="module" src="/main.js"></script>')
-    ).toEqual('<script type="module" >import "~/main.js"</script>')
+    ).toEqual({
+      code: '<script type="module" >import "~/main.js"</script>',
+      depends: ["/main.js"]
+    })
   })
   test("script no src", () => {
-    expect(srcScriptToImport('<script type="module"></script>')).toEqual(
-      '<script type="module"></script>'
-    )
+    expect(srcScriptToImport('<script type="module"></script>')).toEqual({
+      code: '<script type="module"></script>',
+      depends: []
+    })
   })
   test("script src newline", () => {
     expect(
       srcScriptToImport(`<script
       type="module"
       src="/main.js"></script>`)
-    ).toEqual(`<script
+    ).toEqual({
+      code: `<script
       type="module"
-      >import "~/main.js"</script>`)
+      >import "~/main.js"</script>`,
+      depends: ["/main.js"]
+    })
   })
 })
