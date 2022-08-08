@@ -38,7 +38,7 @@ export class InMemoryFS {
     [CHAR_KEEP]: ""
   }
 
-  public readonly objectURLMap = reactive(new Map<string, string>())
+  // public readonly objectURLMap = reactive(new Map<string, string>())
 
   public readonly changelog: Diff = reactive({})
   public changelogLength = ref(0)
@@ -107,7 +107,7 @@ export class InMemoryFS {
   }
 
   clean() {
-    this.refreshObjectURLFromDir("", this.memory, true)
+    // this.refreshObjectURLFromDir("", this.memory, true)
     for (const name in this.memory)
       if (name !== CHAR_KEEP) delete this.memory[name]
   }
@@ -118,44 +118,44 @@ export class InMemoryFS {
     }
   }
 
-  private async refreshObjectURLFromFile(
-    path: string,
-    content: string,
-    isRevoke: boolean
-  ) {
-    const inMemory = this.objectURLMap.get(path)
-    if (inMemory) {
-      URL.revokeObjectURL(inMemory)
-      if (isRevoke) this.objectURLMap.delete(path)
-    }
+  // private async refreshObjectURLFromFile(
+  //   path: string,
+  //   content: string,
+  //   isRevoke: boolean
+  // ) {
+  //   const inMemory = this.objectURLMap.get(path)
+  //   if (inMemory) {
+  //     URL.revokeObjectURL(inMemory)
+  //     if (isRevoke) this.objectURLMap.delete(path)
+  //   }
 
-    if (!isRevoke)
-      this.objectURLMap.set(
-        path,
-        URL.createObjectURL(
-          new Blob([content], {
-            type: "application/javascript"
-          })
-        )
-      )
-  }
+  //   if (!isRevoke)
+  //     this.objectURLMap.set(
+  //       path,
+  //       URL.createObjectURL(
+  //         new Blob([content], {
+  //           type: "application/javascript"
+  //         })
+  //       )
+  //     )
+  // }
 
-  private refreshObjectURLFromDir(
-    path: string,
-    dir: Directory,
-    isRevoke: boolean
-  ) {
-    for (const name in dir) {
-      if (name === CHAR_KEEP) continue
+  // private refreshObjectURLFromDir(
+  //   path: string,
+  //   dir: Directory,
+  //   isRevoke: boolean
+  // ) {
+  //   for (const name in dir) {
+  //     if (name === CHAR_KEEP) continue
 
-      const obj = dir[name]
-      if (isDirectory(obj)) {
-        this.refreshObjectURLFromDir(path + "/" + name, obj, isRevoke)
-      } else {
-        this.refreshObjectURLFromFile(path + "/" + name, obj, isRevoke)
-      }
-    }
-  }
+  //     const obj = dir[name]
+  //     if (isDirectory(obj)) {
+  //       this.refreshObjectURLFromDir(path + "/" + name, obj, isRevoke)
+  //     } else {
+  //       this.refreshObjectURLFromFile(path + "/" + name, obj, isRevoke)
+  //     }
+  //   }
+  // }
 
   async readFile(path: string) {
     return queryObject(this.memory, path.split("/"), "FILE_NOT_EXISTS: ", true)
@@ -188,7 +188,7 @@ export class InMemoryFS {
       )
     }
     // NOTE: refresh or create object url
-    this.refreshObjectURLFromFile(path, content, false)
+    // this.refreshObjectURLFromFile(path, content, false)
 
     dir[name] = content
 
@@ -295,26 +295,26 @@ export class InMemoryFS {
       }
     }
     // NOTE: move object url
-    // eslint-disable-next-line no-lone-blocks
-    {
-      // move object url
-      if (isFile) {
-        const inMemory = this.objectURLMap.get(from)
+    // // eslint-disable-next-line no-lone-blocks
+    // {
+    //   // move object url
+    //   if (isFile) {
+    //     const inMemory = this.objectURLMap.get(from)
 
-        this.objectURLMap.delete(from)
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.objectURLMap.set(to, inMemory!)
-      } else {
-        readFiles(from, objFrom).forEach((path) => {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const inMemory = this.objectURLMap.get(path)!
-          this.objectURLMap.delete(path)
+    //     this.objectURLMap.delete(from)
+    //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    //     this.objectURLMap.set(to, inMemory!)
+    //   } else {
+    //     readFiles(from, objFrom).forEach((path) => {
+    //       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    //       const inMemory = this.objectURLMap.get(path)!
+    //       this.objectURLMap.delete(path)
 
-          const newPath = join(to, relative(from, path))
-          this.objectURLMap.set(newPath, inMemory)
-        })
-      }
-    }
+    //       const newPath = join(to, relative(from, path))
+    //       this.objectURLMap.set(newPath, inMemory)
+    //     })
+    //   }
+    // }
 
     parentTo[nameTo] = objFrom
     this.events.emit("write", to)
@@ -344,11 +344,11 @@ export class InMemoryFS {
       }
     }
     // NOTE: refresh or create object url
-    if (isDirectory(obj)) {
-      this.refreshObjectURLFromDir(path, obj, true)
-    } else {
-      this.refreshObjectURLFromFile(path, obj, true)
-    }
+    // if (isDirectory(obj)) {
+    //   this.refreshObjectURLFromDir(path, obj, true)
+    // } else {
+    //   this.refreshObjectURLFromFile(path, obj, true)
+    // }
 
     delete parent[name]
     this.events.emit("unlink", path)
@@ -544,7 +544,7 @@ export class InMemoryFS {
     Object.assign(this.memory, decodeObject(object))
     this.events.emit("write", "/")
 
-    this.refreshObjectURLFromDir("", this.memory, false)
+    // this.refreshObjectURLFromDir("", this.memory, false)
   }
 }
 // import { Blob } from "buffer"

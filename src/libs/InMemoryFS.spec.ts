@@ -1430,143 +1430,143 @@ describe("commit", () => {
     })
   })
 })
-describe("object url", () => {
-  const fs = new InMemoryFS()
+// describe("object url", () => {
+//   const fs = new InMemoryFS()
 
-  function isBlob(url?: string): boolean {
-    return url?.startsWith("blob:") ?? false
-  }
-  function validBlob(url?: string): boolean {
-    return url !== undefined && blobMap.has(url)
-  }
+//   function isBlob(url?: string): boolean {
+//     return url?.startsWith("blob:") ?? false
+//   }
+//   function validBlob(url?: string): boolean {
+//     return url !== undefined && blobMap.has(url)
+//   }
 
-  test("clean", async () => {
-    await fs.writeFile("/test.txt", "hello world")
+//   test("clean", async () => {
+//     await fs.writeFile("/test.txt", "hello world")
 
-    expect(isBlob(fs.objectURLMap.get("/test.txt"))).toBe(true)
-    fs.clean()
+//     expect(isBlob(fs.objectURLMap.get("/test.txt"))).toBe(true)
+//     fs.clean()
 
-    expect(fs.objectURLMap.size).toBe(0)
-  })
-  test("add file", async () => {
-    fs.clean()
+//     expect(fs.objectURLMap.size).toBe(0)
+//   })
+//   test("add file", async () => {
+//     fs.clean()
 
-    await fs.writeFile("/test.txt", "hello world")
+//     await fs.writeFile("/test.txt", "hello world")
 
-    const url = fs.objectURLMap.get("/test.txt")
+//     const url = fs.objectURLMap.get("/test.txt")
 
-    expect(isBlob(url)).toBe(true)
-    expect(validBlob(url)).toBe(true)
-    expect(fs.objectURLMap.size).toBe(1)
-  })
-  test("modified file", async () => {
-    fs.clean()
+//     expect(isBlob(url)).toBe(true)
+//     expect(validBlob(url)).toBe(true)
+//     expect(fs.objectURLMap.size).toBe(1)
+//   })
+//   test("modified file", async () => {
+//     fs.clean()
 
-    await fs.writeFile("/test.txt", "hello world")
+//     await fs.writeFile("/test.txt", "hello world")
 
-    const url = fs.objectURLMap.get("/test.txt")
+//     const url = fs.objectURLMap.get("/test.txt")
 
-    expect(isBlob(url)).toBe(true)
-    expect(validBlob(url)).toBe(true)
-    expect(fs.objectURLMap.size).toBe(1)
+//     expect(isBlob(url)).toBe(true)
+//     expect(validBlob(url)).toBe(true)
+//     expect(fs.objectURLMap.size).toBe(1)
 
-    await fs.writeFile("/test.txt", "hello world 2")
+//     await fs.writeFile("/test.txt", "hello world 2")
 
-    const url2 = fs.objectURLMap.get("/test.txt")
+//     const url2 = fs.objectURLMap.get("/test.txt")
 
-    expect(isBlob(url2)).toBe(true)
-    expect(validBlob(url2)).toBe(true)
-    expect(url2).not.toBe(url)
-    expect(isBlob(url)).toBe(true)
-    expect(validBlob(url)).toEqual(false)
-    expect(fs.objectURLMap.size).toBe(1)
-  })
-  test("delete file", async () => {
-    fs.clean()
+//     expect(isBlob(url2)).toBe(true)
+//     expect(validBlob(url2)).toBe(true)
+//     expect(url2).not.toBe(url)
+//     expect(isBlob(url)).toBe(true)
+//     expect(validBlob(url)).toEqual(false)
+//     expect(fs.objectURLMap.size).toBe(1)
+//   })
+//   test("delete file", async () => {
+//     fs.clean()
 
-    await fs.writeFile("/test.txt", "hello world")
+//     await fs.writeFile("/test.txt", "hello world")
 
-    const url = fs.objectURLMap.get("/test.txt")
+//     const url = fs.objectURLMap.get("/test.txt")
 
-    expect(isBlob(url)).toBe(true)
-    expect(validBlob(url)).toBe(true)
-    expect(fs.objectURLMap.size).toBe(1)
+//     expect(isBlob(url)).toBe(true)
+//     expect(validBlob(url)).toBe(true)
+//     expect(fs.objectURLMap.size).toBe(1)
 
-    await fs.unlink("/test.txt")
+//     await fs.unlink("/test.txt")
 
-    const url2 = fs.objectURLMap.get("/test.txt")
+//     const url2 = fs.objectURLMap.get("/test.txt")
 
-    expect(isBlob(url2)).toBe(false)
-    expect(validBlob(url2)).toBe(false)
-    expect(url2).not.toBe(url)
-    expect(isBlob(url)).toBe(true)
-    expect(validBlob(url)).toEqual(false)
-    expect(fs.objectURLMap.size).toBe(0)
-  })
-  test("rename file", async () => {
-    fs.clean()
+//     expect(isBlob(url2)).toBe(false)
+//     expect(validBlob(url2)).toBe(false)
+//     expect(url2).not.toBe(url)
+//     expect(isBlob(url)).toBe(true)
+//     expect(validBlob(url)).toEqual(false)
+//     expect(fs.objectURLMap.size).toBe(0)
+//   })
+//   test("rename file", async () => {
+//     fs.clean()
 
-    await fs.writeFile("/test.txt", "hello world")
+//     await fs.writeFile("/test.txt", "hello world")
 
-    const url = fs.objectURLMap.get("/test.txt")
+//     const url = fs.objectURLMap.get("/test.txt")
 
-    expect(isBlob(url)).toBe(true)
-    expect(validBlob(url)).toBe(true)
-    expect(fs.objectURLMap.size).toBe(1)
+//     expect(isBlob(url)).toBe(true)
+//     expect(validBlob(url)).toBe(true)
+//     expect(fs.objectURLMap.size).toBe(1)
 
-    await fs.rename("/test.txt", "/test2.txt")
+//     await fs.rename("/test.txt", "/test2.txt")
 
-    const url2 = fs.objectURLMap.get("/test2.txt")
+//     const url2 = fs.objectURLMap.get("/test2.txt")
 
-    expect(isBlob(url2)).toBe(true)
-    expect(validBlob(url2)).toBe(true)
-    expect(url2).toBe(url)
-    expect(fs.objectURLMap.size).toBe(1)
-  })
-  test("rename dir", async () => {
-    fs.clean()
-    fs.resetChangelog()
+//     expect(isBlob(url2)).toBe(true)
+//     expect(validBlob(url2)).toBe(true)
+//     expect(url2).toBe(url)
+//     expect(fs.objectURLMap.size).toBe(1)
+//   })
+//   test("rename dir", async () => {
+//     fs.clean()
+//     fs.resetChangelog()
 
-    await fs.mkdir("/test")
-    await fs.writeFile("/test/index", "test")
+//     await fs.mkdir("/test")
+//     await fs.writeFile("/test/index", "test")
 
-    const url = fs.objectURLMap.get("/test/index")
+//     const url = fs.objectURLMap.get("/test/index")
 
-    expect(isBlob(url)).toBe(true)
-    expect(validBlob(url)).toBe(true)
-    expect(fs.objectURLMap.size).toBe(1)
+//     expect(isBlob(url)).toBe(true)
+//     expect(validBlob(url)).toBe(true)
+//     expect(fs.objectURLMap.size).toBe(1)
 
-    await fs.rename("/test", "/test2")
+//     await fs.rename("/test", "/test2")
 
-    const url2 = fs.objectURLMap.get("/test2/index")
+//     const url2 = fs.objectURLMap.get("/test2/index")
 
-    expect(isBlob(url2)).toBe(true)
-    expect(validBlob(url2)).toBe(true)
-    expect(url2).toBe(url)
-    expect(fs.objectURLMap.size).toBe(1)
-  })
-  test("delete dir", async () => {
-    fs.clean()
-    fs.resetChangelog()
+//     expect(isBlob(url2)).toBe(true)
+//     expect(validBlob(url2)).toBe(true)
+//     expect(url2).toBe(url)
+//     expect(fs.objectURLMap.size).toBe(1)
+//   })
+//   test("delete dir", async () => {
+//     fs.clean()
+//     fs.resetChangelog()
 
-    await fs.mkdir("/test")
-    await fs.writeFile("/test/index", "test")
+//     await fs.mkdir("/test")
+//     await fs.writeFile("/test/index", "test")
 
-    const url = fs.objectURLMap.get("/test/index")
+//     const url = fs.objectURLMap.get("/test/index")
 
-    expect(isBlob(url)).toBe(true)
-    expect(validBlob(url)).toBe(true)
-    expect(fs.objectURLMap.size).toBe(1)
+//     expect(isBlob(url)).toBe(true)
+//     expect(validBlob(url)).toBe(true)
+//     expect(fs.objectURLMap.size).toBe(1)
 
-    await fs.unlink("/test")
+//     await fs.unlink("/test")
 
-    const url2 = fs.objectURLMap.get("/test/index")
+//     const url2 = fs.objectURLMap.get("/test/index")
 
-    expect(isBlob(url2)).toBe(false)
-    expect(validBlob(url2)).toBe(false)
-    expect(url2).not.toBe(url)
-    expect(isBlob(url)).toBe(true)
-    expect(validBlob(url)).toEqual(false)
-    expect(fs.objectURLMap.size).toBe(0)
-  })
-})
+//     expect(isBlob(url2)).toBe(false)
+//     expect(validBlob(url2)).toBe(false)
+//     expect(url2).not.toBe(url)
+//     expect(isBlob(url)).toBe(true)
+//     expect(validBlob(url)).toEqual(false)
+//     expect(fs.objectURLMap.size).toBe(0)
+//   })
+// })
