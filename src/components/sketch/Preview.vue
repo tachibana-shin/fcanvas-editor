@@ -25,8 +25,10 @@
 
 <script lang="ts" setup>
 import type pkg from "src/../package.json"
+import type { InfoFileMap } from "src/modules/compiler"
+import { compiler, watchMap } from "src/modules/compiler"
 import { fs, watchFile } from "src/modules/fs"
-import { computed, onBeforeUnmount, ref } from "vue"
+import { computed, onBeforeUnmount, reactive, ref, watchEffect } from "vue"
 
 import Resizable from "../ui/Resizable.vue"
 
@@ -58,30 +60,60 @@ function useWatchContentFile(path: string) {
 const packageDotJson = useWatchContentFile("/package.json")
 const indexDotHtml = useWatchContentFile("/index.html")
 
-const srcDoc = computed(() => {
-  return `<script type="importmap">${JSON.stringify(
+const importmapDependencies = computed(() => {
+  return Object.fromEntries(
+    Object.entries(
+      packageDotJson.value === null
+        ? {}
+        : (JSON.parse(packageDotJson.value) as typeof pkg)?.dependencies ?? {}
+    ).map(([name, version]) => {
+      return [name, `https://cdn.skypack.dev/${name}@${version}`]
+    })
+  )
+})
+const indexDotHtmlTransformed = computed(() => {
+  if (!indexDotHtml.value) return null
+  // const { code, depends } =
+  return srcScriptToImport(indexDotHtml.value)
+})
+const objectMapCompiler = reactive(new Map<string, InfoFileMap>())
+onBeforeUnmount(watchMap(objectMapCompiler))
+watchEffect(() => {
+  console.log("rebuild compiler")
+  indexDotHtmlTransformed.value?.depends.forEach((file) => {
+    compiler(file, objectMapCompiler)
+  })
+})
+const importmapScripts = computed(() => {
+  console.log("rebuild importmap script")
+  return Object.fromEntries(
+    Array.from(objectMapCompiler.entries()).map(([path, info]) => {
+      return [`~${path}`, info.blob]
+    })
+  )
+})
+
+const importmap = computed(() => {
+  return JSON.stringify(
     {
-      imports: Object.assign(
-        Object.fromEntries(
-          Object.entries(
-            packageDotJson.value === null
-              ? {}
-              : (JSON.parse(packageDotJson.value) as typeof pkg)
-                  ?.dependencies ?? {}
-          ).map(([name, version]) => {
-            return [name, `https://cdn.skypack.dev/${name}@${version}`]
-          })
-        ),
-        Object.fromEntries(
-          Array.from(fs.objectURLMap.entries()).map(([path, blobUrl]) => {
-            return [`~${path}`, blobUrl]
-          })
-        )
-      )
+      imports: {
+        ...importmapDependencies.value,
+        ...importmapScripts.value
+      }
     },
     null,
     2
+  )
+})
+
+const srcDoc = computed(() => {
+  if (!indexDotHtml.value) return
+
+  console.log(objectMapCompiler)
+
+  return `<script type="importmap">${
+    importmap.value
     // eslint-disable-next-line no-useless-escape
-  )}<\/script>${indexDotHtml.value && srcScriptToImport(indexDotHtml.value)}`
+  }<\/script>${indexDotHtmlTransformed.value?.code}`
 })
 </script>
