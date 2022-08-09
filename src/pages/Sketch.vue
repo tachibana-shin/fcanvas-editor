@@ -12,6 +12,7 @@
 
   <q-page v-else class="flex column">
     <ToolBar />
+    <Console />
 
     <div class="flex h-full flex-1">
       <SideBar />
@@ -31,6 +32,7 @@ import Preview from "components/sketch/Preview.vue"
 import SideBar from "components/sketch/SideBar.vue"
 import ToolBar from "components/sketch/ToolBar.vue"
 import { useQuasar } from "quasar"
+import Console from "src/components/sketch/Console.vue"
 import { app } from "src/modules/firebase"
 import { useEditorStore } from "src/stores/editor"
 import sketchDefault from "src/templates/sketch-default"
