@@ -10,9 +10,38 @@
 
 const path = require("path")
 
+// eslint-disable-next-line n/no-unpublished-require
+const esbuild = require("esbuild")
 const { extend } = require("quasar")
 const { configure } = require("quasar/wrappers")
 
+function vitePluginBuildRaw() {
+  return {
+    name: "vite-plugin-build-raw",
+    transform(src, id) {
+      if (id.endsWith("?braw")) {
+        id = id.replace(/\?braw$/, "")
+        // console.log({ id })
+
+        const code = esbuild.buildSync({
+          entryPoints: [id],
+          format: "esm",
+          bundle: true,
+          minify: process.env.NODE_ENV === "production",
+          treeShaking: true,
+          write: false,
+          sourcemap: true
+          // sideEff
+        })
+
+        return {
+          code: `export default ${JSON.stringify(code.outputFiles[0].text)}`,
+          map: null
+        }
+      }
+    }
+  }
+}
 
 module.exports = configure(function (/* ctx */) {
   return {
@@ -110,7 +139,8 @@ module.exports = configure(function (/* ctx */) {
           }
         ],
         ["vite-plugin-windicss"],
-        ["vite-plugin-monaco-editor", {}]
+        ["vite-plugin-monaco-editor", {}],
+        [vitePluginBuildRaw]
       ]
     },
 
