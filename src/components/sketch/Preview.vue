@@ -25,8 +25,8 @@
 
 <script lang="ts" setup>
 import type pkg from "src/../package.json"
-import type { InfoFileMap} from "src/modules/compiler";
-import { compiler , revokeObjectURLMap, watchMap } from "src/modules/compiler"
+import type { InfoFileMap } from "src/modules/compiler"
+import { compiler, revokeObjectURLMap, watchMap } from "src/modules/compiler"
 import { fs, watchFile } from "src/modules/fs"
 import { computed, onBeforeUnmount, reactive, ref, watchEffect } from "vue"
 
@@ -87,7 +87,7 @@ onBeforeUnmount(() => {
 watchEffect(() => {
   console.log("rebuild compiler")
   indexDotHtmlTransformed.value?.depends.forEach((file) => {
-    revokeObjectURLMap(objectMapCompiler)
+    // revokeObjectURLMap(objectMapCompiler) // not require clean memory because content code not reborn and rebuild
     compiler(file, objectMapCompiler)
   })
 })
