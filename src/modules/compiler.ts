@@ -230,6 +230,16 @@ export function watchMap(objectURLMap: ObjectUrlMap): () => void {
   }
 }
 
+export function revokeObjectURLMap(objectURLMap: ObjectUrlMap): void {
+  objectURLMap.forEach((value, key) => {
+    if (typeof value === "number") return
+
+    URL.revokeObjectURL(value.blob)
+
+    objectURLMap.delete(key)
+  })
+}
+
 // main()
 // async function main() {
 //   fs.clean()

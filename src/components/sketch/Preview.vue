@@ -25,8 +25,8 @@
 
 <script lang="ts" setup>
 import type pkg from "src/../package.json"
-import type { InfoFileMap } from "src/modules/compiler"
-import { compiler, watchMap } from "src/modules/compiler"
+import type { InfoFileMap} from "src/modules/compiler";
+import { compiler , revokeObjectURLMap, watchMap } from "src/modules/compiler"
 import { fs, watchFile } from "src/modules/fs"
 import { computed, onBeforeUnmount, reactive, ref, watchEffect } from "vue"
 
@@ -78,10 +78,16 @@ const indexDotHtmlTransformed = computed(() => {
   return srcScriptToImport(indexDotHtml.value)
 })
 const objectMapCompiler = reactive(new Map<string, InfoFileMap>())
-onBeforeUnmount(watchMap(objectMapCompiler))
+
+const watcherMap = watchMap(objectMapCompiler)
+onBeforeUnmount(() => {
+  watcherMap()
+  revokeObjectURLMap(objectMapCompiler)
+})
 watchEffect(() => {
   console.log("rebuild compiler")
   indexDotHtmlTransformed.value?.depends.forEach((file) => {
+    revokeObjectURLMap(objectMapCompiler)
     compiler(file, objectMapCompiler)
   })
 })
@@ -111,10 +117,9 @@ const srcDoc = computed(() => {
   if (!indexDotHtml.value) return
 
   // eslint-disable-next-line no-useless-escape
-  return `\<script>${transportConsoleClient}<\/script><\/script><script type="importmap">
-${
-  importmap.value
-  // eslint-disable-next-line no-useless-escape
-}<\/script>${indexDotHtmlTransformed.value?.code}`
+  return `\<script>${transportConsoleClient}<\/script><\/script><script type="importmap">${
+    importmap.value
+    // eslint-disable-next-line no-useless-escape
+  }<\/script>${indexDotHtmlTransformed.value?.code}`
 })
 </script>
