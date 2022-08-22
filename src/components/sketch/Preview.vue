@@ -32,7 +32,7 @@ import { computed, onBeforeUnmount, reactive, ref, watchEffect } from "vue"
 
 import Resizable from "../ui/Resizable.vue"
 
-import transportConsoleClient from "./injects/transport-console?url"
+import transportConsoleClient from "./injects/transport-console?braw"
 import { srcScriptToImport } from "./logic/src-script-to-import"
 
 function useWatchContentFile(path: string) {
@@ -111,7 +111,7 @@ const srcDoc = computed(() => {
   if (!indexDotHtml.value) return
 
   // eslint-disable-next-line no-useless-escape
-  return `\<script type="" src="${transportConsoleClient}"><\/script><\/script><script type="importmap">
+  return `\<script>${transportConsoleClient}<\/script><\/script><script type="importmap">
 ${
   importmap.value
   // eslint-disable-next-line no-useless-escape

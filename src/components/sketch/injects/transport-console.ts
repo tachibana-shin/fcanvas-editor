@@ -1,4 +1,4 @@
-import { Encode } from "vue-console-feed"
+import { Encode } from "vue-console-feed/encode"
 
 console.log("transport-console actived!")
 for (const name in console) {
