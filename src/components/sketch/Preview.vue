@@ -17,7 +17,7 @@
       topLeft: false
     }"
   >
-    <div class="border-l border-gray-700 preview w-full h-full">
+    <div class="border-l border-gray-700 w-full h-full">
       <iframe class="w-full h-full" :srcdoc="srcDoc"></iframe>
     </div>
   </Resizable>

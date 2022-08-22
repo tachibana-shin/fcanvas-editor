@@ -12,7 +12,6 @@
 
   <q-page v-else class="flex column">
     <ToolBar />
-    <Console />
 
     <div class="flex h-full flex-1">
       <SideBar />
@@ -20,6 +19,7 @@
       <div class="flex flex-nowrap relative w-full flex-1">
         <EditorFile />
         <Preview />
+        <Console />
       </div>
     </div>
   </q-page>
