@@ -18,7 +18,7 @@
     }"
   >
     <div class="border-l border-gray-700 w-full h-full">
-      <iframe class="w-full h-full" :srcdoc="srcDoc"></iframe>
+      <iframe class="w-full h-full" :srcdoc="srcDoc" ref="iframe"></iframe>
     </div>
   </Resizable>
 </template>
@@ -34,6 +34,9 @@ import Resizable from "../ui/Resizable.vue"
 
 import transportConsoleClient from "./injects/transport-console?braw"
 import { srcScriptToImport } from "./logic/src-script-to-import"
+
+const iframe = ref<HTMLIFrameElement>()
+defineExpose({ iframe })
 
 function useWatchContentFile(path: string) {
   const content = ref<string | null>(null)

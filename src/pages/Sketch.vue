@@ -18,8 +18,10 @@
 
       <div class="flex flex-nowrap relative w-full flex-1">
         <EditorFile />
-        <Preview />
-        <Console />
+        <Preview ref="previewRef" />
+        <Console
+          :iframe="(previewRef?.iframe as HTMLIFrameElement | undefined)"
+        />
       </div>
     </div>
   </q-page>
@@ -38,6 +40,8 @@ import { useEditorStore } from "src/stores/editor"
 import sketchDefault from "src/templates/sketch-default"
 import { ref, watch } from "vue"
 import { useRoute } from "vue-router"
+
+const previewRef = ref<typeof Preview>()
 
 const loading = ref(false)
 
