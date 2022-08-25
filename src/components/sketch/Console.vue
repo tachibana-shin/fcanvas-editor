@@ -41,6 +41,9 @@
           v-if="item.name === 'table'"
           :data="item.args.table"
           :data-value="item.args.value"
+          :_get-list-link-async="getListLinkAsync"
+          :read-link-object-async="readLinkObjectAsync"
+          :call-fn-link-async="callFnLinkAsync"
         />
         <ConsoleItem
           v-else
@@ -48,6 +51,7 @@
           :type="item.name"
           :_get-list-link-async="getListLinkAsync"
           :read-link-object-async="readLinkObjectAsync"
+          :call-fn-link-async="callFnLinkAsync"
         />
       </template>
       {{ consoleMessages }}
@@ -57,46 +61,35 @@
 
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue"
-import { useQuasar } from "quasar"
 import { v4 } from "uuid"
 import { onBeforeUnmount, reactive } from "vue"
-import type { _getListLink, Data } from "vue-console-feed"
-import { ConsoleItem, ConsoleTable, Encode } from "vue-console-feed"
+import type { _getListLink, Data, readLinkObject } from "vue-console-feed"
+import { ConsoleItem, ConsoleTable } from "vue-console-feed"
 import "vue-console-feed/style.css"
 
 import Resizable from "../ui/Resizable.vue"
+
+import type {
+  MessageAPI,
+  MessageConsoleEncode
+} from "./injects/transport-console"
 
 const props = defineProps<{
   iframe?: HTMLIFrameElement
 }>()
 
-const consoleMessages = reactive<ReturnType<typeof Encode>[]>([])
-const data = Encode(
-  {
-    name: "Shin",
-    permission: ["admin"]
-  },
-  true,
-  true
-)
+const consoleMessages = reactive<Omit<MessageConsoleEncode, "type">[]>([])
 
-function handleMessage(
-  event: MessageEvent<{
-    type: string
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    args: any[]
-  }>
-) {
-  if (event.data.type === "error" || event.data.type === "console") {
+function handleMessage(event: MessageEvent<MessageConsoleEncode>) {
+  if (event.data.type === "console") {
     consoleMessages.push(event.data)
-    console.log(event.data)
   }
 }
 addEventListener("message", handleMessage)
 onBeforeUnmount(() => removeEventListener("message", handleMessage))
 
 function getListLinkAsync(link: Data.Link) {
-  return new Promise((resolve, reject) => {
+  return new Promise<ReturnType<typeof _getListLink>>((resolve, reject) => {
     const id = v4()
     props.iframe?.contentWindow?.postMessage({
       id,
@@ -104,13 +97,8 @@ function getListLinkAsync(link: Data.Link) {
       link
     })
 
-    const handler = (
-      event: MessageEvent<{
-        id: string
-        result: ReturnType<typeof _getListLink>
-      }>
-    ) => {
-      if (event.data.id !== id) return
+    const handler = (event: MessageEvent<MessageAPI>) => {
+      if (event.data.id !== id || event.data.type !== "getListLink") return
 
       resolve(event.data.result)
 
@@ -121,7 +109,7 @@ function getListLinkAsync(link: Data.Link) {
   })
 }
 function readLinkObjectAsync(link: Data.Link) {
-  return new Promise((resolve, reject) => {
+  return new Promise<ReturnType<typeof readLinkObject>>((resolve, reject) => {
     const id = v4()
     props.iframe?.contentWindow?.postMessage({
       id,
@@ -129,13 +117,28 @@ function readLinkObjectAsync(link: Data.Link) {
       link
     })
 
-    const handler = (
-      event: MessageEvent<{
-        id: string
-        result: ReturnType<typeof _getListLink>
-      }>
-    ) => {
-      if (event.data.id !== id) return
+    const handler = (event: MessageEvent<MessageAPI>) => {
+      if (event.data.id !== id || event.data.type !== "readLinkObject") return
+
+      resolve(event.data.result)
+
+      window.removeEventListener("message", handler)
+    }
+
+    window.addEventListener("message", handler)
+  })
+}
+function callFnLinkAsync(link: Data.Link) {
+  return new Promise<ReturnType<typeof readLinkObject>>((resolve, reject) => {
+    const id = v4()
+    props.iframe?.contentWindow?.postMessage({
+      id,
+      type: "callFnLinkAsync",
+      link
+    })
+
+    const handler = (event: MessageEvent<MessageAPI>) => {
+      if (event.data.id !== id || event.data.type !== "readLinkObject") return
 
       resolve(event.data.result)
 

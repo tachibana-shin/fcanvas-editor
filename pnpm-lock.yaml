@@ -53,7 +53,7 @@ specifiers:
   vite-plugin-windicss: ^1.8.7
   vitest: 0.21.0
   vue: ^3.2.37
-  vue-console-feed: ^0.0.11
+  vue-console-feed: ^0.0.13
   vue-i18n: ^9.2.0
   vue-re-resizable: 6.9.19-beta.2
   vue-router: ^4.1.3
@@ -84,7 +84,7 @@ dependencies:
   vite-plugin-monaco-editor: 1.1.0_monaco-editor@0.33.0
   vite-plugin-windicss: 1.8.7_vite@3.0.4
   vue: 3.2.37
-  vue-console-feed: 0.0.11_vue@3.2.37
+  vue-console-feed: 0.0.13_vue@3.2.37
   vue-i18n: 9.2.0_vue@3.2.37
   vue-re-resizable: 6.9.19-beta.2_vue@3.2.37
   vue-router: 4.1.3_vue@3.2.37
@@ -4895,8 +4895,8 @@ packages:
       - terser
     dev: true
 
-  /vue-console-feed/0.0.11_vue@3.2.37:
-    resolution: {integrity: sha512-ttiQaSejHazcAhVVk+S0krAIWxwrb6jF9/EZ6nc8ULLUVNdjSXkoIEenkr0dNUTFQ2StV1Th4MGJfmoUjDD0gA==}
+  /vue-console-feed/0.0.13_vue@3.2.37:
+    resolution: {integrity: sha512-yEy4j4sHC82GmEXf30Z3vWp0HQLvXiI5w0M5kb4V4D6r2krqqclaihilPqMynhyfARdzziwGEKQPg+sXZIoRbw==}
     engines: {node: '>=10'}
     peerDependencies:
       vue: ^3.2.37

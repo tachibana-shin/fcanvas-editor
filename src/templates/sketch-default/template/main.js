@@ -19,3 +19,5 @@ const rect = new Rect({
 layer.add(rect)
 
 log("hello fcanvas")
+
+console.table([1, 2, 3, 5, 4])

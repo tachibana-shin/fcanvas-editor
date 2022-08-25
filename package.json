@@ -37,7 +37,7 @@
     "vite-plugin-monaco-editor": "^1.1.0",
     "vite-plugin-windicss": "^1.8.7",
     "vue": "^3.2.37",
-    "vue-console-feed": "^0.0.11",
+    "vue-console-feed": "^0.0.13",
     "vue-i18n": "^9.2.0",
     "vue-re-resizable": "6.9.19-beta.2",
     "vue-router": "^4.1.3",
