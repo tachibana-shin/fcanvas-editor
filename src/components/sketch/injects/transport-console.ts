@@ -7,22 +7,21 @@ import {
 } from "vue-console-feed/encode"
 import { Table } from "vue-console-feed/table"
 
-const methodsPort = ["log", "warn", "error"]
+export type Methods = "log" | "warn" | "error"
+export interface MessageConsoleTable {
+  type: "console"
+  name: "table"
+  args: {
+    table: ReturnType<typeof Table>
+    value: ReturnType<typeof Encode>
+  }
+}
+export interface MessageConsoleEncode {
+  type: "console"
+  name: Methods
+  args: ReturnType<typeof Encode>[]
+}
 
-export type MessageConsoleEncode =
-  | {
-      type: "console"
-      name: typeof methodsPort[0]
-      args: ReturnType<typeof Encode>[]
-    }
-  | {
-      type: "console"
-      name: "table"
-      args: {
-        table: ReturnType<typeof Table>
-        value: ReturnType<typeof Encode>
-      }
-    }
 export type MessageAPI =
   | {
       type: "getListLink"
@@ -35,17 +34,20 @@ export type MessageAPI =
       result: ReturnType<typeof readLinkObject>
     }
   | {
-      type: "callFnLinkAsync"
+      type: "callFnLink"
       id: string
       result: ReturnType<typeof callFnLink>
     }
 
-function postMessageToParent(message: MessageConsoleEncode | MessageAPI) {
+function postMessageToParent(
+  message: MessageConsoleEncode | MessageConsoleTable | MessageAPI
+) {
   parent.postMessage(message, {
     targetOrigin: "*"
   })
 }
 
+const methodsPort: Methods[] = ["log", "warn", "error"]
 methodsPort.forEach((name) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fn = (console as unknown as any)[name]
@@ -96,7 +98,7 @@ window.addEventListener(
   (
     event: MessageEvent<{
       id: string
-      type: "getListLink" | "readLinkObject" | "callFnLinkAsync"
+      type: MessageAPI["type"]
       link: Data.Link
     }>
   ) => {
@@ -115,9 +117,9 @@ window.addEventListener(
           result: readLinkObject(event.data.link)
         })
         break
-      case "callFnLinkAsync":
+      case "callFnLink":
         postMessageToParent({
-          type: "callFnLinkAsync",
+          type: "callFnLink",
           id: event.data.id,
           result: callFnLink(event.data.link)
         })

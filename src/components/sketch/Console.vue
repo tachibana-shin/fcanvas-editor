@@ -38,9 +38,9 @@
 
       <template v-for="(item, index) in consoleMessages" :key="index">
         <ConsoleTable
-          v-if="item.name === 'table'"
-          :data="item.args.table"
-          :data-value="item.args.value"
+          v-if="(item  as unknown as MessageConsoleTable).name === 'table'"
+          :data="(item as unknown as MessageConsoleTable).args.table"
+          :data-value="(item as unknown as MessageConsoleTable).args.value"
           :_get-list-link-async="getListLinkAsync"
           :read-link-object-async="readLinkObjectAsync"
           :call-fn-link-async="callFnLinkAsync"
@@ -48,7 +48,7 @@
         <ConsoleItem
           v-else
           :data="item.args[0]"
-          :type="item.name"
+          :type="(item.name as Methods)"
           :_get-list-link-async="getListLinkAsync"
           :read-link-object-async="readLinkObjectAsync"
           :call-fn-link-async="callFnLinkAsync"
@@ -63,12 +63,18 @@
 import { Icon } from "@iconify/vue"
 import { v4 } from "uuid"
 import { onBeforeUnmount, reactive } from "vue"
-import type { _getListLink, Data, readLinkObject } from "vue-console-feed"
+import type {
+  _getListLink,
+  callFnLink,
+  Data,
+  readLinkObject
+} from "vue-console-feed"
 import { ConsoleItem, ConsoleTable } from "vue-console-feed"
 import "vue-console-feed/style.css"
 
 import Resizable from "../ui/Resizable.vue"
 
+import { MessageConsoleTable, Methods } from "./injects/transport-console"
 import type {
   MessageAPI,
   MessageConsoleEncode
@@ -78,6 +84,11 @@ const props = defineProps<{
   iframe?: HTMLIFrameElement
 }>()
 
+const cancelers = new Set<() => void>()
+onBeforeUnmount(() => {
+  cancelers.forEach((canceler) => canceler())
+})
+
 const consoleMessages = reactive<Omit<MessageConsoleEncode, "type">[]>([])
 
 function handleMessage(event: MessageEvent<MessageConsoleEncode>) {
@@ -86,66 +97,39 @@ function handleMessage(event: MessageEvent<MessageConsoleEncode>) {
   }
 }
 addEventListener("message", handleMessage)
-onBeforeUnmount(() => removeEventListener("message", handleMessage))
+cancelers.add(() => removeEventListener("message", handleMessage))
 
-function getListLinkAsync(link: Data.Link) {
-  return new Promise<ReturnType<typeof _getListLink>>((resolve, reject) => {
-    const id = v4()
-    props.iframe?.contentWindow?.postMessage({
-      id,
-      type: "getListLink",
-      link
+function createAPIAsync<R extends MessageAPI["result"]>(
+  type: "getListLink" | "readLinkObject" | "callFnLink"
+) {
+  return (link: Data.Link) =>
+    new Promise<R>((resolve) => {
+      const id = v4()
+      props.iframe?.contentWindow?.postMessage({
+        id,
+        type,
+        link
+      })
+
+      const handler = (event: MessageEvent<MessageAPI>) => {
+        if (event.data.id !== id || event.data.type !== type) return
+
+        resolve(event.data.result as R)
+
+        cancel()
+        cancelers.delete(cancel)
+      }
+      const cancel = () => window.removeEventListener("message", handler)
+
+      cancelers.add(cancel)
+      window.addEventListener("message", handler)
     })
-
-    const handler = (event: MessageEvent<MessageAPI>) => {
-      if (event.data.id !== id || event.data.type !== "getListLink") return
-
-      resolve(event.data.result)
-
-      window.removeEventListener("message", handler)
-    }
-
-    window.addEventListener("message", handler)
-  })
 }
-function readLinkObjectAsync(link: Data.Link) {
-  return new Promise<ReturnType<typeof readLinkObject>>((resolve, reject) => {
-    const id = v4()
-    props.iframe?.contentWindow?.postMessage({
-      id,
-      type: "readLinkObject",
-      link
-    })
 
-    const handler = (event: MessageEvent<MessageAPI>) => {
-      if (event.data.id !== id || event.data.type !== "readLinkObject") return
-
-      resolve(event.data.result)
-
-      window.removeEventListener("message", handler)
-    }
-
-    window.addEventListener("message", handler)
-  })
-}
-function callFnLinkAsync(link: Data.Link) {
-  return new Promise<ReturnType<typeof readLinkObject>>((resolve, reject) => {
-    const id = v4()
-    props.iframe?.contentWindow?.postMessage({
-      id,
-      type: "callFnLinkAsync",
-      link
-    })
-
-    const handler = (event: MessageEvent<MessageAPI>) => {
-      if (event.data.id !== id || event.data.type !== "readLinkObject") return
-
-      resolve(event.data.result)
-
-      window.removeEventListener("message", handler)
-    }
-
-    window.addEventListener("message", handler)
-  })
-}
+const getListLinkAsync =
+  createAPIAsync<ReturnType<typeof _getListLink>>("getListLink")
+const readLinkObjectAsync =
+  createAPIAsync<ReturnType<typeof readLinkObject>>("readLinkObject")
+const callFnLinkAsync =
+  createAPIAsync<ReturnType<typeof callFnLink>>("callFnLink")
 </script>
