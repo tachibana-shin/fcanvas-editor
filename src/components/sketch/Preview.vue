@@ -120,7 +120,7 @@ const srcDoc = computed(() => {
   if (!indexDotHtml.value) return
 
   // eslint-disable-next-line no-useless-escape
-  return `\<script>${transportConsoleClient}<\/script><\/script><script type="importmap">${
+  return `\<script>{${transportConsoleClient}}<\/script><\/script><script type="importmap">${
     importmap.value
     // eslint-disable-next-line no-useless-escape
   }<\/script>${indexDotHtmlTransformed.value?.code}`
