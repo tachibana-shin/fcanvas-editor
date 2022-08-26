@@ -1,7 +1,7 @@
-import type { Data } from "vue-console-feed/encode"
-import {
-  _getListLink,
+import type { Data } from "vue-console-feed/encode";
+import { _getListLink ,
   callFnLink,
+  clearLinkStore,
   Encode,
   readLinkObject
 } from "vue-console-feed/encode"
@@ -127,5 +127,14 @@ window.addEventListener(
     }
 
     // id, result
+  }
+)
+window.addEventListener(
+  "message",
+  (event: MessageEvent<{ type: "clearConsole" }>) => {
+    if (event.data.type === "clearConsole") {
+      console.clear()
+      clearLinkStore()
+    }
   }
 )

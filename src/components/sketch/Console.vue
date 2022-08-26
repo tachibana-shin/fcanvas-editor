@@ -32,7 +32,12 @@
           <Icon icon="codicon:chevron-down" width="20" height="20" />
           <!-- <Icon icon="codicon:chevron-down" width="16" height="16" /> -->
 
-          <Icon icon="codicon:clear-all" width="16" height="16" />
+          <Icon
+            icon="codicon:clear-all"
+            width="16"
+            height="16"
+            @click="clear"
+          />
         </div>
       </div>
 
@@ -47,14 +52,15 @@
         />
         <ConsoleItem
           v-else
-          :data="item.args[0]"
+          v-for="(message, indexMess) in item.args"
+          :key="index + '_' + indexMess"
+          :data="message"
           :type="(item.name as Methods)"
           :_get-list-link-async="getListLinkAsync"
           :read-link-object-async="readLinkObjectAsync"
           :call-fn-link-async="callFnLinkAsync"
         />
       </template>
-      {{ consoleMessages }}
     </div>
   </div>
 </template>
@@ -132,4 +138,12 @@ const readLinkObjectAsync =
   createAPIAsync<ReturnType<typeof readLinkObject>>("readLinkObject")
 const callFnLinkAsync =
   createAPIAsync<ReturnType<typeof callFnLink>>("callFnLink")
+
+function clear() {
+  consoleMessages.splice(0)
+
+  props.iframe?.contentWindow?.postMessage({
+    type: "clearConsole"
+  })
+}
 </script>
