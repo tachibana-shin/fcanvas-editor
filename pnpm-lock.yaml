@@ -17,6 +17,7 @@ specifiers:
   '@types/prettier': ^2.6.4
   '@types/project-name-generator': ^2.1.1
   '@types/sort-array': ^4.1.0
+  '@types/sprintf-js': ^1.1.2
   '@types/uuid': ^8.3.4
   '@types/validator': ^13.7.4
   '@typescript-eslint/eslint-plugin': ^5.32.0
@@ -43,6 +44,7 @@ specifiers:
   quasar: ^2.7.7
   sass: 1.32.12
   sort-array: ^4.1.5
+  sprintf-js: ^1.1.2
   systemjs: ~6.12.1
   tslib: ^2.4.0
   typescript: ^4.7.4
@@ -79,6 +81,7 @@ dependencies:
   project-name-generator: 2.1.9
   quasar: 2.7.7
   sort-array: 4.1.5
+  sprintf-js: 1.1.2
   uuid: 8.3.2
   validator: 13.7.0
   vite-plugin-monaco-editor: 1.1.0_monaco-editor@0.33.0
@@ -103,6 +106,7 @@ devDependencies:
   '@types/prettier': 2.6.4
   '@types/project-name-generator': 2.1.1
   '@types/sort-array': 4.1.0
+  '@types/sprintf-js': 1.1.2
   '@types/uuid': 8.3.4
   '@types/validator': 13.7.4
   '@typescript-eslint/eslint-plugin': 5.32.0_iosr3hrei2tubxveewluhu5lhy
@@ -737,6 +741,10 @@ packages:
 
   /@types/sort-array/4.1.0:
     resolution: {integrity: sha512-mnk6jrs36bAavj7EPYTzBEWqdybrzjS8muhV9knFY0YOCsI5HpBeq3+gN/E/nTSZxTKgSoW7+xVCrlTyD6+Rxw==}
+    dev: true
+
+  /@types/sprintf-js/1.1.2:
+    resolution: {integrity: sha512-hkgzYF+qnIl8uTO8rmUSVSfQ8BIfMXC4yJAF4n8BE758YsKBZvFC4NumnAegj7KmylP0liEZNpb9RRGFMbFejA==}
     dev: true
 
   /@types/uuid/8.3.4:
@@ -4454,6 +4462,10 @@ packages:
 
   /sourcemap-codec/1.4.8:
     resolution: {integrity: sha512-9NykojV5Uih4lgo5So5dtw+f0JgJX30KCNI8gwhz2J9A15wD0Ml6tjHKwf6fTSa6fAdVBdZeNOs9eJ71qCk8vA==}
+
+  /sprintf-js/1.1.2:
+    resolution: {integrity: sha512-VE0SOVEHCk7Qc8ulkWw3ntAzXuqf7S2lvwQaDLRnUeIEaKNQJzV6BwmLKhOqT61aGhfUMrXeaBk+oDGCzvhcug==}
+    dev: false
 
   /statuses/2.0.1:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}

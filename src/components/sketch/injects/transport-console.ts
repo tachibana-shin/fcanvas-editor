@@ -1,5 +1,7 @@
-import type { Data } from "vue-console-feed/encode";
-import { _getListLink ,
+import { sprintf } from "sprintf-js"
+import type { Data } from "vue-console-feed/encode"
+import {
+  _getListLink,
   callFnLink,
   clearLinkStore,
   Encode,
@@ -57,7 +59,10 @@ methodsPort.forEach((name) => {
     postMessageToParent({
       type: "console",
       name,
-      args: args.map((item) => Encode(item, true, true))
+      args:
+        args[0]?.includes("%") && typeof args[0] === "string"
+          ? [Encode(sprintf(args[0], ...args.slice(1)), true, true)]
+          : args.map((item) => Encode(item, true, true))
     })
 
     return fn.apply(this, args)
