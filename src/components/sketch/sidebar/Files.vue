@@ -34,7 +34,5 @@ import { ref } from "vue"
 
 import FileTree from "./components/FileTree.vue"
 
-const fileTreeRef = ref()
-
-console.log(fileTreeRef)
+const fileTreeRef = ref<typeof FileTree>()
 </script>
