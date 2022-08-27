@@ -64,7 +64,7 @@ import Files from "./sidebar/Files.vue"
 import Search from "./sidebar/Search.vue"
 
 const tabSelection = ref<null | "file" | "search" | "change" | "setting">(
-  "search"
+  "file"
 )
 const tabs: {
   icon: string
