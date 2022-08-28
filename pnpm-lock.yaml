@@ -55,9 +55,9 @@ specifiers:
   vite-plugin-windicss: ^1.8.7
   vitest: 0.21.0
   vue: ^3.2.37
-  vue-console-feed: ^0.0.14
+  vue-console-feed: ^0.0.15
   vue-i18n: ^9.2.0
-  vue-re-resizable: 6.9.19-beta.2
+  vue-re-resizable: 6.9.19-beta.4
   vue-router: ^4.1.3
   vue3-draggable-resizable: ^1.6.4
   windicss: ^3.5.6
@@ -87,9 +87,9 @@ dependencies:
   vite-plugin-monaco-editor: 1.1.0_monaco-editor@0.33.0
   vite-plugin-windicss: 1.8.7_vite@3.0.4
   vue: 3.2.37
-  vue-console-feed: 0.0.14_vue@3.2.37
+  vue-console-feed: 0.0.15_vue@3.2.37
   vue-i18n: 9.2.0_vue@3.2.37
-  vue-re-resizable: 6.9.19-beta.2_vue@3.2.37
+  vue-re-resizable: 6.9.19-beta.4_vue@3.2.37
   vue-router: 4.1.3_vue@3.2.37
   vue3-draggable-resizable: 1.6.4
   windicss: 3.5.6
@@ -4907,8 +4907,8 @@ packages:
       - terser
     dev: true
 
-  /vue-console-feed/0.0.14_vue@3.2.37:
-    resolution: {integrity: sha512-dQ//mw+TIxHO/UCtqIq0qkYI4m8sqwZvA1JPi1J3L82AdwF18i153f7xIjh/+iVEL2A4SQywqnRLYyCpMm7cDA==}
+  /vue-console-feed/0.0.15_vue@3.2.37:
+    resolution: {integrity: sha512-MV7qm4r5NVz/ePMx+C2iaCrwwBopQH3AEY6U5LOHnZ4131cxSyOZm6eBpzb/e5ewPxVS78QlZKBCV+MKk7tBGA==}
     engines: {node: '>=10'}
     peerDependencies:
       vue: ^3.2.37
@@ -4960,8 +4960,8 @@ packages:
       '@vue/devtools-api': 6.2.1
       vue: 3.2.37
 
-  /vue-re-resizable/6.9.19-beta.2_vue@3.2.37:
-    resolution: {integrity: sha512-Vq7PQsDtJYIqJHVnVI+7DMtLeSTWB9NrUi82/Wq3HlMtr4QS5UTfnQmFzBr+wMFXcpkeDr8I1TvCw2s1KhlZbw==}
+  /vue-re-resizable/6.9.19-beta.4_vue@3.2.37:
+    resolution: {integrity: sha512-sOto9e3SHmAeGFpVrg/v4yb+mdR5p48u3ADTGUQ19QGXLI2SQrJPj3W+xgbt0u5U7cnGKJZ9uh1z0K8VtgI96A==}
     peerDependencies:
       vue: ^3
     dependencies:

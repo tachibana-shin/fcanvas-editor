@@ -1,10 +1,13 @@
 <template>
-  <div class="absolute z-40 h-full w-full pointer-events-none flex flex-col">
+  <div
+    class="absolute z-40 h-full w-full pointer-events-none flex flex-col flex-nowrap"
+  >
     <Resizable
       :default-size="{
         width: '100%',
         height: 'calc(100%-260px)'
       }"
+      :min-height="0"
       :enable="{
         top: false,
         right: false,
@@ -18,10 +21,12 @@
       :resizer-classes="{
         bottom: 'pointer-events-auto'
       }"
-      class="h-[calc(100%-260px)]"
+      ref="resizableRef"
+      class="h-[calc(100%-355px)] max-h-[calc(100%-36px)]"
+      @resize:start="onResizeStart"
     />
     <div
-      class="pointer-events-auto bg-dark-600 h-full w-full flex-1 scroll-y scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-100 pb-[42px]"
+      class="pointer-events-auto bg-dark-600 h-full w-full flex-1 relative scroll-y scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-100 flex flex-col"
     >
       <div
         class="py-[7px] text-[12px] uppercase bg-dark-800 text-[14px] flex items-center justify-between mx-[10px]"
@@ -29,8 +34,20 @@
         Console
 
         <div class="flex items-center children:mr-1 children:cursor-pointer">
-          <Icon icon="codicon:chevron-down" width="20" height="20" />
-          <!-- <Icon icon="codicon:chevron-down" width="16" height="16" /> -->
+          <Icon
+            v-if="resizableRef?.height > 0"
+            icon="codicon:chevron-up"
+            width="20"
+            height="20"
+            @click="fullConsole"
+          />
+          <Icon
+            v-else
+            icon="codicon:chevron-down"
+            width="16"
+            height="16"
+            @click="hideConsole"
+          />
 
           <Icon
             icon="codicon:clear-all"
@@ -41,26 +58,28 @@
         </div>
       </div>
 
-      <template v-for="(item, index) in consoleMessages" :key="index">
-        <ConsoleTable
-          v-if="(item  as unknown as MessageConsoleTable).name === 'table'"
-          :data="(item as unknown as MessageConsoleTable).args.table"
-          :data-value="(item as unknown as MessageConsoleTable).args.value"
-          :_get-list-link-async="getListLinkAsync"
-          :read-link-object-async="readLinkObjectAsync"
-          :call-fn-link-async="callFnLinkAsync"
-        />
-        <ConsoleItem
-          v-else
-          v-for="(message, indexMess) in item.args"
-          :key="index + '_' + indexMess"
-          :data="message"
-          :type="(item.name as Methods)"
-          :_get-list-link-async="getListLinkAsync"
-          :read-link-object-async="readLinkObjectAsync"
-          :call-fn-link-async="callFnLinkAsync"
-        />
-      </template>
+      <div class="h-full flex-1 overflow-auto" ref="messageWrapperRef">
+        <template v-for="(item, index) in consoleMessages" :key="index">
+          <ConsoleTable
+            v-if="(item  as unknown as MessageConsoleTable).name === 'table'"
+            :data="(item as unknown as MessageConsoleTable).args.table"
+            :data-value="(item as unknown as MessageConsoleTable).args.value"
+            :_get-list-link-async="getListLinkAsync"
+            :read-link-object-async="readLinkObjectAsync"
+            :call-fn-link-async="callFnLinkAsync"
+          />
+          <ConsoleItem
+            v-else
+            v-for="(message, indexMess) in item.args"
+            :key="index + '_' + indexMess"
+            :data="message"
+            :type="(item.name as Methods)"
+            :_get-list-link-async="getListLinkAsync"
+            :read-link-object-async="readLinkObjectAsync"
+            :call-fn-link-async="callFnLinkAsync"
+          />
+        </template>
+      </div>
     </div>
   </div>
 </template>
@@ -68,23 +87,31 @@
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue"
 import { v4 } from "uuid"
-import { onBeforeUnmount, reactive } from "vue"
+import { onBeforeUnmount, reactive, ref } from "vue"
+// eslint-disable-next-line import/order
+import { ConsoleItem, ConsoleTable } from "vue-console-feed"
+
+// eslint-disable-next-line import/order
 import type {
   _getListLink,
   callFnLink,
   Data,
   readLinkObject
 } from "vue-console-feed"
-import { ConsoleItem, ConsoleTable } from "vue-console-feed"
+
 import "vue-console-feed/style.css"
 
-import Resizable from "../ui/Resizable.vue"
+import { Resizable } from "vue-re-resizable"
+import "vue-re-resizable/dist/style.css"
 
 import { MessageConsoleTable, Methods } from "./injects/transport-console"
 import type {
   MessageAPI,
   MessageConsoleEncode
 } from "./injects/transport-console"
+
+// eslint-disable-next-line import/order
+import { debounce } from "quasar"
 
 const props = defineProps<{
   iframe?: HTMLIFrameElement
@@ -97,9 +124,21 @@ onBeforeUnmount(() => {
 
 const consoleMessages = reactive<Omit<MessageConsoleEncode, "type">[]>([])
 
+const messageWrapperRef = ref<HTMLDivElement>()
+const resizableRef = ref<typeof Resizable>()
+
+const scrollIntoBottomConsole = debounce(() => {
+  messageWrapperRef.value?.scrollTo({
+    top: messageWrapperRef.value?.scrollHeight,
+    behavior: "smooth"
+  })
+}, 70)
 function handleMessage(event: MessageEvent<MessageConsoleEncode>) {
   if (event.data.type === "console") {
     consoleMessages.push(event.data)
+
+    // scroll to down;
+    scrollIntoBottomConsole()
   }
 }
 addEventListener("message", handleMessage)
@@ -145,5 +184,27 @@ function clear() {
   props.iframe?.contentWindow?.postMessage({
     type: "clearConsole"
   })
+}
+
+// ====== console ui =====
+// eslint-disable-next-line functional/no-let
+let heightBackuped: number
+function onResizeStart({ el }: { el: HTMLDivElement }) {
+  const { height } = el.getBoundingClientRect()
+
+  heightBackuped = height
+}
+
+function fullConsole() {
+  if (heightBackuped === undefined) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    heightBackuped = resizableRef.value!.height
+  }
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  resizableRef.value!.height = 0
+}
+function hideConsole() {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  resizableRef.value!.height = heightBackuped
 }
 </script>
