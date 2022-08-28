@@ -1,8 +1,10 @@
 <template>
-  <div class="absolute bottom-0 z-40 w-full flex flex-col flex-nowrap">
+  <div
+    class="absolute bottom-0 z-40 w-full max-h-full flex flex-col flex-nowrap overflow-x-hidden"
+    ref="wrapperRef"
+  >
     <Resizable
       :default-size="{
-        width: '100%',
         height: '355px'
       }"
       :min-height="36"
@@ -20,7 +22,7 @@
       @resize:start="onResizeStart"
     >
       <div
-        class="bg-dark-600 h-full w-full flex-1 relative scroll-y scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-100 flex flex-col"
+        class="bg-dark-600 h-full w-full relative scroll-y scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-100 flex flex-col"
       >
         <div
           class="py-[7px] text-[12px] uppercase bg-dark-800 text-[14px] flex items-center justify-between mx-[10px]"
@@ -188,19 +190,18 @@ function onResizeStart({ el }: { el: HTMLDivElement }) {
   const { height } = el.getBoundingClientRect()
 
   heightBackuped = height
-
-  console.log({ heightBackuped })
 }
 
+const wrapperRef = ref<HTMLDivElement>()
 function fullConsole() {
   if (heightBackuped === undefined) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     heightBackuped = resizableRef.value!.height
   }
 
-  console.log({ heightBackuped })
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  resizableRef.value!.height = 0
+  resizableRef.value!.height =
+    wrapperRef.value?.parentElement?.offsetHeight + "px"
 }
 function hideConsole() {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
