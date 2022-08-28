@@ -1,86 +1,81 @@
 <template>
-  <div
-    class="absolute z-40 h-full w-full pointer-events-none flex flex-col flex-nowrap"
-  >
+  <div class="absolute bottom-0 z-40 w-full flex flex-col flex-nowrap">
     <Resizable
       :default-size="{
         width: '100%',
-        height: 'calc(100%-260px)'
+        height: '355px'
       }"
-      :min-height="0"
+      :min-height="36"
       :enable="{
-        top: false,
+        top: true,
         right: false,
-        bottom: true,
+        bottom: false,
         left: false,
         topRight: false,
         bottomRight: false,
         bottomLeft: false,
         topLeft: false
       }"
-      :resizer-classes="{
-        bottom: 'pointer-events-auto'
-      }"
       ref="resizableRef"
-      class="h-[calc(100%-355px)] max-h-[calc(100%-36px)]"
       @resize:start="onResizeStart"
-    />
-    <div
-      class="pointer-events-auto bg-dark-600 h-full w-full flex-1 relative scroll-y scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-100 flex flex-col"
     >
       <div
-        class="py-[7px] text-[12px] uppercase bg-dark-800 text-[14px] flex items-center justify-between mx-[10px]"
+        class="bg-dark-600 h-full w-full flex-1 relative scroll-y scrollbar scrollbar-thumb-gray-900 scrollbar-track-gray-100 flex flex-col"
       >
-        Console
+        <div
+          class="py-[7px] text-[12px] uppercase bg-dark-800 text-[14px] flex items-center justify-between mx-[10px]"
+        >
+          Console
 
-        <div class="flex items-center children:mr-1 children:cursor-pointer">
-          <Icon
-            v-if="resizableRef?.height > 0"
-            icon="codicon:chevron-up"
-            width="20"
-            height="20"
-            @click="fullConsole"
-          />
-          <Icon
-            v-else
-            icon="codicon:chevron-down"
-            width="16"
-            height="16"
-            @click="hideConsole"
-          />
+          <div class="flex items-center children:mr-1 children:cursor-pointer">
+            <Icon
+              v-if="resizableRef?.height > 0"
+              icon="codicon:chevron-up"
+              width="20"
+              height="20"
+              @click="fullConsole"
+            />
+            <Icon
+              v-else
+              icon="codicon:chevron-down"
+              width="16"
+              height="16"
+              @click="hideConsole"
+            />
 
-          <Icon
-            icon="codicon:clear-all"
-            width="16"
-            height="16"
-            @click="clear"
-          />
+            <Icon
+              icon="codicon:clear-all"
+              width="16"
+              height="16"
+              @click="clear"
+            />
+          </div>
+        </div>
+
+        <div class="h-full flex-1 overflow-auto" ref="messageWrapperRef">
+          <template v-for="(item, index) in consoleMessages" :key="index">
+            <ConsoleTable
+              v-if="(item  as unknown as MessageConsoleTable).name === 'table'"
+              :data="(item as unknown as MessageConsoleTable).args.table"
+              :data-value="(item as unknown as MessageConsoleTable).args.value"
+              :_get-list-link-async="getListLinkAsync"
+              :read-link-object-async="readLinkObjectAsync"
+              :call-fn-link-async="callFnLinkAsync"
+            />
+            <ConsoleItem
+              v-else
+              v-for="(message, indexMess) in item.args"
+              :key="index + '_' + indexMess"
+              :data="message"
+              :type="(item.name as Methods)"
+              :_get-list-link-async="getListLinkAsync"
+              :read-link-object-async="readLinkObjectAsync"
+              :call-fn-link-async="callFnLinkAsync"
+            />
+          </template>
         </div>
       </div>
-
-      <div class="h-full flex-1 overflow-auto" ref="messageWrapperRef">
-        <template v-for="(item, index) in consoleMessages" :key="index">
-          <ConsoleTable
-            v-if="(item  as unknown as MessageConsoleTable).name === 'table'"
-            :data="(item as unknown as MessageConsoleTable).args.table"
-            :data-value="(item as unknown as MessageConsoleTable).args.value"
-            :_get-list-link-async="getListLinkAsync"
-            :read-link-object-async="readLinkObjectAsync"
-            :call-fn-link-async="callFnLinkAsync"
-          />
-          <ConsoleItem
-            v-else
-            v-for="(message, indexMess) in item.args"
-            :key="index + '_' + indexMess"
-            :data="message"
-            :type="(item.name as Methods)"
-            :_get-list-link-async="getListLinkAsync"
-            :read-link-object-async="readLinkObjectAsync"
-            :call-fn-link-async="callFnLinkAsync"
-          />
-        </template>
-      </div>
-    </div>
+    </Resizable>
   </div>
 </template>
 
@@ -193,6 +188,8 @@ function onResizeStart({ el }: { el: HTMLDivElement }) {
   const { height } = el.getBoundingClientRect()
 
   heightBackuped = height
+
+  console.log({ heightBackuped })
 }
 
 function fullConsole() {
@@ -200,6 +197,8 @@ function fullConsole() {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     heightBackuped = resizableRef.value!.height
   }
+
+  console.log({ heightBackuped })
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   resizableRef.value!.height = 0
 }
