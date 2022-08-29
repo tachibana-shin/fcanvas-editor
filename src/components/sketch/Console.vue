@@ -58,8 +58,7 @@
           <template v-for="(item, index) in consoleMessages" :key="index">
             <ConsoleTable
               v-if="(item  as unknown as MessageConsoleTable).name === 'table'"
-              :data="(item as unknown as MessageConsoleTable).args.table"
-              :data-value="(item as unknown as MessageConsoleTable).args.value"
+              :data="(item as unknown as MessageConsoleTable).args"
               :_get-list-link-async="getListLinkAsync"
               :read-link-object-async="readLinkObjectAsync"
               :call-fn-link-async="callFnLinkAsync"
