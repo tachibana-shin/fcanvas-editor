@@ -58,8 +58,10 @@ methodsPort.forEach((name) => {
       name,
       args:
         args[0]?.includes?.("%") && typeof args[0] === "string"
-          ? [Encode(sprintf(args[0], ...args.slice(1)))]
-          : args.map((item) => Encode(item))
+          ? [Encode(sprintf(args[0], ...args.slice(1)), 5)]
+          : args.map((item) =>
+             Encode(item, 7)
+          )
     })
 
     return fn.apply(this, args)
@@ -72,13 +74,13 @@ console.table = function (value: unknown) {
     postMessageToParent({
       type: "console",
       name: "table",
-      args: Table(value)
+      args: Table(value, 5)
     })
   else
     postMessageToParent({
       type: "console",
       name: "log",
-      args: [Encode(value)]
+      args: [Encode(value, 5)]
     })
 
   return table.call(this, value)
@@ -88,7 +90,7 @@ addEventListener("error", (event) => {
   postMessageToParent({
     type: "console",
     name: "error",
-    args: [Encode(event.error)]
+    args: [Encode(event.error, 5)]
   })
 })
 
