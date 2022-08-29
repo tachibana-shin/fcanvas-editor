@@ -9,14 +9,11 @@ import {
 } from "vue-console-feed/encode"
 import { Table } from "vue-console-feed/table"
 
-export type Methods = "log" | "warn" | "error"
+export type Methods = "log" | "warn" | "error" | "info" | "debug"
 export interface MessageConsoleTable {
   type: "console"
   name: "table"
-  args: {
-    table: ReturnType<typeof Table>
-    value: ReturnType<typeof Encode>
-  }
+  args: ReturnType<typeof Table>
 }
 export interface MessageConsoleEncode {
   type: "console"
@@ -49,7 +46,7 @@ function postMessageToParent(
   })
 }
 
-const methodsPort: Methods[] = ["log", "warn", "error"]
+const methodsPort: Methods[] = ["log", "warn", "error", "info", "debug"]
 methodsPort.forEach((name) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fn = (console as unknown as any)[name]
@@ -60,11 +57,15 @@ methodsPort.forEach((name) => {
       type: "console",
       name,
       args:
-        args[0]?.includes("%") && typeof args[0] === "string"
+        args[0]?.includes?.("%") && typeof args[0] === "string"
           ? [Encode(sprintf(args[0], ...args.slice(1)), true, true)]
           : args.map((item) => Encode(item, true, true))
     })
 
+    const mess = new Error().stack?.toString().split("\n", 3)[2]
+    const location = mess?.slice(mess.lastIndexOf("(") + 1, -1)
+
+    fn.apply(this, [{ location }])
     return fn.apply(this, args)
   }
 })
@@ -75,10 +76,7 @@ console.table = function (value: unknown) {
     postMessageToParent({
       type: "console",
       name: "table",
-      args: {
-        table: Table(value),
-        value: Encode(value, true, true)
-      }
+      args:Table(value)
     })
   else
     postMessageToParent({
