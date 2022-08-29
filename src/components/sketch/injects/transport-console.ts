@@ -62,10 +62,6 @@ methodsPort.forEach((name) => {
           : args.map((item) => Encode(item))
     })
 
-    const mess = new Error().stack?.toString().split("\n", 3)[2]
-    const location = mess?.slice(mess.lastIndexOf("(") + 1, -1)
-
-    fn.apply(this, [{ location }])
     return fn.apply(this, args)
   }
 })
