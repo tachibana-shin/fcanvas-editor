@@ -36,7 +36,6 @@ import transportConsoleClient from "./injects/transport-console?braw"
 import { srcScriptToImport } from "./logic/src-script-to-import"
 
 const iframe = ref<HTMLIFrameElement>()
-defineExpose({ iframe })
 
 function useWatchContentFile(path: string) {
   const content = ref<string | null>(null)
@@ -104,24 +103,25 @@ const importmapScripts = computed(() => {
 })
 
 const importmap = computed(() => {
-  return JSON.stringify(
-    {
-      imports: {
-        ...importmapDependencies.value,
-        ...importmapScripts.value
-      }
-    },
-    null,
-    import.meta.env.NODE_ENV === "production" ? undefined : 2
-  )
+  return {
+    imports: {
+      ...importmapDependencies.value,
+      ...importmapScripts.value
+    }
+  }
 })
+defineExpose({ iframe, importmap })
 
 const srcDoc = computed(() => {
   if (!indexDotHtml.value) return
 
   // eslint-disable-next-line no-useless-escape
   return `\<script>{${transportConsoleClient}}<\/script><\/script><script type="importmap">${
-    importmap.value
+    JSON.stringify(
+      importmap.value,
+      null,
+      import.meta.env.NODE_ENV === "production" ? undefined : 2
+    )
     // eslint-disable-next-line no-useless-escape
   }<\/script>${indexDotHtmlTransformed.value?.code}`
 })

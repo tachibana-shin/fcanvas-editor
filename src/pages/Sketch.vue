@@ -21,6 +21,11 @@
         <Preview ref="previewRef" />
         <Console
           :iframe="(previewRef?.iframe as HTMLIFrameElement | undefined)"
+          :importmap="(previewRef?.importmap as {
+            imports: {
+              [x: string]: string;
+            }
+          } | undefined)"
         />
       </div>
     </div>
