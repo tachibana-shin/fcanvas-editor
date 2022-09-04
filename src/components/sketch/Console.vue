@@ -55,27 +55,13 @@
         </div>
 
         <div class="h-full flex-1 overflow-auto" ref="messageWrapperRef">
-          <template v-for="(item, index) in consoleMessages" :key="index">
-            <ConsoleTable
-              v-if="(item  as unknown as MessageConsoleTable).name === 'table'"
-              :data="(item as unknown as MessageConsoleTable).args"
-              :_get-list-link-async="getListLinkAsync"
-              :read-link-object-async="readLinkObjectAsync"
-              :call-fn-link-async="callFnLinkAsync"
-              :anchor="Anchor"
-            />
-            <ConsoleItem
-              v-else
-              v-for="(message, indexMess) in item.args"
-              :key="index + '_' + indexMess"
-              :data="message"
-              :type="(item.name as Methods)"
-              :_get-list-link-async="getListLinkAsync"
-              :read-link-object-async="readLinkObjectAsync"
-              :call-fn-link-async="callFnLinkAsync"
-              :anchor="Anchor"
-            />
-          </template>
+          <Console
+            :data="console.value"
+            :_get-list-link-async="getListLinkAsync"
+            :read-link-object-async="readLinkObjectAsync"
+            :call-fn-link-async="callFnLinkAsync"
+            :anchor="Anchor"
+          />
         </div>
       </div>
     </Resizable>
@@ -85,9 +71,9 @@
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue"
 import { v4 } from "uuid"
-import { computed, h, onBeforeUnmount, reactive, ref } from "vue"
+import { computed, h, onBeforeUnmount, ref } from "vue"
 // eslint-disable-next-line import/order
-import { ConsoleItem, ConsoleTable } from "vue-console-feed"
+import { Console, DataAPI } from "vue-console-feed"
 
 // eslint-disable-next-line import/order
 import type {
@@ -102,7 +88,6 @@ import "vue-console-feed/style.css"
 import { Resizable } from "vue-re-resizable"
 import "vue-re-resizable/dist/style.css"
 
-import { MessageConsoleTable, Methods } from "./injects/transport-console"
 import type {
   MessageAPI,
   MessageConsoleEncode
@@ -125,10 +110,9 @@ onBeforeUnmount(() => {
   cancelers.forEach((canceler) => canceler())
 })
 
-const consoleMessages = reactive<Omit<MessageConsoleEncode, "type">[]>([])
-
-const messageWrapperRef = ref<HTMLDivElement>()
+const console = new DataAPI(false)
 const resizableRef = ref<typeof Resizable>()
+const messageWrapperRef = ref<HTMLDivElement>()
 
 const scrollIntoBottomConsole = debounce(() => {
   messageWrapperRef.value?.scrollTo({
@@ -138,7 +122,9 @@ const scrollIntoBottomConsole = debounce(() => {
 }, 70)
 function handleMessage(event: MessageEvent<MessageConsoleEncode>) {
   if (event.data.type === "console") {
-    consoleMessages.push(event.data)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    console[event.data.name](...(event.data.args as unknown as any[]))
 
     // scroll to down;
     scrollIntoBottomConsole()
@@ -147,6 +133,7 @@ function handleMessage(event: MessageEvent<MessageConsoleEncode>) {
 addEventListener("message", handleMessage)
 cancelers.add(() => removeEventListener("message", handleMessage))
 
+// ====== API Async ========
 function createAPIAsync<R extends MessageAPI["result"]>(
   type: "getListLink" | "readLinkObject" | "callFnLink"
 ) {
@@ -182,12 +169,13 @@ const callFnLinkAsync =
   createAPIAsync<ReturnType<typeof callFnLink>>("callFnLink")
 
 function clear() {
-  consoleMessages.splice(0)
+  console.clear()
 
   props.iframe?.contentWindow?.postMessage({
     type: "clearConsole"
   })
 }
+// ============================
 
 // ====== console ui =====
 // eslint-disable-next-line functional/no-let

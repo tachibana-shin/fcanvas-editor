@@ -1,4 +1,6 @@
-import { sprintf } from "sprintf-js"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { DataAPI } from "vue-console-feed"
+import { printfArgs } from "vue-console-feed"
 import type { Data } from "vue-console-feed/encode"
 import {
   _getListLink,
@@ -9,7 +11,7 @@ import {
 } from "vue-console-feed/encode"
 import { Table } from "vue-console-feed/table"
 
-export type Methods = "log" | "warn" | "error" | "info" | "debug"
+export type Methods = Exclude<keyof DataAPI, "value">
 export interface MessageConsoleTable {
   type: "console"
   name: "table"
@@ -18,7 +20,7 @@ export interface MessageConsoleTable {
 export interface MessageConsoleEncode {
   type: "console"
   name: Methods
-  args: ReturnType<typeof Encode>[]
+  args: (string | ReturnType<typeof Encode>)[]
 }
 
 export type MessageAPI =
@@ -46,28 +48,24 @@ function postMessageToParent(
   })
 }
 
-const methodsPort: Methods[] = ["log", "warn", "error", "info", "debug"]
-methodsPort.forEach((name) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const fn = (console as unknown as any)[name]
-
-  // eslint-disable-next-line functional/functional-parameters, @typescript-eslint/no-explicit-any
-  ;(console as unknown as any)[name] = function (...args: any[]) {
+// ===== console API ======
+/**
+ *
+    clear(): void;
+ */
+;(["log", "warn", "info", "debug", "error"] as Methods[]).forEach((name) => {
+  const cbRoot = (console as unknown as any)[name]
+  // eslint-disable-next-line functional/functional-parameters
+  ;(console as unknown as any)[name] = function (...args: unknown[]) {
     postMessageToParent({
       type: "console",
       name,
-      args:
-        args[0]?.includes?.("%") && typeof args[0] === "string"
-          ? [Encode(sprintf(args[0], ...args.slice(1)), 5)]
-          : args.map((item) =>
-             Encode(item, 7)
-          )
+      args: printfArgs(args).map((item: unknown) => Encode(item))
     })
 
-    return fn.apply(this, args)
+    cbRoot.apply(this, args)
   }
 })
-
 const { table } = console
 console.table = function (value: unknown) {
   if (value !== null && typeof value === "object")
@@ -85,7 +83,45 @@ console.table = function (value: unknown) {
 
   return table.call(this, value)
 }
+;(["group", "groupEnd"] as Methods[]).forEach((name) => {
+  const cbRoot = (console as unknown as any)[name]
+  ;(console as unknown as any)[name] = function (value?: unknown) {
+    postMessageToParent({
+      type: "console",
+      name,
+      args: value !== undefined ? [Encode(value)] : []
+    })
 
+    cbRoot.call(this, value)
+  }
+})
+;(["count", "countReset", "time", "timeLog", "timeEnd"] as Methods[]).forEach(
+  (name) => {
+    const cbRoot = (console as unknown as any)[name]
+    ;(console as unknown as any)[name] = function (value?: unknown) {
+      postMessageToParent({
+        type: "console",
+        name,
+        args: value !== undefined ? [Encode(value + "")] : []
+      })
+
+      cbRoot.call(this, value)
+    }
+  }
+)
+const { clear } = console
+console.clear = function () {
+  postMessageToParent({
+    type: "console",
+    name: "clear",
+    args: []
+  })
+
+  clear.call(this)
+}
+// ========================
+
+// ===== error globals ====
 addEventListener("error", (event) => {
   postMessageToParent({
     type: "console",
@@ -93,7 +129,9 @@ addEventListener("error", (event) => {
     args: [Encode(event.error, 5)]
   })
 })
+// ========================
 
+// ====== API Async ======
 window.addEventListener(
   "message",
   (
@@ -139,3 +177,4 @@ window.addEventListener(
     }
   }
 )
+// =======================
