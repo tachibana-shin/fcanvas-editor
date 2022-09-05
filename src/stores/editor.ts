@@ -19,8 +19,9 @@ export const useEditorStore = defineStore("editor", {
     currentSelect: <string | null>null,
     currentFile: <string | null>null,
 
-    autoRefresh: false,
+    autoRefresh: <boolean>false,
 
+    isPublic: false,
     sketchId: <string | null>null,
     sketchName: <string | null>null
   }),
@@ -33,8 +34,7 @@ export const useEditorStore = defineStore("editor", {
         return
       }
 
-      const { sketchName: oldName } = this
-
+      const oldName = this.sketchName
       this.sketchName = newName
 
       if (!this.sketchId) return
@@ -58,6 +58,44 @@ export const useEditorStore = defineStore("editor", {
         throw err
       }
     },
+    async saveIsPublic(newState: boolean) {
+      const auth = getAuth(app)
+
+      if (!auth.currentUser) {
+        Notify.create("You must be logged in to public sketch.")
+        return
+      }
+
+      const oldState = this.isPublic
+      this.isPublic = newState
+
+      if (!this.sketchId) {
+        Notify.create("You need to save the sketch before public.")
+        return
+      }
+
+      const db = getFirestore(app)
+
+      try {
+        await updateDoc(
+          doc(db, "users", auth.currentUser.uid, "sketches", this.sketchId),
+          {
+            isPublic: this.isPublic
+          }
+        )
+        Notify.create(`This sketch ${this.isPublic ? "published" : "private"}`)
+      } catch (err) {
+        this.isPublic = oldState
+
+        Notify.create(
+          `This sketch ${this.isPublic ? "publish" : "private"} failed`
+        )
+
+        // eslint-disable-next-line functional/no-throw-statement
+        throw err
+      }
+    },
+
     async saveSketch(router: Router) {
       const auth = getAuth(app)
       const db = getFirestore(app)
@@ -74,7 +112,7 @@ export const useEditorStore = defineStore("editor", {
         await updateDoc(doc(sketches, this.sketchId), await fs.commit("/"))
         fs.resetChangelog()
 
-        Notify.create("Project saved successfully.")
+        Notify.create("Sketch saved successfully.")
 
         return
       }
@@ -82,30 +120,35 @@ export const useEditorStore = defineStore("editor", {
       // new sketch
       const { id } = await addDoc(sketches, {
         name: this.sketchName,
+        isPublic: this.isPublic,
         fs: fs.toFDBObject()
       })
 
       this.sketchId = id
       fs.resetChangelog()
 
-      Notify.create("Project saved successfully.")
+      Notify.create("Sketch saved successfully.")
 
       router.push(`/${auth.currentUser.uid}/sketch/${id}`)
     },
-    async createSketch(payload: {
-      id?: string
-      name?: string
-      template: Directory
-    }) {
-      this.sketchId = payload.id ?? null
-
-      this.sketchName =
-        payload.name ??
-        gen({
-          words: 2
-        }).spaced
-
-      fs.fromFDBObject(payload.template)
+    newSketch(template: Directory) {
+      this.sketchId = null
+      this.sketchName = gen({
+        words: 2
+      }).spaced
+      this.isPublic = false
+      fs.fromFDBObject(template)
+    },
+    loadSketch(payload: {
+      id: string
+      name: string
+      isPublic: boolean
+      filesystem: Directory
+    }): void {
+      this.sketchId = payload.id
+      this.sketchName = payload.name
+      this.isPublic = payload.isPublic
+      fs.fromFDBObject(payload.filesystem)
     }
   }
 })

@@ -62,7 +62,7 @@
           :class="{
             'pl-2': !show
           }"
-          :dir="isDir"
+          :dir="adding === 'dir'"
           :siblings="siblings"
           @save="createNewFile($event, isDir)"
           @blur="adding = null"
@@ -119,7 +119,7 @@ const files = ref<Record<string, boolean>>({})
 const siblings = computed(() =>
   Object.keys(files.value).map((file) => basename(file))
 )
-const adding = ref<boolean | null>(null)
+const adding = ref<false | "file" | "dir">(false)
 
 function onClick() {
   editorStore.currentSelect = props.filepath
@@ -235,11 +235,11 @@ async function unlink() {
 }
 async function createFile() {
   opened.value = true
-  adding.value = false
+  adding.value = "file"
 }
 async function createDir() {
   opened.value = true
-  adding.value = true
+  adding.value = "dir"
 }
 // =================================
 

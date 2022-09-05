@@ -1,22 +1,22 @@
 <template>
   <div
-    class="flex items-center px-4 py-[10px] text-white border-y border-gray-700 border-dotted"
+    class="flex items-center px-4 py-[10px] text-[#d9d9d9] text-[14px] border-y border-gray-700 border-dotted"
   >
     <q-btn round color="primary" size="small">
       <Icon icon="material-symbols:play-arrow-rounded" class="text-[1.2rem]" />
     </q-btn>
 
-    <div class="flex items-center text-[#d9d9d9] text-[14px] ml-2">
+    <div class="flex items-center ml-2">
       <q-checkbox v-model="editorStore.autoRefresh" size="24px" />
       <span class="ml-1">Auto-refresh</span>
     </div>
 
     <div
-      class="flex items-center ml-7 text-[#d9d9d9] text-[12px] cursor-pointer hover:text-green-400"
+      class="flex items-center ml-7 cursor-pointer hover:text-green-400"
       @click="renaming = true"
     >
       <template v-if="!renaming">
-        <span class="text-[14px] bg-transparent">{{ editorStore.sketchName }}</span>
+        <span class="bg-transparent">{{ editorStore.sketchName }}</span>
         <Icon icon="bx:edit-alt" class="ml-1" />
       </template>
       <RenameSketch
@@ -25,6 +25,18 @@
         @blur="renaming = false"
         v-else
       />
+    </div>
+
+    <div class="flex items-center ml-2">
+      <q-toggle
+        :model-value="editorStore.isPublic"
+        @update:model-value="editorStore.saveIsPublic"
+        :disable="!userStore.user || !editorStore.sketchId"
+        size="24px"
+      />
+      <span class="ml-1">{{
+        editorStore.isPublic ? "public" : "private"
+      }}</span>
     </div>
 
     <div class="flex-1" />
@@ -37,12 +49,14 @@
 
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue"
+import { useAuthStore } from "src/stores/auth"
 import { useEditorStore } from "src/stores/editor"
 import { ref } from "vue"
 
 import RenameSketch from "./RenameSketch.vue"
 
 const editorStore = useEditorStore()
+const userStore = useAuthStore()
 
 const { saveSketchName } = useEditorStore()
 

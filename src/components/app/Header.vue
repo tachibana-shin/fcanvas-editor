@@ -73,7 +73,7 @@ const auth = getAuth(app)
 const fileMenu = [
   {
     icon: "material-symbols:note-add-outline",
-    name: "New Project"
+    name: "New Sketch"
   },
   {
     icon: "material-symbols:save-outline",

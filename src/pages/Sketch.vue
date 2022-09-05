@@ -55,7 +55,6 @@ const db = getFirestore(app)
 const route = useRoute()
 const $q = useQuasar()
 const editorStore = useEditorStore()
-const { createSketch } = editorStore
 
 watch(() => route.params.userId, loadSketch)
 watch(() => route.params.sketchId, loadSketch)
@@ -77,20 +76,19 @@ async function loadSketch() {
       const snap = await getDoc(docRef)
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const { fs: template, name } = snap.data()!
+      const { fs, name, isPublic = false } = snap.data()!
 
-      createSketch({
+      editorStore.loadSketch({
         id: snap.id,
         name,
-        template
+        isPublic,
+        filesystem: fs
       })
     } catch {
       $q.notify("Sketch not found")
     }
   } else {
-    createSketch({
-      template: sketchDefault
-    })
+    editorStore.newSketch(sketchDefault)
   }
 
   loading.value = false
