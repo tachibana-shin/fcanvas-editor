@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { DataAPI } from "vue-console-feed"
-import { printfArgs } from "vue-console-feed"
+import type { DataAPI } from "vue-console-feed/data-api"
+import { printfArgs } from "vue-console-feed/data-api"
 import type { Data } from "vue-console-feed/encode"
 import {
   _getListLink,
@@ -15,12 +15,12 @@ export type Methods = Exclude<keyof DataAPI, "value">
 export interface MessageConsoleTable {
   type: "console"
   name: "table"
-  args: ReturnType<typeof Table>
+  args: [ReturnType<typeof Table>]
 }
 export interface MessageConsoleEncode {
   type: "console"
   name: Methods
-  args: (string | ReturnType<typeof Encode>)[]
+  args: ReturnType<typeof Encode>[] | [string]
 }
 
 export type MessageAPI =
@@ -60,7 +60,7 @@ function postMessageToParent(
     postMessageToParent({
       type: "console",
       name,
-      args: printfArgs(args).map((item: unknown) => Encode(item))
+      args: printfArgs(args).map((item: unknown) => Encode(item, 2))
     })
 
     cbRoot.apply(this, args)
@@ -72,15 +72,15 @@ console.table = function (value: unknown) {
     postMessageToParent({
       type: "console",
       name: "table",
-      args: Table(value, 5)
+      args: [Table(value, 1)]
     })
   else
     postMessageToParent({
       type: "console",
       name: "log",
-      args: [Encode(value, 5)]
+      args: [Encode(value, 1)]
     })
-
+  console.log(Encode(value, 1), { stack: new Error().stack })
   return table.call(this, value)
 }
 ;(["group", "groupEnd"] as Methods[]).forEach((name) => {
@@ -89,7 +89,7 @@ console.table = function (value: unknown) {
     postMessageToParent({
       type: "console",
       name,
-      args: value !== undefined ? [Encode(value)] : []
+      args: value !== undefined ? [Encode(value, 1)] : []
     })
 
     cbRoot.call(this, value)
@@ -102,7 +102,7 @@ console.table = function (value: unknown) {
       postMessageToParent({
         type: "console",
         name,
-        args: value !== undefined ? [Encode(value + "")] : []
+        args: value !== undefined ? [Encode(value + "", 1)] : []
       })
 
       cbRoot.call(this, value)
@@ -126,7 +126,7 @@ addEventListener("error", (event) => {
   postMessageToParent({
     type: "console",
     name: "error",
-    args: [Encode(event.error, 5)]
+    args: [Encode(event.error, 1)]
   })
 })
 // ========================

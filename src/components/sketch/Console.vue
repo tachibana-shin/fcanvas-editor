@@ -110,7 +110,7 @@ onBeforeUnmount(() => {
   cancelers.forEach((canceler) => canceler())
 })
 
-const console = new DataAPI(false)
+const console = new DataAPI(true)
 const resizableRef = ref<typeof Resizable>()
 const messageWrapperRef = ref<HTMLDivElement>()
 
@@ -205,15 +205,15 @@ function getRealLink(link: string) {
 
   const locationMatcher = link.match(/:\d+:\d+$/)
 
-  const url = link.slice(0, locationMatcher?.index ?? -1 >>> 0)
+  const url = link.slice(0, (locationMatcher?.index ?? -1) >>> 0)
 
   for (const real in imports) {
     if (imports[real] === url) {
-      return real
+      return real + (locationMatcher?.[0] ?? "")
     }
   }
 
-  return link + (locationMatcher?.[0] ?? "")
+  return link
 }
 
 function Anchor(options: { text: string; href: string }) {
