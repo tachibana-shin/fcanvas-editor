@@ -1,7 +1,11 @@
 <template>
-  <div class="py-[3px] cursor-pointer">
+  <div class="cursor-pointer">
     <div
-      :class="`flex flex-nowrap items-center pl-20px ${CLASS_PATH_ACTIVE} ${FILE_COLOR[type]}`"
+      class="py-[3px] flex flex-nowrap items-center relative before:absolute before:w-full before:h-full before:left-0 before:top-0 before:z-[-1] hover:before:content-DEFAULT hover:before:bg-dark-600"
+      :class="`${FILE_COLOR[type]}`"
+      :style="{
+        paddingLeft: paddingLeft + 20+ 'px'
+      }"
       @click.stop="goto"
     >
       <img
@@ -46,12 +50,12 @@ import { computed } from "vue"
 
 import { editorFileExpose } from "../../editor-file-expose"
 
-import { CLASS_PATH_ACTIVE } from "./class-path-active"
-
 const props = defineProps<{
   name: string
   type: "ADDED" | "MODIFIED" | "DELETED"
   dirname: string
+
+  paddingLeft: number
 }>()
 const filepath = computed(() => join("/", props.dirname, props.name))
 

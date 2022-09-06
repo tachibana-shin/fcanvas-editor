@@ -1,11 +1,14 @@
 <template>
-  <div class="flex flex-col items-center flex-nowrap border-r border-gray-700">
+  <div
+    class="flex flex-col items-center flex-nowrap border-r border-gray-700 children:w-[48px] children:h-[48px] children:text-gray-500"
+  >
     <button
       v-for="{ icon, value } in tabs"
       :key="value"
-      class="w-[48px] h-[48px] text-gray-500 hover:text-gray-400"
+      class="hover:text-gray-400 relative before:bg-light-300 before:absolute before:h-full before:w-[2px] before:top-0 before:left-0"
       :class="{
-        '!text-inherit': tabSelection === value
+        '!text-inherit': tabSelection === value,
+        'before:content-DEFAULT': tabSelection === value
       }"
       @click="
         () => {
@@ -15,6 +18,15 @@
       "
     >
       <Icon :icon="icon" class="w-[24px] h-[24px]" />
+    </button>
+
+    <q-separator class="!w-[calc(100%-12px)] h-[1px]" />
+
+    <button
+      class="hover:text-gray-400 relative"
+      @click="emit('update:show-console', !showConsole)"
+    >
+      <Icon icon="fluent:window-console-20-filled" class="w-[24px] h-[24px]" />
     </button>
   </div>
 
@@ -62,6 +74,13 @@ import Resizable from "../ui/Resizable.vue"
 import Diff from "./sidebar/Diff.vue"
 import Files from "./sidebar/Files.vue"
 import Search from "./sidebar/Search.vue"
+
+defineProps<{
+  showConsole: boolean
+}>()
+const emit = defineEmits<{
+  (name: "update:show-console", value: boolean): void
+}>()
 
 const tabSelection = ref<null | "file" | "search" | "change" | "setting">(
   "file"

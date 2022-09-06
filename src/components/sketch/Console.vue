@@ -1,6 +1,7 @@
 <template>
   <div
     class="absolute bottom-0 z-40 w-full max-h-full flex flex-col flex-nowrap overflow-hidden"
+
   >
     <Resizable
       :default-size="{

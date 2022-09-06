@@ -80,7 +80,6 @@ console.table = function (value: unknown) {
       name: "log",
       args: [Encode(value, 1)]
     })
-  console.log(Encode(value, 1), { stack: new Error().stack })
   return table.call(this, value)
 }
 ;(["group", "groupEnd"] as Methods[]).forEach((name) => {

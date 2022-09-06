@@ -1,14 +1,15 @@
 <template>
-  <div class="py-[3px] cursor-pointer">
+  <div class="cursor-pointer">
     <div
-      :class="[
-        `flex items-center pl-20px ${CLASS_PATH_ACTIVE}`,
-        {
-          hidden: renaming,
-          'before:content-DEFAULT !before:bg-dark-300':
-            filepath === editorStore.currentSelect
-        }
-      ]"
+      class="py-[3px] flex items-center relative before:absolute before:w-full before:h-full before:left-0 before:top-0 before:z-[-1] hover:before:content-DEFAULT hover:before:bg-dark-600"
+      :class="{
+        hidden: renaming,
+        'before:content-DEFAULT !before:bg-dark-300':
+          filepath === editorStore.currentSelect
+      }"
+      :style="{
+        paddingLeft: paddingLeft + 20 + 'px'
+      }"
       @click="onClick"
     >
       <Icon
@@ -36,6 +37,9 @@
       :default-value="filename"
       @save="rename"
       @blur="renaming = false"
+      :style="{
+        paddingLeft: paddingLeft + 'px'
+      }"
     />
 
     <Menu :menu="menu" context-menu />
@@ -53,11 +57,12 @@ import { useEditorStore } from "src/stores/editor"
 import { computed, ref } from "vue"
 
 import RenameFileOrDir from "./RenameFileOrDir.vue"
-import { CLASS_PATH_ACTIVE } from "./class-path-active"
 
 const props = defineProps<{
   filepath: string
   fs: FS
+
+  paddingLeft: number
 }>()
 
 const editorStore = useEditorStore()
@@ -67,7 +72,6 @@ const renaming = ref(false)
 const loading = ref(false)
 
 function onClick() {
-
   editorStore.currentSelect = props.filepath
 
   editorStore.currentFile = props.filepath
@@ -96,7 +100,6 @@ const menu = [
     icon: "material-symbols:drive-file-rename-outline-outline",
     name: "Rename",
     onClick() {
-
       renaming.value = true
     }
   },
@@ -112,14 +115,12 @@ async function rename(newFileName: string) {
 
   console.log("rename %s => %s", props.filepath, newPath)
 
-
   loading.value = true
   await props.fs.rename(props.filepath, newPath)
 
   loading.value = false
 }
 async function unlink() {
-
   loading.value = true
   await props.fs.unlink(props.filepath)
 }

@@ -14,12 +14,13 @@
     <ToolBar />
 
     <div class="flex h-full flex-1">
-      <SideBar />
+      <SideBar v-model:show-console="showConsole" />
 
       <div class="flex flex-nowrap relative w-full flex-1">
         <EditorFile />
         <Preview ref="previewRef" />
         <Console
+          v-show="showConsole"
           :iframe="(previewRef?.iframe as HTMLIFrameElement | undefined)"
           :importmap="(previewRef?.importmap as {
             imports: {
@@ -45,6 +46,7 @@ import { useEditorStore } from "src/stores/editor"
 import sketchDefault from "src/templates/sketch-default"
 import { ref, watch } from "vue"
 import { useRoute } from "vue-router"
+import { addEvent } from "./addEvent"
 
 const previewRef = ref<typeof Preview>()
 
@@ -93,4 +95,13 @@ async function loadSketch() {
 
   loading.value = false
 }
+
+// ========= status ========
+const showConsole = ref(true)
+addEvent(window, "keydown", (event) => {
+  if (event.ctrlKey && event.key === "`") {
+    event.preventDefault()
+    showConsole.value = !showConsole.value
+  }
+})
 </script>

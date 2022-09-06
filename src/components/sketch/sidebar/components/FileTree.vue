@@ -1,15 +1,13 @@
 <template>
-  <div class="select-none py-[3px] cursor-pointer">
+  <div class="select-none cursor-pointer">
     <template v-if="!show">
       <div
-        :class="[
-          `flex items-center ${CLASS_PATH_ACTIVE}`,
-          {
-            hidden: renaming,
-            'before:content-DEFAULT !before:bg-dark-300':
-              filepath === editorStore.currentSelect
-          }
-        ]"
+        class="py-[3px] flex items-center relative before:absolute before:w-full before:h-full before:left-0 before:top-0 before:z-[-1] hover:before:content-DEFAULT hover:before:bg-dark-600"
+        :class="{
+          hidden: renaming,
+          'before:content-DEFAULT !before:bg-dark-300':
+            filepath === editorStore.currentSelect
+        }"
         @click="onClick"
       >
         <Icon
@@ -53,25 +51,23 @@
     <div v-show="opened">
       <template
         v-for="(isDir, filepath) in adding
-          ? sortListFiles({ '': adding, ...files })
+          ? sortListFiles({ '': adding === 'dir', ...files })
           : files"
         :key="filepath"
       >
         <RenameFileOrDir
           v-if="filepath === ''"
-          :class="{
-            'pl-2': !show
+          :style="{
+            paddingLeft: (paddingLeft ?? 0) + 'px'
           }"
-          :dir="adding === 'dir'"
+          :dir="isDir"
           :siblings="siblings"
           @save="createNewFile($event, isDir)"
           @blur="adding = false"
         />
         <FileTreeMixture
           v-else
-          :class="{
-            'pl-2': !show
-          }"
+          :padding-left="paddingLeft ?? 0"
           :dir="isDir"
           :filepath="filepath"
           :fs="fs"
@@ -95,13 +91,14 @@ import { computed, onBeforeUnmount, ref, watch } from "vue"
 
 import FileTreeMixture from "./FileTreeMixture.vue"
 import RenameFileOrDir from "./RenameFileOrDir.vue"
-import { CLASS_PATH_ACTIVE } from "./class-path-active"
 import { sortListFiles } from "./sortListFiles"
 
 const props = defineProps<{
   filepath: string
   fs: FS
   show?: true
+
+  paddingLeft?: number
 }>()
 const emit = defineEmits<{
   (name: "rename", value: string): void
