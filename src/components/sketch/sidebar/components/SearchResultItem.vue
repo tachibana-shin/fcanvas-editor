@@ -1,8 +1,7 @@
 <template>
   <div class="py-[3px] cursor-pointer">
     <div
-      class="flex flex-nowrap items-center result"
-      :class="CLASS_PATH_ACTIVE"
+      class="flex flex-nowrap items-center result before:absolute before:w-full before:h-full before:left-0 before:top-0 before:z-[-1] hover:before:content-DEFAULT hover:before:bg-dark-600"
       @click="opened = !opened"
     >
       <Icon
@@ -59,7 +58,7 @@
         :class="`${CLASS_PATH_ACTIVE} before:!h-[100%] before:top-0`"
         @click="goto(posStart, posEnd)"
       >
-        <div class="flex-1 whitespace-pre pt-1 truncate">
+        <div class="flex-1 whitespace-pre truncate">
           <span>{{ before }}</span>
           <span
             :class="{
@@ -98,7 +97,6 @@ import type { Result } from "src/workers/search-in-file"
 import { ref } from "vue"
 
 import { CLASS_PATH_ACTIVE } from "./class-path-active"
-
 const props = defineProps<{
   filepath: string
   matches: Result["matches"]
