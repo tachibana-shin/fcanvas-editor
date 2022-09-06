@@ -69,6 +69,9 @@
       <KeepAlive>
         <Search v-if="tabSelection === 'search'" />
       </KeepAlive>
+      <KeepAlive>
+        <Setting v-if="tabSelection === 'setting'" />
+      </KeepAlive>
     </div>
   </Resizable>
 </template>
@@ -76,13 +79,15 @@
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue"
 import { fs } from "src/modules/fs"
-import { Ref, ref } from "vue"
+import type { Ref} from "vue";
+import { ref } from "vue"
 
 import Resizable from "../ui/Resizable.vue"
 
 import Diff from "./sidebar/Diff.vue"
 import Files from "./sidebar/Files.vue"
 import Search from "./sidebar/Search.vue"
+import Setting from "./sidebar/Setting.vue"
 
 defineProps<{
   showConsole: boolean

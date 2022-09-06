@@ -38,12 +38,6 @@
         editorStore.isPublic ? "public" : "private"
       }}</span>
     </div>
-
-    <div class="flex-1" />
-
-    <q-btn round class="!bg-dark-600 !text-gray-300" size="small">
-      <Icon icon="material-symbols:settings-outline" class="text-[1.2rem]" />
-    </q-btn>
   </div>
 </template>
 
