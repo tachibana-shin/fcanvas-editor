@@ -14,6 +14,15 @@ const routes: RouteRecordRaw[] = [
         component: () => import("pages/Sketch.vue")
       },
       {
+        path: ":userId",
+        children: [
+          {
+            path: "sketches",
+            component: () => import("pages/[id]/sketches.vue")
+          }
+        ]
+      },
+      {
         path: "sign-in",
         component: () => import("pages/SignIn.vue"),
         meta: {
