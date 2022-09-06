@@ -65,7 +65,7 @@
           :dir="adding === 'dir'"
           :siblings="siblings"
           @save="createNewFile($event, isDir)"
-          @blur="adding = null"
+          @blur="adding = false"
         />
         <FileTreeMixture
           v-else
