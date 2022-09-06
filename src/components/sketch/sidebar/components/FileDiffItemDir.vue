@@ -126,7 +126,7 @@ withDefaults(
   { paddingLeft: 0 }
 )
 
-const opened = ref(false)
+const opened = ref(true)
 
 function sortListDiff(diff: Diff) {
   const dirs: { name: string; value: Diff }[] = []

@@ -12,28 +12,37 @@
     </button>
   </div>
 
-  <div class="w-full px-2 pt-2" v-else>
+  <div class="w-full pt-2" v-else>
     <div class="w-100 absolute top-0 left-0" v-if="loading">
       <q-linear-progress indeterminate color="blue" size="2px" />
     </div>
 
-    <div class="text-center text-sm mt-3" v-if="fs.changelogLength.value === 0">
+    <div class="text-center text-sm px-2" v-if="fs.changelogLength.value === 0">
       Not change
     </div>
 
     <template v-else>
+      <div class="px-2 mt-1 mb-3">
+        <q-btn
+          dense
+          no-caps
+          class="w-full max-w-[250px] py-[3px] bg-cyan-600"
+          @click="saveSketch"
+        >
+          Save Sketch
+        </q-btn>
+      </div>
       <div
-        class="block max-w-[250px] mt-1 mb-3 text-sm py-[3px] text-center bg-cyan-600 cursor-pointer"
-        @click="saveSketch"
+        class="py-1 px-2 flex items-center justify-between text-[14px]"
       >
-        Save Sketch
-      </div>
-      <small class="text-[14px] block border-y border-gray-600 py-1 px-3">
         Changes
-      </small>
-      <div class="mt-2">
-        <FileDiffItemDir show dirname="" name="/" :files="fs.changelog" />
+
+        <span class="px-5px py-2px rounded-[30px] text-[12px] bg-cyan-500"
+          >1</span
+        >
       </div>
+
+      <FileDiffItemDir show dirname="" name="/" :files="fs.changelog" />
     </template>
   </div>
 </template>
