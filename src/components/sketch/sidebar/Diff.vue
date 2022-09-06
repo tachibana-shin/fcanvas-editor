@@ -32,14 +32,12 @@
           Save Sketch
         </q-btn>
       </div>
-      <div
-        class="py-1 px-2 flex items-center justify-between text-[14px]"
-      >
+      <div class="py-1 px-2 flex items-center justify-between text-[14px]">
         Changes
 
-        <span class="px-5px py-2px rounded-[30px] text-[12px] bg-cyan-500"
-          >1</span
-        >
+        <span class="px-5px py-2px rounded-[30px] text-[12px] bg-cyan-500">{{
+          fs.changelogLength.value
+        }}</span>
       </div>
 
       <FileDiffItemDir show dirname="" name="/" :files="fs.changelog" />

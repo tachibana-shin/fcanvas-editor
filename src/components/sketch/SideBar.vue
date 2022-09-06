@@ -3,7 +3,7 @@
     class="flex flex-col items-center flex-nowrap border-r border-gray-700 children:w-[48px] children:h-[48px] children:text-gray-500"
   >
     <button
-      v-for="{ icon, value } in tabs"
+      v-for="{ icon, value, badge } in tabs"
       :key="value"
       class="hover:text-gray-400 relative before:bg-light-300 before:absolute before:h-full before:w-[2px] before:top-0 before:left-0"
       :class="{
@@ -18,6 +18,14 @@
       "
     >
       <Icon :icon="icon" class="w-[24px] h-[24px]" />
+      <q-badge
+        v-if="badge && badge.value"
+        floating
+        rounded
+        align="bottom"
+        :label="badge.value"
+        class="bottom-12px left-25px right-auto top-auto text-[10px] py-2px px-5px"
+      />
     </button>
 
     <q-separator class="!w-[calc(100%-12px)] h-[1px]" />
@@ -67,7 +75,8 @@
 
 <script lang="ts" setup>
 import { Icon } from "@iconify/vue"
-import { ref } from "vue"
+import { fs } from "src/modules/fs"
+import { Ref, ref } from "vue"
 
 import Resizable from "../ui/Resizable.vue"
 
@@ -88,6 +97,7 @@ const tabSelection = ref<null | "file" | "search" | "change" | "setting">(
 const tabs: {
   icon: string
   value: Exclude<typeof tabSelection.value, null>
+  badge?: Ref<number>
 }[] = [
   {
     icon: "codicon:files",
@@ -99,7 +109,8 @@ const tabs: {
   },
   {
     icon: "codicon:request-changes",
-    value: "change"
+    value: "change",
+    badge: fs.changelogLength
   },
   {
     icon: "codicon:settings-gear",
