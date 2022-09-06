@@ -1,10 +1,10 @@
 <template>
-  <div class="cursor-pointer">
+  <div class="cursor-pointer diff-item">
     <div
       class="py-[3px] flex flex-nowrap items-center relative before:absolute before:w-full before:h-full before:left-0 before:top-0 before:z-[-1] hover:before:content-DEFAULT hover:before:bg-dark-600"
       :class="`${FILE_COLOR[type]}`"
       :style="{
-        paddingLeft: paddingLeft + 20+ 'px'
+        paddingLeft: paddingLeft + 20 + 'px'
       }"
       @click.stop="goto"
     >
@@ -36,7 +36,7 @@
         />
       </div>
 
-      <small class="pr-1.5">{{ type[0] }}</small>
+      <small class="pr-1.5 w-[16px]">{{ type[0] }}</small>
     </div>
   </div>
 </template>
@@ -73,3 +73,16 @@ async function discard() {
   await fs.restore(filepath.value)
 }
 </script>
+
+<style lang="scss" scoped>
+.diff-item {
+  .actions {
+    display: none;
+  }
+  &:hover .actions {
+    display: flex;
+    align-items: center;
+    
+  }
+}
+</style>
