@@ -37,7 +37,7 @@
     "uuid": "^8.3.2",
     "validator": "^13.7.0",
     "vite-plugin-monaco-editor": "^1.1.0",
-    "vite-plugin-windicss": "^1.8.7",
+    "vite-plugin-windicss": "^1.9.0",
     "vue": "^3.2.37",
     "vue-console-feed": "^0.0.27",
     "vue-i18n": "^9.2.0",
