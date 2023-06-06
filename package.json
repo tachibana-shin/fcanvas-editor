@@ -75,7 +75,7 @@
     "systemjs": "~6.12.1",
     "tslib": "^2.4.0",
     "typescript": "^4.7.4",
-    "vite": "^3.0.4",
+    "vite": "^3.2.7",
     "vitest": "0.21.0"
   },
   "engines": {
