@@ -316,7 +316,7 @@ packages:
       '@firebase/logger': 0.3.3
       '@firebase/util': 1.6.3
       '@firebase/webchannel-wrapper': 0.6.2
-      '@grpc/grpc-js': 1.6.8
+      '@grpc/grpc-js': 1.9.0
       '@grpc/proto-loader': 0.6.13
       node-fetch: 2.6.7
       tslib: 2.4.0
@@ -340,8 +340,8 @@ packages:
     resolution: {integrity: sha512-zThUKcqIU6utWzM93uEvhlh8qj8A5LMPFJPvk/ODb+8GSSif19xM2Lw1M2ijyBy8+6skSkQBbavPzOU5Oh/8tQ==}
     dev: false
 
-  /@grpc/grpc-js@1.6.8:
-    resolution: {integrity: sha512-Nt5tufF/O5Q310kP0cDzxznWMZW58GCTZhUUiAQ9B0K0ANKNQ4Lj/K9XK0vZg+UBKq5/7z7+8mXHHfrcwoeFJQ==}
+  /@grpc/grpc-js@1.9.0:
+    resolution: {integrity: sha512-H8+iZh+kCE6VR/Krj6W28Y/ZlxoZ1fOzsNt77nrdE3knkbSelW1Uus192xOFCxHyeszLj8i4APQkSIXjAoOxXg==}
     engines: {node: ^8.13.0 || >=10.10.0}
     dependencies:
       '@grpc/proto-loader': 0.7.0
