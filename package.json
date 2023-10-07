@@ -69,7 +69,7 @@
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-vue": "^9.3.0",
     "jsdom": "^20.0.0",
-    "postcss": "^8.4.14",
+    "postcss": "^8.4.31",
     "prettier": "^2.7.1",
     "sass": "1.32.12",
     "systemjs": "~6.12.1",
